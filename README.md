@@ -21,12 +21,16 @@ https://github.com/rena-jp/hh-battle-simulator-v4/raw/main/dist/hh-battle-simula
 ### Battle table
 ![battle-table](https://github.com/rena-jp/hh-battle-simulator/assets/101486573/ef27b4a6-94d6-4c8b-8f3d-090a3373fdca)
 
-### League points range
-![points-range](https://github.com/rena-jp/hh-battle-simulator-v3/assets/101486573/aa4ac3c8-4e95-4239-bb91-2ea76427a451)
+### League score range
+![score-range](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/f4ae848b-e222-4544-b8f4-3b2da61e9fd6)
 
 ### League table sim
 #### (After a booster expires, you may need to open the team selection page.)
-![league-table-sim](https://github.com/rena-jp/hh-battle-simulator-v3/assets/101486573/ef503ea3-2247-4b7a-8de0-9f970529a164)
+![league-table-sim](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/daf7b703-da05-4a1a-b831-19ed9eeecee5)
+
+### Booster sim
+#### Click on the booster icon nearby your team
+![booster-simulator](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/2dc36d49-6e6d-42d1-83df-3bf2122b3b03)
 
 ### Options (HH++ required)
 ![options](https://github.com/rena-jp/hh-battle-simulator-v3/assets/101486573/4192efe7-c7b4-4646-a594-00e363436b15)
