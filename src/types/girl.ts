@@ -1,0 +1,32 @@
+interface Girl {
+    skills: Record<number, Skill>;
+    // id_member: string;
+    id_girl: string | number;
+    // shards: string;
+    // level: string;
+    // fav_graded: string;
+    // graded: string;
+    // ts_pay: string;
+    // affection: string;
+    // xp: string;
+    // id_places_of_power: null | string;
+    // date_added: string;
+    // awakening_level: string;
+    // girl: GirlGirl;
+    // salary: number;
+    // pay_time: number;
+    // pay_in: number;
+    // caracs: BlessedCaracsClass;
+    // blessed_caracs: BlessedCaracsClass;
+    // caracs_sum: number;
+    // graded2: string;
+    // favorite_grade: number;
+    // salary_per_hour: number;
+    // ico: string;
+    // ava: string;
+    // level_cap: number;
+    // awakening_cost: number;
+    // skill_trait: string;
+    // skill_tiers_unlocked: number[];
+    // skill_tiers_info: { [key: string]: SkillTiersInfo };
+}

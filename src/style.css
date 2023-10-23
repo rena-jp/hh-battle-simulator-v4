@@ -1,0 +1,161 @@
+.sim-result {
+    width: max-content;
+    height: 0;
+    position: relative;
+    bottom: 1.25rem;
+    line-height: 1.25rem;
+    text-align: center;
+    text-shadow: -1px -1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, 1px 1px 0 #000;
+    z-index: 1;
+}
+
+.sim-result .sim-label {
+    font-size: 0.75rem;
+}
+
+.sim-result.sim-left {
+    margin-right: 60%;
+}
+
+.sim-result.sim-right {
+    margin-left: 60%;
+}
+
+.sim-result.sim-top {
+    bottom: 12rem;
+}
+
+#season-arena .sim-result.sim-top {
+    bottom: 11.5rem;
+    line-height: 1rem;
+}
+
+.sim-result.sim-pending {
+    color: #999;
+}
+
+.sim-mark {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin: -0.125em 0.25em 0.125em -1.25em;
+    background-size: 1em;
+    vertical-align: bottom;
+}
+
+table.sim-table {
+    border-collapse: collapse;
+    color: #fff;
+    background-color: #000;
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
+
+table.sim-table td {
+    padding: 0.25rem;
+    border: 1px solid #999;
+}
+
+.sim-column {
+    text-align: center;
+    text-wrap: nowrap;
+}
+
+.sim-column .sim-mark {
+    margin: 0.25em 0;
+}
+
+.player_team_block {
+    min-width: 15rem;
+}
+
+.sim-popup {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 5rem;
+    z-index: 8;
+    margin: auto;
+    width: min-content;
+    height: min-content;
+    color: #fff;
+    background-color: #000;
+    border: 0.75rem solid #000;
+    border-radius: 0.5rem;
+    text-align: left;
+}
+
+.sim-popup .close-button {
+    position: absolute;
+    right: -0.25rem;
+    top: -0.25rem;
+    cursor: pointer;
+}
+
+.sim-popup .caption {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    width: max-content;
+    margin: 0 3rem 0.75rem 0;
+}
+
+.sim-popup .content {
+    font-size: 0.75rem;
+    line-height: 1.5rem;
+    width: max-content;
+}
+
+table.sim-booster-table {
+    border-collapse: separate;
+    font-size: 0.75rem;
+    line-height: 1.5rem;
+    width: max-content;
+}
+
+table.sim-booster-table td span.sim-chance {
+    margin: 0 0.5rem;
+}
+
+table.sim-booster-table .sim-booster-slot {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid #fff;
+}
+
+table.sim-booster-table .sim-booster-icon {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+}
+
+.sim-icon-button {
+    display: block;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-size: contain;
+    cursor: pointer;
+}
+
+.sim-icon-ginseng {
+    background-image: url('${IMAGES_URL}/pictures/items/B1.png');
+}
+
+.sim-icon-jujubes {
+    background-image: url('${IMAGES_URL}/pictures/items/B2.png');
+}
+
+.sim-icon-chlorella {
+    background-image: url('${IMAGES_URL}/pictures/items/B3.png');
+}
+
+.sim-icon-cordyceps {
+    background-image: url('${IMAGES_URL}/pictures/items/B4.png');
+}
+
+.sim-icon-ame {
+    background-image: url('${IMAGES_URL}/pictures/items/MB2.png');
+}
+
+.sim-icon-headband {
+    background-image: url('${IMAGES_URL}/pictures/items/MB3.png');
+}
