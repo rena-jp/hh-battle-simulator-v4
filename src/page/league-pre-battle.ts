@@ -112,9 +112,9 @@ async function addBoosterSimulation(window: LeaguesPreBattleWindow) {
             popup.setContent('Now calculating...');
             queueMicrotask(async () => {
                 const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
-                if (results == null) {
+                if (results == null || results.length === 0) {
                     popup.setContent(
-                        'Error<br>1. Go to market page<br>2. Go to team editing page (not team selecting page)',
+                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
                     );
                 } else {
                     popup.setContent(createBoosterPointsTable(results));
