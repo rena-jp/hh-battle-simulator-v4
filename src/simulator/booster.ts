@@ -79,7 +79,8 @@ function getMarketBoughtCaracs(hero: HeroType): HeroCaracs {
 }
 
 function getClubBonus(hero: HeroType): HeroCaracs {
-    const clubUpgrades = hero.club.upgrades_data;
+    const clubUpgrades = hero.club?.upgrades_data;
+    if (clubUpgrades == null) return toHeroCaracs({});
     return toHeroCaracs(ClubUpgradesKeys.map(key => clubUpgrades[key].level / 200));
 }
 

@@ -34,7 +34,7 @@ export interface HeroType {
         id: number;
     };
     club: {
-        upgrades_data: Record<(typeof ClubUpgradesKeys)[number], { level: number }>;
+        upgrades_data?: Record<(typeof ClubUpgradesKeys)[number], { level: number }>;
     };
     updates?: Function;
 }
