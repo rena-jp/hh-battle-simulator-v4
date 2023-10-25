@@ -8,10 +8,15 @@ import { SeasonArenaPage } from './page/season-arena';
 import { ShopPage } from './page/shop';
 import { TeamsPage } from './page/teams';
 import { TowerOfFamePage } from './page/tower-of-fame';
-import { afterGameInited } from './utils/async';
 import { removeUnusedData } from './store/unused';
+import { avoidOverlappingMatchRating } from './interop/match-rating';
+import { registerConfig } from './interop/hh-plus-plus-config';
+import { replaceHHPlusPlusLeague } from './interop/hh-plus-plus-league';
 
 export async function main() {
+    registerConfig();
+    replaceHHPlusPlusLeague();
+
     [
         EditTeamPage,
         LeagueBattlePage,
@@ -28,23 +33,6 @@ export async function main() {
         });
     });
 
-    avoidOverlap();
+    avoidOverlappingMatchRating();
     removeUnusedData();
-}
-
-async function avoidOverlap() {
-    await afterGameInited();
-
-    const update = () => {
-        if ($('.matchRating').length > 0) {
-            $('.sim-result').addClass('sim-top');
-        }
-    };
-
-    update();
-
-    const observer = new MutationObserver(update);
-    document.querySelectorAll('.player_team_block.opponent, .season_arena_opponent_container').forEach(e => {
-        observer.observe(e, { childList: true, subtree: true });
-    });
 }

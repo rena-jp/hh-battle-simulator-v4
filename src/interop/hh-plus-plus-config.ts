@@ -1,34 +1,24 @@
-import { afterGameInited, beforeGameInited } from './utils/async';
-
-declare global {
-    var hhPlusPlusConfig: any | undefined;
-}
+import { getHHPlusPlusConfig } from './hh-plus-plus';
 
 interface Config {
     doSimulateLeagueTable: boolean;
     doSimulateFoughtOpponents: boolean;
+    replaceHHLeaguePlusPlus: boolean;
 }
 
 const config: Config = {
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
+    replaceHHLeaguePlusPlus: true,
 };
 
-async function getHHPlusPlusConfig() {
-    if (window.hhPlusPlusConfig != null) return window.hhPlusPlusConfig;
-    await beforeGameInited();
-    if (window.hhPlusPlusConfig != null) return window.hhPlusPlusConfig;
-    await afterGameInited();
-    if (window.hhPlusPlusConfig != null) return window.hhPlusPlusConfig;
-    await new Promise($);
-    return window.hhPlusPlusConfig;
-}
-
-async function registerConfig() {
+export async function registerConfig() {
     const hhPlusPlusConfig = await getHHPlusPlusConfig();
     if (hhPlusPlusConfig == null) return;
 
     hhPlusPlusConfig.registerGroup({ key: 'sim_v4', name: 'Sim v4' });
+
+    config.doSimulateLeagueTable = false;
     hhPlusPlusConfig.registerModule({
         group: 'sim_v4',
         configSchema: {
@@ -43,7 +33,18 @@ async function registerConfig() {
         },
     });
 
-    config.doSimulateLeagueTable = false;
+    config.replaceHHLeaguePlusPlus = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim_v4',
+        configSchema: {
+            baseKey: 'ReplaceHHLeaguesPlusPlus',
+            label: 'Replace HH Leagues++ sim',
+            default: true,
+        },
+        run() {
+            config.replaceHHLeaguePlusPlus = true;
+        },
+    });
 
     hhPlusPlusConfig.loadConfig();
     hhPlusPlusConfig.runModules();
@@ -52,5 +53,3 @@ async function registerConfig() {
 export function getConfig(): Config {
     return config;
 }
-
-registerConfig();

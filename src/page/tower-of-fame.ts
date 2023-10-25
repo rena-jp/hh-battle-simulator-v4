@@ -1,4 +1,4 @@
-import { getConfig } from '../config';
+import { getConfig } from '../interop/hh-plus-plus-config';
 import { Booster, getBoosterData } from '../data/booster';
 import { simulateFromTeams } from '../simulator/battle';
 import { loadBoosterData, saveBoosterData } from '../store/booster';
@@ -19,6 +19,15 @@ interface Opponent {
     boosters: Booster[];
     match_history: Record<string, (number | null)[]>;
     power: number;
+    sim?:
+        | {
+              win: number;
+              loss: number;
+              avgTurns: number;
+              points: Record<number, number>;
+              scoreClass: 'plus' | 'minus' | 'close';
+          }
+        | any;
 }
 
 type Player = Omit<Opponent, 'match_history'> & {
@@ -84,6 +93,18 @@ export async function TowerOfFamePage(window: Window) {
             opponents_list.forEach(opponent => {
                 opponent.power = resultMap[opponent.player.id_fighter]?.avgPoints ?? 0;
             });
+            if (config.replaceHHLeaguePlusPlus) {
+                opponents_list.forEach(opponent => {
+                    opponent.sim = {
+                        ...opponent.sim,
+                        forSim: {
+                            playerTeam,
+                            opponentTeam: opponent.player.team,
+                            mythicBoosterMultiplier,
+                        },
+                    };
+                });
+            }
         };
         replacePowerDataWithSimResult();
 

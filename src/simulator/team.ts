@@ -38,3 +38,14 @@ export function calcBattlerFromTeams(
         },
     );
 }
+
+export function calcBattlersFromTeams(
+    playerTeam: Team,
+    opponentTeam: Team,
+    mythicBoosterMultiplier: number = 1
+) {
+    return {
+        player: calcBattlerFromTeams(playerTeam, opponentTeam, mythicBoosterMultiplier),
+        opponent: calcBattlerFromTeams(opponentTeam, playerTeam),
+    };
+}
