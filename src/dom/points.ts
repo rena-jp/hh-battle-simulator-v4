@@ -3,6 +3,7 @@ import { toLeaguePointsPerFight } from '../utils/string';
 
 export class PointsView {
     private element: JQuery<HTMLElement>;
+    private last: any;
 
     constructor() {
         this.element = $('<div class="sim-result"></div>');
@@ -10,9 +11,11 @@ export class PointsView {
 
     updateAsync(resultPromise: Promise<PointsResult & { hasAssumptions?: boolean }>) {
         this.reset();
+        this.last = resultPromise;
 
         queueMicrotask(async () => {
             const result = await resultPromise;
+            if (this.last !== resultPromise) return;
             const question = result.hasAssumptions ? '?' : '';
             let mark = '';
             if (result.minPoints >= 25) mark = '<div class="vCheck_mix_icn sim-mark"></div>';
