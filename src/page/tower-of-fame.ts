@@ -98,6 +98,7 @@ export async function TowerOfFamePage(window: Window) {
                     opponent.sim = {
                         ...opponent.sim,
                         forSim: {
+                            ...opponent.sim?.forSim,
                             playerTeam,
                             opponentTeam: opponent.player.team,
                             mythicBoosterMultiplier,
