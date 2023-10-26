@@ -6,7 +6,7 @@ import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
 import { simulateFromBattlers } from '../simulator/battle';
 import { simulateBoosterCombinationWithAME } from '../simulator/booster';
-import { calcBattlersFromTeams } from '../simulator/team';
+import { calcBattlersFromTeams, calcCounterBonus } from '../simulator/team';
 import { getHHPlusPlus, getHHPlusPlusConfig } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
 
@@ -27,7 +27,22 @@ export async function replaceHHPlusPlusLeague() {
             return this.original.extract();
         }
         display(result: any) {
-            const { forSim } = result;
+            let { forSim } = result;
+            if (forSim == null) {
+                const hero_data = window.hero_data as Fighter;
+                const opponent_fighter = window.opponent_fighter as OpponentFighter;
+                if (hero_data != null && opponent_fighter != null) {
+                    const counterBonus = calcCounterBonus(hero_data.team, opponent_fighter.player.team);
+                    const percentage = Math.round(
+                        (100 * hero_data.damage) / hero_data.team.caracs.damage / counterBonus,
+                    );
+                    forSim = {
+                        playerTeam: hero_data.team,
+                        opponentTeam: opponent_fighter.player.team,
+                        mythicBoosterMultiplier: percentage / 100,
+                    };
+                }
+            }
             if (forSim != null) {
                 const playerTeam: Team = forSim.playerTeam;
                 const opponentTeam: Team = forSim.opponentTeam;
