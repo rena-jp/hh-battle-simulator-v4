@@ -238,6 +238,18 @@ async function updateOpponentTeam() {
     const button = document.getElementById('change_team');
     if (button != null) {
         const update = () => {
+            const config = getConfig();
+            if (config.replaceHHLeaguePlusPlus) {
+                const opponent_fighter = window.opponent_fighter as OpponentFighter;
+                if (opponent_fighter != null) {
+                    saveOpponentTeamData({
+                        battleType: 'leagues',
+                        opponentId: '',
+                        team: opponent_fighter.player.team,
+                    });
+                    return;
+                }
+            }
             saveOpponentTeamData(null);
         };
         button.addEventListener('click', update, true);
