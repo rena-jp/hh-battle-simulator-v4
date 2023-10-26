@@ -12,12 +12,10 @@ const afterGameInitedPromise = new Promise<void>(resolve => {
     });
 });
 
-function beforeGameInited() {
+export function beforeGameInited() {
     return beforeGameInitedPromise;
 }
 
-function afterGameInited() {
+export function afterGameInited() {
     return afterGameInitedPromise;
 }
-
-export { beforeGameInited, afterGameInited };
