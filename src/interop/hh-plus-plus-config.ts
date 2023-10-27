@@ -3,13 +3,13 @@ import { getHHPlusPlusConfig } from './hh-plus-plus';
 interface Config {
     doSimulateLeagueTable: boolean;
     doSimulateFoughtOpponents: boolean;
-    replaceHHLeaguePlusPlus: boolean;
+    replaceHHLeaguesPlusPlus: boolean;
 }
 
 const config: Config = {
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
-    replaceHHLeaguePlusPlus: true,
+    replaceHHLeaguesPlusPlus: true,
 };
 
 export async function registerConfig() {
@@ -33,7 +33,7 @@ export async function registerConfig() {
         },
     });
 
-    config.replaceHHLeaguePlusPlus = false;
+    config.replaceHHLeaguesPlusPlus = false;
     hhPlusPlusConfig.registerModule({
         group: 'sim-v4',
         configSchema: {
@@ -42,7 +42,7 @@ export async function registerConfig() {
             default: true,
         },
         run() {
-            config.replaceHHLeaguePlusPlus = true;
+            config.replaceHHLeaguesPlusPlus = true;
         },
     });
 

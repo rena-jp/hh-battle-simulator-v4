@@ -94,7 +94,7 @@ export async function TowerOfFamePage(window: Window) {
             opponents_list.forEach(opponent => {
                 opponent.power = resultMap[opponent.player.id_fighter]?.avgPoints ?? 0;
             });
-            if (config.replaceHHLeaguePlusPlus) {
+            if (config.replaceHHLeaguesPlusPlus) {
                 opponents_list.forEach(opponent => {
                     opponent.sim = {
                         ...opponent.sim,
@@ -179,14 +179,14 @@ export async function TowerOfFamePage(window: Window) {
                 }
             });
         }
-        if (config.replaceHHLeaguePlusPlus) replaceHHLaguesPlusPlus();
+        if (config.replaceHHLeaguesPlusPlus) replaceHHLaguesPlusPlus();
 
         const header = $powerHeader[0];
         if (header != null) {
             const observer = new MutationObserver(() => {
                 replacePowerDataWithSimResult();
                 replacePowerViewWithSimResult();
-                if (config.replaceHHLeaguePlusPlus) replaceHHLaguesPlusPlus();
+                if (config.replaceHHLeaguesPlusPlus) replaceHHLaguesPlusPlus();
             });
             observer.observe(header, { childList: true, subtree: true });
         }
@@ -252,7 +252,7 @@ async function updateOpponentTeam() {
     if (button != null) {
         const update = () => {
             const config = getConfig();
-            if (config.replaceHHLeaguePlusPlus) {
+            if (config.replaceHHLeaguesPlusPlus) {
                 const opponent_fighter = window.opponent_fighter as OpponentFighter;
                 if (opponent_fighter != null) {
                     saveOpponentTeamData({

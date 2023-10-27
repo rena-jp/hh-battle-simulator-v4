@@ -17,7 +17,7 @@ export async function replaceHHPlusPlusLeague() {
     if (HHPlusPlus == null) return;
     await getHHPlusPlusConfig(); // FIXME
     const config = getConfig();
-    if (!config.replaceHHLeaguePlusPlus) return;
+    if (!config.replaceHHLeaguesPlusPlus) return;
 
     const originalLeague = HHPlusPlus.League;
     HHPlusPlus.League = class League {
