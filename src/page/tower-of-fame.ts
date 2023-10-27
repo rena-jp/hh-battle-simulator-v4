@@ -9,6 +9,7 @@ import { checkPage } from '../utils/page';
 import { toLeaguePointsPerFight, truncateSoftly } from '../utils/string';
 import { GameWindow, assertGameWindow } from './base/common';
 import { TowerOfFameGlobal } from './types/tower-of-fame';
+import { getHHPlusPlus } from '../interop/hh-plus-plus';
 
 interface Opponent {
     can_fight: number;
@@ -169,11 +170,23 @@ export async function TowerOfFamePage(window: Window) {
         };
         replacePowerViewWithSimResult();
 
+        function replaceHHLaguesPlusPlus() {
+            getHHPlusPlus().then(HHPlusPlus => {
+                if (HHPlusPlus == null) return;
+                const opponent_fighter = window.opponent_fighter as Opponent | undefined;
+                if (opponent_fighter?.sim != null) {
+                    new HHPlusPlus.League().display(opponent_fighter.sim);
+                }
+            });
+        }
+        if (config.replaceHHLeaguePlusPlus) replaceHHLaguesPlusPlus();
+
         const header = $powerHeader[0];
         if (header != null) {
             const observer = new MutationObserver(() => {
                 replacePowerDataWithSimResult();
                 replacePowerViewWithSimResult();
+                if (config.replaceHHLeaguePlusPlus) replaceHHLaguesPlusPlus();
             });
             observer.observe(header, { childList: true, subtree: true });
         }

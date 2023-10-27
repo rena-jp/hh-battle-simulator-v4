@@ -6,7 +6,7 @@ import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
 import { simulateFromBattlers } from '../simulator/battle';
 import { simulateBoosterCombinationWithAME } from '../simulator/booster';
-import { calcBattlersFromTeams, calcCounterBonus } from '../simulator/team';
+import { calcBattlersFromTeams } from '../simulator/team';
 import { getHHPlusPlus, getHHPlusPlusConfig } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
 
@@ -58,6 +58,8 @@ export async function replaceHHPlusPlusLeague() {
                     forSim.result = simulateFromBattlers('Standard', player, opponent).then(result => ({ ...result, hasAssumptions }));
                 }
                 const resultPromise = forSim.result;
+
+                $('.opponent .icon-area').parent().find('.sim-result').remove();
 
                 const chanceView = new ChanceView();
                 chanceView.updateAsync(resultPromise);
