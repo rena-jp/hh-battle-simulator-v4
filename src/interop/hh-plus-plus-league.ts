@@ -95,7 +95,7 @@ export async function replaceHHPlusPlusLeague() {
                     }
                     popup.toggle();
                 });
-                $('.opponent .icon-area').before(iconButton);
+                if (playerTeam.id_team != null) $('.opponent .icon-area').before(iconButton);
                 return;
             }
             return this.original.display(result);
