@@ -32,22 +32,20 @@ export async function replaceHHPlusPlusLeague() {
                 const hero_data = window.hero_data as Fighter;
                 const opponent_fighter = window.opponent_fighter as OpponentFighter;
                 if (hero_data != null && opponent_fighter != null) {
-                    const counterBonus = calcCounterBonus(hero_data.team, opponent_fighter.player.team);
-                    const percentage = Math.round(
-                        (100 * hero_data.damage) / hero_data.team.caracs.damage / counterBonus,
-                    );
                     forSim = {
                         playerTeam: hero_data.team,
                         opponentTeam: opponent_fighter.player.team,
-                        mythicBoosterMultiplier: percentage / 100,
+                        mythicBoosterMultiplier: 1,
+                        hasAssumptions: true,
                     };
+                    result.forSim = forSim;
                 }
             }
             if (forSim != null) {
                 const playerTeam: Team = forSim.playerTeam;
                 const opponentTeam: Team = forSim.opponentTeam;
 
-                if (forSim.result == null) {
+                if (forSim.result == null || (forSim.hasAssumptions && playerTeam.id_team != null)) {
                     const mythicBoosterMultiplier: number = forSim.mythicBoosterMultiplier;
                     const { player, opponent } = calcBattlersFromTeams(
                         playerTeam,
@@ -55,7 +53,9 @@ export async function replaceHHPlusPlusLeague() {
                         mythicBoosterMultiplier,
                     );
                     forSim.battleTable = createBattleTable(player, opponent);
-                    forSim.result = simulateFromBattlers('Standard', player, opponent);
+                    const hasAssumptions = playerTeam.id_team == null;
+                    forSim.hasAssumptions = hasAssumptions;
+                    forSim.result = simulateFromBattlers('Standard', player, opponent).then(result => ({ ...result, hasAssumptions }));
                 }
                 const resultPromise = forSim.result;
 
