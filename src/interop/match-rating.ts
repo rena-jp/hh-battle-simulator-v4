@@ -1,4 +1,4 @@
-import { afterGameInited } from "../utils/async";
+import { afterGameInited } from '../utils/async';
 
 export async function avoidOverlappingMatchRating() {
     await afterGameInited();

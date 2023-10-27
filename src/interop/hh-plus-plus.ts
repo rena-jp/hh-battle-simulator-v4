@@ -1,4 +1,4 @@
-import { afterGameInited, beforeGameInited } from "../utils/async";
+import { afterGameInited, beforeGameInited } from '../utils/async';
 
 const hhPlusPlusPromise = (async (): Promise<any> => {
     if (window.HHPlusPlus != null) return window.HHPlusPlus;
