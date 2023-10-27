@@ -7,10 +7,12 @@ import { Popup } from '../dom/popup';
 import { simulateFromBattlers } from '../simulator/battle';
 import { simulateBoosterCombinationWithAME } from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
+import { checkPage } from '../utils/page';
 import { getHHPlusPlus, getHHPlusPlusConfig } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
 
 export async function replaceHHPlusPlusLeague() {
+    if (!checkPage('/tower-of-fame.html')) return;
     const HHPlusPlus = await getHHPlusPlus();
     if (HHPlusPlus == null) return;
     await getHHPlusPlusConfig(); // FIXME
