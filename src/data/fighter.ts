@@ -4,6 +4,7 @@ import {
     CaracsLike,
     addCaracs,
     divideCaracs,
+    equalsCaracs,
     multiplyCaracs,
     roundCaracs,
     subtractCaracs,
@@ -72,4 +73,8 @@ export function truncateFighterCaracs(caracs: FighterCaracs): FighterCaracs {
 
 export function roundFighterCaracs(caracs: FighterCaracs): FighterCaracs {
     return roundCaracs(FighterCaracsKeys, caracs);
+}
+
+export function equalsFighterCaracs(x: FighterCaracs, y: FighterCaracs): boolean {
+    return equalsCaracs(FighterCaracsKeys, x, y);
 }

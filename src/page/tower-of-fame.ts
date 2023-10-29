@@ -229,7 +229,7 @@ async function fetchPlayerLeaguesTeam() {
         try {
             const teamsPage = await fetch('teams.html');
             const teamsHtml = await teamsPage.text();
-            const match = teamsHtml.match(/var\s+teams_data\s+=\s+(\{.*\});/);
+            const match = teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/);
             if (match) {
                 const teams_data = JSON.parse(match[1]) as Record<string, Team>;
                 const leaguesTeam = Object.values(teams_data).find(team =>

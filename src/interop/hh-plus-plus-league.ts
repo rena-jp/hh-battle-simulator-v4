@@ -57,7 +57,10 @@ export async function replaceHHPlusPlusLeague() {
                     forSim.battleTable = createBattleTable(player, opponent);
                     const hasAssumptions = playerTeam.id_team == null;
                     forSim.hasAssumptions = hasAssumptions;
-                    forSim.result = simulateFromBattlers('Standard', player, opponent).then(result => ({ ...result, hasAssumptions }));
+                    forSim.result = simulateFromBattlers('Standard', player, opponent).then(result => ({
+                        ...result,
+                        hasAssumptions,
+                    }));
                 }
                 const resultPromise = forSim.result;
 
@@ -82,7 +85,7 @@ export async function replaceHHPlusPlusLeague() {
                     .attr('tooltip', 'Booster simulator');
                 iconButton.on('click', () => {
                     if (result.boosterTable == null) {
-                        popup.setContent('Now calculating...');
+                        popup.setContent('Now loading...');
                         queueMicrotask(async () => {
                             const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
                             if (results == null || results.length === 0) {

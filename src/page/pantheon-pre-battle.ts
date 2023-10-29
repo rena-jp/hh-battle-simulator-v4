@@ -94,7 +94,7 @@ async function addBoosterSimulator(window: PantheonPreBattleWindow) {
     iconButton.on('click', () => {
         if (!inited) {
             inited = true;
-            popup.setContent('Now calculating...');
+            popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 const results = await simulateBoosterCombinationWithHeadband(playerTeam, opponentTeam);
                 if (results == null || results.length === 0) {

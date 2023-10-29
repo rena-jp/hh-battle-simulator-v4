@@ -11,6 +11,7 @@ export interface TeamParams {
     teamId: number;
     multiplier: FighterCaracs;
     addend: FighterCaracs;
+    caracs?: FighterCaracs;
 }
 
 interface TeamData {

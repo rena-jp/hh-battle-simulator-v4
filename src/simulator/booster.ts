@@ -1,4 +1,4 @@
-import { FighterCaracsCalculator, toFighterCaracsBonus } from '../data/fighter';
+import { FighterCaracsCalculator, equalsFighterCaracs, toFighterCaracsBonus } from '../data/fighter';
 import {
     ClubUpgradesKeys,
     HeroCaracs,
@@ -9,6 +9,7 @@ import {
     toHeroCaracs,
     truncateHeroCaracs,
 } from '../data/hero';
+import { fetchTeamParams } from '../page/edit-team';
 import { loadGinsengCaracs } from '../store/hero';
 import { loadTeamParams } from '../store/team';
 import { simulateFromTeams } from './battle';
@@ -130,14 +131,25 @@ export function simulateBoosterCombinationMinimized(
     );
 }
 
+async function getTeamParams(team: Team) {
+    if (team.id_team == null) return;
+    const teamId = team.id_team;
+    const teamParamsList = loadTeamParams();
+    const teamParams = teamParamsList.find(e => e.teamId === +teamId);
+    if (teamParams?.caracs != null && equalsFighterCaracs(teamParams.caracs, team.caracs)) {
+        return teamParams;
+    }
+    if (window.Hero == null) return;
+    return await fetchTeamParams(teamId, window.Hero as HeroType);
+}
+
 export async function simulateBoosterCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
 ): Promise<BoosterSimulationResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) return [];
-    const teamParamsList = loadTeamParams();
-    const teamParams = teamParamsList.find(e => playerTeam.id_team != null && e.teamId === +playerTeam.id_team);
+    const teamParams = await getTeamParams(playerTeam);
     if (teamParams == null) return [];
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
         const { ginseng, chlorella, cordyceps, mythic } = boosterCounts;
@@ -163,11 +175,10 @@ export async function simulateBoosterCombinationWithHeadband(
     });
 }
 
-export function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
+export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) return [];
-    const teamParamsList = loadTeamParams();
-    const teamParams = teamParamsList.find(e => playerTeam.id_team != null && e.teamId === +playerTeam.id_team);
+    const teamParams = await getTeamParams(playerTeam);
     if (teamParams == null) return [];
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
         const { ginseng, chlorella, cordyceps, mythic } = boosterCounts;

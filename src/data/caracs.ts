@@ -73,6 +73,10 @@ export function roundCaracs<T extends readonly string[]>(keys: T, caracs: Caracs
     }, {} as Caracs<T>);
 }
 
+export function equalsCaracs<T extends readonly string[]>(keys: T, x: Caracs<T>, y: Caracs<T>): boolean {
+    return keys.every((key: T[number]) => +x[key] === +y[key]);
+}
+
 export class CaracsCalculator<T extends readonly string[]> {
     protected value: Caracs<T>;
     constructor(protected readonly keys: T, initialValue: Partial<CaracsLike<T>> | (number | string)[] = {}) {

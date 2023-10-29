@@ -109,7 +109,7 @@ async function addBoosterSimulation(window: LeaguesPreBattleWindow) {
     iconButton.on('click', () => {
         if (!inited) {
             inited = true;
-            popup.setContent('Now calculating...');
+            popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
                 if (results == null || results.length === 0) {
