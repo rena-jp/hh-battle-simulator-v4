@@ -2,7 +2,7 @@ import { getConfig } from '../interop/hh-plus-plus-config';
 import { Booster, getBoosterData } from '../data/booster';
 import { simulateFromTeams } from '../simulator/battle';
 import { loadBoosterData, saveBoosterData } from '../store/booster';
-import { loadPlayerLeagueTeam, saveOpponentTeamData, savePlayerLeagueTeam } from '../store/team';
+import { saveOpponentTeamData } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
 import { getPointsColor } from '../utils/color';
 import { checkPage } from '../utils/page';
@@ -10,6 +10,7 @@ import { toLeaguePointsPerFight, truncateSoftly } from '../utils/string';
 import { GameWindow, assertGameWindow } from './base/common';
 import { TowerOfFameGlobal } from './types/tower-of-fame';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
+import { fetchPlayerLeaguesTeam } from './teams';
 
 interface Opponent {
     can_fight: number;
@@ -221,28 +222,6 @@ function updateBoosters(window: TowerOfFameWindow) {
     saveBoosterData(newBoosterData);
 
     return newBoosterData;
-}
-
-async function fetchPlayerLeaguesTeam() {
-    const { referrer } = document;
-    if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].every(e => !referrer.includes(e))) {
-        try {
-            const teamsPage = await fetch('teams.html');
-            const teamsHtml = await teamsPage.text();
-            const match = teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/);
-            if (match) {
-                const teams_data = JSON.parse(match[1]) as Record<string, Team>;
-                const leaguesTeam = Object.values(teams_data).find(team =>
-                    team.selected_for_battle_type?.includes('leagues'),
-                );
-                if (leaguesTeam != null) {
-                    savePlayerLeagueTeam(leaguesTeam);
-                    return leaguesTeam;
-                }
-            }
-        } catch (e) {}
-    }
-    return loadPlayerLeagueTeam();
 }
 
 async function updateOpponentTeam() {

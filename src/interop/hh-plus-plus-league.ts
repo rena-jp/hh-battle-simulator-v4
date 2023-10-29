@@ -4,9 +4,11 @@ import { ChanceView } from '../dom/chance';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
+import { fetchPlayerLeaguesTeam } from '../page/teams';
 import { simulateFromBattlers } from '../simulator/battle';
 import { simulateBoosterCombinationWithAME } from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
+import { loadBoosterData } from '../store/booster';
 import { checkPage } from '../utils/page';
 import { getHHPlusPlus, getHHPlusPlusConfig } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
@@ -19,6 +21,10 @@ export async function replaceHHPlusPlusLeague() {
     const config = getConfig();
     if (!config.replaceHHLeaguesPlusPlus) return;
 
+    let inited = config.doSimulateLeagueTable;
+    let playerLeagueTeam: Team | null;
+    let leagueBoosterMultiplier: number | undefined;
+    let lastDisplay: any;
     const originalLeague = HHPlusPlus.League;
     HHPlusPlus.League = class League {
         original: any;
@@ -29,26 +35,40 @@ export async function replaceHHPlusPlusLeague() {
             return this.original.extract();
         }
         display(result: any) {
+            lastDisplay = result;
             let { forSim } = result;
             if (forSim == null) {
+                if (!inited) {
+                    inited = true;
+                    (async () => {
+                        playerLeagueTeam = await fetchPlayerLeaguesTeam();
+                        leagueBoosterMultiplier = loadBoosterData().mythic?.leagues;
+                        const forSim = lastDisplay?.forSim;
+                        if (forSim != null && forSim.hasAssumptions === true) {
+                            forSim.playerTeam = playerLeagueTeam;
+                            forSim.mythicBoosterMultiplier = leagueBoosterMultiplier;
+                            this.display(lastDisplay);
+                        }
+                    })();
+                }
                 const hero_data = window.hero_data as Fighter;
                 const opponent_fighter = window.opponent_fighter as OpponentFighter;
                 if (hero_data != null && opponent_fighter != null) {
-                    forSim = {
-                        playerTeam: hero_data.team,
-                        opponentTeam: opponent_fighter.player.team,
-                        mythicBoosterMultiplier: 1,
-                        hasAssumptions: true,
-                    };
+                    const playerTeam = playerLeagueTeam ?? hero_data.team;
+                    const opponentTeam = opponent_fighter.player.team;
+                    const mythicBoosterMultiplier = leagueBoosterMultiplier ?? 1;
+                    const hasAssumptions = playerTeam.id_team == null;
+                    forSim = { playerTeam, opponentTeam, mythicBoosterMultiplier, hasAssumptions };
                     result.forSim = forSim;
                 }
             }
             if (forSim != null) {
-                const playerTeam: Team = forSim.playerTeam;
+                let playerTeam: Team = forSim.playerTeam;
                 const opponentTeam: Team = forSim.opponentTeam;
 
                 if (forSim.result == null || (forSim.hasAssumptions && playerTeam.id_team != null)) {
-                    const mythicBoosterMultiplier: number = forSim.mythicBoosterMultiplier;
+                    playerTeam = playerLeagueTeam ?? playerTeam;
+                    const mythicBoosterMultiplier: number = leagueBoosterMultiplier ?? forSim.mythicBoosterMultiplier;
                     const { player, opponent } = calcBattlersFromTeams(
                         playerTeam,
                         opponentTeam,
