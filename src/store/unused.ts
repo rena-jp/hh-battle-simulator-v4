@@ -3,4 +3,5 @@ export function removeUnusedData() {
     localStorage.removeItem('HHBattleSimulatorLastOpponentId');
     localStorage.removeItem('HHBattleSimulatorLastOpponentTeam');
     localStorage.removeItem('HHBattleSimulatorPlayerLeaguesTeam');
+    localStorage.removeItem('HHBattleSimulatorPlayerBoosterBonus');
 }
