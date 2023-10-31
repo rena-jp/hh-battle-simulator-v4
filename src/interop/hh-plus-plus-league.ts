@@ -146,6 +146,8 @@ export async function replaceHHPlusPlusLeague() {
                                 skillPopup.setContent(result.skillTable);
                             }
                         });
+                    } else {
+                        skillPopup.setContent(result.skillTable);
                     }
                     skillPopup.toggle();
                 });
