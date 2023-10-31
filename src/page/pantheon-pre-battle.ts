@@ -1,8 +1,12 @@
 import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
-import { createBoosterChanceTable } from '../dom/booster-simulation';
+import { createBoosterChanceTable, createSkillChanceTable } from '../dom/booster-simulation';
 import { simulateFromBattlers } from '../simulator/battle';
-import { calcMythicBoosterMultiplierFromFighters, simulateBoosterCombinationWithHeadband } from '../simulator/booster';
+import {
+    calcMythicBoosterMultiplierFromFighters,
+    simulateBoosterCombinationWithHeadband,
+    simulateSkillCombinationWithHeadband,
+} from '../simulator/booster';
 import { calcBattlersFromFighters } from '../simulator/fighter';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
 import { saveOpponentTeamData } from '../store/team';
@@ -30,6 +34,7 @@ export async function PantheonPreBattlePage(window: Window) {
     saveOpponentTeam(window);
     addChance(window);
     addBoosterSimulator(window);
+    addSkillSimulator(window);
 }
 
 function updateMythicBooster(window: PantheonPreBattleWindow) {
@@ -103,6 +108,38 @@ async function addBoosterSimulator(window: PantheonPreBattleWindow) {
                     );
                 } else {
                     popup.setContent(createBoosterChanceTable(results));
+                }
+            });
+        }
+        popup.toggle();
+    });
+    $('.battle_hero .icon-area').before(iconButton);
+}
+
+async function addSkillSimulator(window: PantheonPreBattleWindow) {
+    const { hero_data, opponent_fighter } = window;
+    const playerTeam = hero_data.team;
+    const opponentTeam = opponent_fighter.player.team;
+
+    await afterGameInited();
+
+    const popup = new Popup('Skill simulator');
+    const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-girl-skills"></div></div>')
+        .addClass('sim-left')
+        .attr('tooltip', 'Skill simulator');
+    let inited = false;
+    iconButton.on('click', () => {
+        if (!inited) {
+            inited = true;
+            popup.setContent('Now loading...');
+            queueMicrotask(async () => {
+                const results = await simulateSkillCombinationWithHeadband(playerTeam, opponentTeam);
+                if (results == null || results.length === 0) {
+                    popup.setContent(
+                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
+                    );
+                } else {
+                    popup.setContent(createSkillChanceTable(results));
                 }
             });
         }

@@ -103,6 +103,8 @@ table.sim-table td {
     font-size: 0.75rem;
     line-height: 1.5rem;
     width: max-content;
+    max-height: 27rem;
+    overflow-y: auto;
 }
 
 table.sim-booster-table {
@@ -158,4 +160,8 @@ table.sim-booster-table .sim-booster-icon {
 
 .sim-icon-headband {
     background-image: url('${IMAGES_URL}/pictures/items/MB3.png');
+}
+
+.sim-icon-girl-skills {
+    background-image: url('${IMAGES_URL}/pictures/design/girl_skills/active_skills_icon.png');
 }

@@ -1,4 +1,4 @@
-import { FighterCaracsCalculator, equalsFighterCaracs, toFighterCaracsBonus } from '../data/fighter';
+import { FighterCaracs, FighterCaracsCalculator, equalsFighterCaracs, toFighterCaracsBonus } from '../data/fighter';
 import {
     ClubUpgradesKeys,
     HeroCaracs,
@@ -11,7 +11,8 @@ import {
 } from '../data/hero';
 import { fetchTeamParams } from '../page/edit-team';
 import { loadGinsengCaracs } from '../store/hero';
-import { loadTeamParams } from '../store/team';
+import { TeamParams, loadTeamParams } from '../store/team';
+import { capitalize } from '../utils/string';
 import { simulateFromTeams } from './battle';
 import { calcCounterBonus } from './team';
 
@@ -85,11 +86,72 @@ function getClubBonus(hero: HeroType): HeroCaracs {
     return toHeroCaracs(ClubUpgradesKeys.map(key => clubUpgrades[key].level / 200));
 }
 
+async function getTeamParams(team: Team) {
+    if (team.id_team == null) return;
+    const teamId = team.id_team;
+    const teamParamsList = loadTeamParams();
+    const teamParams = teamParamsList.find(e => e.teamId === +teamId);
+    if (teamParams?.caracs != null && equalsFighterCaracs(teamParams.caracs, team.caracs)) {
+        return teamParams;
+    }
+    if (window.Hero == null) return;
+    return await fetchTeamParams(teamId, window.Hero as HeroType);
+}
+
 export interface BoosterCounts {
     ginseng: number;
     chlorella: number;
     cordyceps: number;
     mythic: number;
+}
+
+function calcBoostedTeam(
+    baseTeam: Team,
+    teamParams: TeamParams,
+    ginsengCaracs: FighterCaracs[],
+    boosterCounts: BoosterCounts,
+) {
+    const { ginseng, chlorella, cordyceps } = boosterCounts;
+    const heroCaracs = ginsengCaracs[ginseng];
+    const caracs = new FighterCaracsCalculator(heroCaracs)
+        .multiply(teamParams.multiplier)
+        .add(teamParams.addend)
+        .multiply(
+            toFighterCaracsBonus({
+                damage: 1 + 0.1 * cordyceps,
+                ego: 1 + 0.1 * chlorella,
+            }),
+        )
+        .round()
+        .result();
+    return {
+        ...baseTeam,
+        caracs,
+    };
+}
+
+interface CalculatedSkill {
+    id_skill: string;
+    level: string;
+    skill: {
+        id_skill: number;
+        level: number;
+        percentage_value: number;
+        display_value_text: string;
+        skill_type: string;
+    };
+}
+
+function calcSkilledTeam(baseTeam: Team, skill: CalculatedSkill) {
+    const skills = { ...baseTeam.girls[0].skills };
+    [11, 12, 13, 14].forEach(e => {
+        delete skills[e];
+    });
+    skills[skill.skill.id_skill] = skill;
+
+    const girls = [...baseTeam.girls];
+    girls[0] = { ...baseTeam.girls[0], skills };
+    return { ...baseTeam, girls };
 }
 
 export interface BoosterSimulationResult {
@@ -112,8 +174,8 @@ function simulateBoosterCombination(
         ),
     );
 }
-
-export function simulateBoosterCombinationMinimized(
+/*
+function simulateBoosterCombinationMinimized(
     f: (boosterCounts: BoosterCounts) => Promise<number>,
 ): Promise<BoosterSimulationResult[]> {
     return Promise.all(
@@ -130,19 +192,7 @@ export function simulateBoosterCombinationMinimized(
         ),
     );
 }
-
-async function getTeamParams(team: Team) {
-    if (team.id_team == null) return;
-    const teamId = team.id_team;
-    const teamParamsList = loadTeamParams();
-    const teamParams = teamParamsList.find(e => e.teamId === +teamId);
-    if (teamParams?.caracs != null && equalsFighterCaracs(teamParams.caracs, team.caracs)) {
-        return teamParams;
-    }
-    if (window.Hero == null) return;
-    return await fetchTeamParams(teamId, window.Hero as HeroType);
-}
-
+*/
 export async function simulateBoosterCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
@@ -152,26 +202,9 @@ export async function simulateBoosterCombinationWithHeadband(
     const teamParams = await getTeamParams(playerTeam);
     if (teamParams == null) return [];
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
-        const { ginseng, chlorella, cordyceps, mythic } = boosterCounts;
-        const heroCaracs = ginsengCaracs[ginseng];
-        const caracs = new FighterCaracsCalculator(heroCaracs)
-            .multiply(teamParams.multiplier)
-            .add(teamParams.addend)
-            .multiply(
-                toFighterCaracsBonus({
-                    damage: 1 + 0.1 * cordyceps,
-                    ego: 1 + 0.1 * chlorella,
-                }),
-            )
-            .round()
-            .result();
-        const calculatedTeam = { ...playerTeam, caracs };
-        return simulateFromTeams(
-            'FastChance',
-            calculatedTeam,
-            opponentTeam,
-            1 + 0.25 * mythic, // Headband
-        );
+        const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const mythicBoosterMultiplier = 1 + 0.25 * boosterCounts.mythic; // Headband
+        return simulateFromTeams('FastChance', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
     });
 }
 
@@ -181,25 +214,89 @@ export async function simulateBoosterCombinationWithAME(playerTeam: Team, oppone
     const teamParams = await getTeamParams(playerTeam);
     if (teamParams == null) return [];
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
-        const { ginseng, chlorella, cordyceps, mythic } = boosterCounts;
-        const heroCaracs = ginsengCaracs[ginseng];
-        const caracs = new FighterCaracsCalculator(heroCaracs)
-            .multiply(teamParams.multiplier)
-            .add(teamParams.addend)
-            .multiply(
-                toFighterCaracsBonus({
-                    damage: 1 + 0.1 * cordyceps,
-                    ego: 1 + 0.1 * chlorella,
+        const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+        return simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
+    });
+}
+
+export interface SkillSimulationResult {
+    skillName: string;
+    results: {
+        level: number;
+        results: BoosterSimulationResult[];
+    }[];
+}
+
+function simulateSkillCombination(
+    f: (boosterCounts: BoosterCounts, skill: CalculatedSkill) => Promise<number>,
+): Promise<SkillSimulationResult[]> {
+    const skillMap = {
+        11: { skillType: 'stun', levelPercentage: 7 },
+        12: { skillType: 'shield', levelPercentage: 8 },
+        13: { skillType: 'reflect', levelPercentage: 20 },
+        14: { skillType: 'execute', levelPercentage: 6 },
+    } as Record<number, { skillType: string; levelPercentage: number }>;
+    const create5thSkill = (id: number, level: number) => {
+        const { skillType, levelPercentage } = skillMap[id];
+        const percentage = level * levelPercentage;
+        return {
+            id_skill: id.toString(),
+            level: level.toString(),
+            skill: {
+                id_skill: id,
+                level,
+                percentage_value: percentage,
+                display_value_text: `${percentage}%`,
+                skill_type: skillType,
+            },
+        };
+    };
+    return Promise.all(
+        [11, 12, 13, 14].map(async skillId => {
+            const results = await Promise.all(
+                [5, 4, 3, 2, 1].map(async level => {
+                    const skill = create5thSkill(skillId, level);
+                    const results = await simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
+                        return f(boosterCounts, skill);
+                    });
+                    return { level, results };
                 }),
-            )
-            .round()
-            .result();
-        const calculatedTeam = { ...playerTeam, caracs };
-        return simulateFromTeams(
-            'FastPoints',
-            calculatedTeam,
-            opponentTeam,
-            1 + 0.15 * mythic, // AME
-        );
+            );
+            const skillName = capitalize(skillMap[skillId].skillType);
+            return { skillName, results };
+        }),
+    );
+}
+
+export async function simulateSkillCombinationWithHeadband(
+    playerTeam: Team,
+    opponentTeam: Team,
+): Promise<SkillSimulationResult[]> {
+    const ginsengCaracs = loadGinsengCaracs();
+    if (ginsengCaracs == null) return [];
+    const teamParams = await getTeamParams(playerTeam);
+    if (teamParams == null) return [];
+    return simulateSkillCombination(async (boosterCounts: BoosterCounts, skill: CalculatedSkill) => {
+        const boostedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const skilledTeam = calcSkilledTeam(boostedTeam, skill);
+        const mythicBoosterMultiplier = 1 + 0.25 * boosterCounts.mythic; // Headband
+        return simulateFromTeams('FastChance', skilledTeam, opponentTeam, mythicBoosterMultiplier);
+    });
+}
+
+export async function simulateSkillCombinationWithAME(
+    playerTeam: Team,
+    opponentTeam: Team,
+): Promise<SkillSimulationResult[]> {
+    const ginsengCaracs = loadGinsengCaracs();
+    if (ginsengCaracs == null) return [];
+    const teamParams = await getTeamParams(playerTeam);
+    if (teamParams == null) return [];
+    return simulateSkillCombination(async (boosterCounts: BoosterCounts, skill: CalculatedSkill) => {
+        const boostedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const skilledTeam = calcSkilledTeam(boostedTeam, skill);
+        const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+        return simulateFromTeams('FastPoints', skilledTeam, opponentTeam, mythicBoosterMultiplier);
     });
 }

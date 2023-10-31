@@ -1,4 +1,4 @@
-import { BoosterCounts, BoosterSimulationResult } from '../simulator/booster';
+import { BoosterCounts, BoosterSimulationResult, SkillSimulationResult } from '../simulator/booster';
 import { getChanceColor, getPointsColor } from '../utils/color';
 import { toLeaguePointsPerFight, toPercentage } from '../utils/string';
 import { column, columns, row } from '../utils/table';
@@ -59,6 +59,51 @@ export function createBoosterChanceTable(results: BoosterSimulationResult[]) {
     }
 }
 
+export function createSkillChanceTable(results: SkillSimulationResult[]) {
+    results.forEach(result => {
+        result.results.forEach(result => {
+            sortBoosterSimulationResults(result.results);
+        });
+    });
+    return createTable();
+
+    function createTable() {
+        function createRow(level: number) {
+            return row(
+                columns(
+                    1,
+                    results.map(result => createColumn(result)),
+                ),
+            );
+            function createColumn(result: SkillSimulationResult) {
+                const skillName = result.skillName;
+                const boosterResults = result.results.find(e => e.level === level)?.results;
+                if (boosterResults == null) return '';
+                return createSubTable(boosterResults);
+                function createSubTable(boosterResults: BoosterSimulationResult[]) {
+                    return [
+                        '<table>',
+                        row(column(2, `Level ${level} ${skillName}`)),
+                        ...boosterResults.map(e => {
+                            return row(
+                                columns(1, [
+                                    getBoosterIcons(e.boosterCounts, 'headband'),
+                                    `<span class="sim-chance" style="color: ${getChanceColor(e.result)}">${toPercentage(
+                                        e.result,
+                                    )}</span>`,
+                                ]),
+                            );
+                        }),
+                        '</table>',
+                    ].join('');
+                }
+            }
+        }
+        const rows = [5, 4, 3, 2, 1].map(e => createRow(e));
+        return $('<table class="sim-booster-table"></table>').append(rows.join('')).prop('outerHTML');
+    }
+}
+
 export function createBoosterPointsTable(results: BoosterSimulationResult[]) {
     sortBoosterSimulationResults(results);
     const withoutAME = results.filter(e => e.boosterCounts.mythic <= 0);
@@ -70,16 +115,61 @@ export function createBoosterPointsTable(results: BoosterSimulationResult[]) {
             row(
                 columns(1, [
                     getBoosterIcons(e.boosterCounts, 'ame'),
-                    `<span class="sim-chance" style="color: ${getPointsColor(e.result)}">${toLeaguePointsPerFight(
+                    `<span class="sim-points" style="color: ${getPointsColor(e.result)}">${toLeaguePointsPerFight(
                         e.result,
                     )}</span>`,
                     getBoosterIcons(withAME[i].boosterCounts, 'ame'),
-                    `<span class="sim-chance" style="color: ${getPointsColor(
+                    `<span class="sim-points" style="color: ${getPointsColor(
                         withAME[i].result,
                     )}">${toLeaguePointsPerFight(withAME[i].result)}</span>`,
                 ]),
             ),
         );
         return $('<table class="sim-booster-table"></table>').append(test.join('')).prop('outerHTML');
+    }
+}
+
+export function createSkillPointsTable(results: SkillSimulationResult[]) {
+    results.forEach(result => {
+        result.results.forEach(result => {
+            sortBoosterSimulationResults(result.results);
+        });
+    });
+    return createTable();
+
+    function createTable() {
+        function createRow(level: number) {
+            return row(
+                columns(
+                    1,
+                    results.map(result => createColumn(result)),
+                ),
+            );
+            function createColumn(result: SkillSimulationResult) {
+                const skillName = result.skillName;
+                const boosterResults = result.results.find(e => e.level === level)?.results;
+                if (boosterResults == null) return '';
+                return createSubTable(boosterResults);
+                function createSubTable(boosterResults: BoosterSimulationResult[]) {
+                    return [
+                        '<table>',
+                        row(column(2, `Level ${level} ${skillName}`)),
+                        ...boosterResults.map(e => {
+                            return row(
+                                columns(1, [
+                                    getBoosterIcons(e.boosterCounts, 'ame'),
+                                    `<span class="sim-points" style="color: ${getPointsColor(
+                                        e.result,
+                                    )}">${toLeaguePointsPerFight(e.result)}</span>`,
+                                ]),
+                            );
+                        }),
+                        '</table>',
+                    ].join('');
+                }
+            }
+        }
+        const rows = [5, 4, 3, 2, 1].map(e => createRow(e));
+        return $('<table class="sim-booster-table"></table>').append(rows.join('')).prop('outerHTML');
     }
 }

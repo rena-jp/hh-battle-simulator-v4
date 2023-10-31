@@ -1,11 +1,15 @@
 import { createBattleTable } from '../dom/battle-table';
-import { createBoosterPointsTable } from '../dom/booster-simulation';
+import { createBoosterPointsTable, createSkillPointsTable } from '../dom/booster-simulation';
 import { ChanceView } from '../dom/chance';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
 import { simulateFromBattlers } from '../simulator/battle';
-import { calcMythicBoosterMultiplierFromFighters, simulateBoosterCombinationWithAME } from '../simulator/booster';
+import {
+    calcMythicBoosterMultiplierFromFighters,
+    simulateBoosterCombinationWithAME,
+    simulateSkillCombinationWithAME,
+} from '../simulator/booster';
 import { calcBattlersFromFighters } from '../simulator/fighter';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
 import { saveOpponentTeamData, savePlayerLeagueTeam } from '../store/team';
@@ -33,6 +37,7 @@ export async function LeaguePreBattlePage(window: Window) {
     saveOpponentTeam(window);
     addChanceAndPoints(window);
     addBoosterSimulation(window);
+    addSkillSimulator(window);
 }
 
 function updatePlayerLeagueTeam(window: LeaguesPreBattleGlobal) {
@@ -118,6 +123,38 @@ async function addBoosterSimulation(window: LeaguesPreBattleWindow) {
                     );
                 } else {
                     popup.setContent(createBoosterPointsTable(results));
+                }
+            });
+        }
+        popup.toggle();
+    });
+    $('.battle_hero .icon-area').before(iconButton);
+}
+
+async function addSkillSimulator(window: LeaguesPreBattleWindow) {
+    const { hero_data, opponent_fighter } = window;
+    const playerTeam = hero_data.team;
+    const opponentTeam = opponent_fighter.player.team;
+
+    await afterGameInited();
+
+    const popup = new Popup('Skill simulator');
+    const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-girl-skills"></div></div>')
+        .addClass('sim-left')
+        .attr('tooltip', 'Skill simulator');
+    let inited = false;
+    iconButton.on('click', () => {
+        if (!inited) {
+            inited = true;
+            popup.setContent('Now loading...');
+            queueMicrotask(async () => {
+                const results = await simulateSkillCombinationWithAME(playerTeam, opponentTeam);
+                if (results == null || results.length === 0) {
+                    popup.setContent(
+                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
+                    );
+                } else {
+                    popup.setContent(createSkillPointsTable(results));
                 }
             });
         }

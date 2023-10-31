@@ -1,12 +1,12 @@
 import { createBattleTable } from '../dom/battle-table';
-import { createBoosterPointsTable } from '../dom/booster-simulation';
+import { createBoosterPointsTable, createSkillPointsTable } from '../dom/booster-simulation';
 import { ChanceView } from '../dom/chance';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
 import { fetchPlayerLeaguesTeam } from '../page/teams';
 import { simulateFromBattlers } from '../simulator/battle';
-import { simulateBoosterCombinationWithAME } from '../simulator/booster';
+import { simulateBoosterCombinationWithAME, simulateSkillCombinationWithAME } from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
 import { loadBoosterData } from '../store/booster';
 import { checkPage } from '../utils/page';
@@ -98,31 +98,61 @@ export async function replaceHHPlusPlusLeague() {
                 });
                 $('.opponent .icon-area').before(pointsView.getElement().addClass('sim-right'));
 
-                const popup = new Popup('Booster simulator');
-                const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-ame"></div></div>')
+                const boosterPopup = new Popup('Booster simulator');
+                const boosterIconButton = $(
+                    '<div class="sim-result"><div class="sim-icon-button sim-icon-ame"></div></div>',
+                )
                     .addClass('sim-left')
                     .addClass('sim-top')
                     .attr('tooltip', 'Booster simulator');
-                iconButton.on('click', () => {
+                boosterIconButton.on('click', () => {
                     if (result.boosterTable == null) {
-                        popup.setContent('Now loading...');
+                        boosterPopup.setContent('Now loading...');
                         queueMicrotask(async () => {
                             const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
                             if (results == null || results.length === 0) {
-                                popup.setContent(
+                                boosterPopup.setContent(
                                     'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
                                 );
                             } else {
                                 result.boosterTable = createBoosterPointsTable(results);
-                                popup.setContent(result.boosterTable);
+                                boosterPopup.setContent(result.boosterTable);
                             }
                         });
                     } else {
-                        popup.setContent(result.boosterTable);
+                        boosterPopup.setContent(result.boosterTable);
                     }
-                    popup.toggle();
+                    boosterPopup.toggle();
                 });
-                if (playerTeam.id_team != null) $('.opponent .icon-area').before(iconButton);
+
+                const skillPopup = new Popup('Skill simulator');
+                const skillIconButton = $(
+                    '<div class="sim-result"><div class="sim-icon-button sim-icon-girl-skills"></div></div>',
+                )
+                    .addClass('sim-right')
+                    .addClass('sim-top')
+                    .attr('tooltip', 'Skill simulator');
+                skillIconButton.on('click', () => {
+                    if (result.skillTable == null) {
+                        skillPopup.setContent('Now loading...');
+                        queueMicrotask(async () => {
+                            const results = await simulateSkillCombinationWithAME(playerTeam, opponentTeam);
+                            if (results == null || results.length === 0) {
+                                skillPopup.setContent(
+                                    'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
+                                );
+                            } else {
+                                result.skillTable = createSkillPointsTable(results);
+                                skillPopup.setContent(result.skillTable);
+                            }
+                        });
+                    }
+                    skillPopup.toggle();
+                });
+
+                if (playerTeam.id_team != null) {
+                    $('.opponent .icon-area').before(boosterIconButton).before(skillIconButton);
+                }
                 return;
             }
             return this.original.display(result);
