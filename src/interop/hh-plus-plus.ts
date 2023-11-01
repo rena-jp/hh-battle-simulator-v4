@@ -1,8 +1,8 @@
-import { afterGameInited, beforeGameInited } from '../utils/async';
+import { afterGameInited, beforeScriptStart } from '../utils/async';
 
 const hhPlusPlusPromise = (async (): Promise<any> => {
     if (window.HHPlusPlus != null) return window.HHPlusPlus;
-    await beforeGameInited();
+    await beforeScriptStart();
     if (window.HHPlusPlus != null) return window.HHPlusPlus;
     await afterGameInited();
     if (window.HHPlusPlus != null) return window.HHPlusPlus;
@@ -12,7 +12,7 @@ const hhPlusPlusPromise = (async (): Promise<any> => {
 
 const hhPlusPlusConfigPromise = (async (): Promise<any> => {
     if (window.hhPlusPlusConfig != null) return window.hhPlusPlusConfig;
-    await beforeGameInited();
+    await beforeScriptStart();
     if (window.hhPlusPlusConfig != null) return window.hhPlusPlusConfig;
     await afterGameInited();
     if (window.hhPlusPlusConfig != null) return window.hhPlusPlusConfig;
