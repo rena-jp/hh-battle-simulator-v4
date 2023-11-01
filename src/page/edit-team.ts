@@ -287,24 +287,22 @@ export async function EditTeamPage(window: Window) {
 type EditTeamPageData = Pick<EditTeamGlobal, 'teamGirls' | 'theme_resonance_bonuses' | 'hero_data' | 'availableGirls'>;
 let fetchedWindow: Promise<EditTeamPageData> | null = null;
 async function fetchEditTeamPage(id_team: string) {
-    if (fetchedWindow == null) {
-        fetchedWindow = (async () => {
-            const page = await fetch(`edit-team.html?id_team=${id_team}`);
-            const html = await page.text();
-            const teamGirls = JSON.parse(html.match(/var\s+teamGirls\s*=\s*(\[.*?\]);/)?.[1]!);
-            const theme_resonance_bonuses = JSON.parse(
-                html.match(/var\s+theme_resonance_bonuses\s*=\s*((?:\{|\[).*?(?:\}|\]));/)?.[1]!,
-            );
-            const hero_data = eval('(' + html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)?.[1]! + ')');
-            const availableGirls = JSON.parse(html.match(/var\s+availableGirls\s*=\s*(\[.*?\]);/)?.[1]!);
-            return {
-                teamGirls,
-                theme_resonance_bonuses,
-                hero_data,
-                availableGirls,
-            };
-        })();
-    }
+    fetchedWindow ??= (async () => {
+        const page = await fetch(`edit-team.html?id_team=${id_team}`);
+        const html = await page.text();
+        const teamGirls = JSON.parse(html.match(/var\s+teamGirls\s*=\s*(\[.*?\]);/)?.[1]!);
+        const theme_resonance_bonuses = JSON.parse(
+            html.match(/var\s+theme_resonance_bonuses\s*=\s*((?:\{|\[).*?(?:\}|\]));/)?.[1]!,
+        );
+        const hero_data = eval('(' + html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)?.[1]! + ')');
+        const availableGirls = JSON.parse(html.match(/var\s+availableGirls\s*=\s*(\[.*?\]);/)?.[1]!);
+        return {
+            teamGirls,
+            theme_resonance_bonuses,
+            hero_data,
+            availableGirls,
+        };
+    })();
     return fetchedWindow;
 }
 

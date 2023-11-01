@@ -120,14 +120,12 @@ function updateLeagueTeam(window: TeamsWindow) {
 type TeamsPageData = Pick<TeamsGlobal, 'teams_data'>;
 let fetchedWindow: Promise<TeamsPageData> | null = null;
 async function fetchTeamsPage() {
-    if (fetchedWindow == null) {
-        fetchedWindow = (async () => {
-            const teamsPage = await fetch('teams.html');
-            const teamsHtml = await teamsPage.text();
-            const teams_data = JSON.parse(teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/)?.[1]!);
-            return { teams_data };
-        })();
-    }
+    fetchedWindow ??= (async () => {
+        const teamsPage = await fetch('teams.html');
+        const teamsHtml = await teamsPage.text();
+        const teams_data = JSON.parse(teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/)?.[1]!);
+        return { teams_data };
+    })();
     return fetchedWindow;
 }
 
@@ -135,19 +133,21 @@ let playerLeagueTeam: Promise<Team | null> | null = null;
 export async function fetchPlayerLeaguesTeam() {
     playerLeagueTeam ??= (async () => {
         const { referrer } = document;
-        if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].every(e => !referrer.includes(e))) {
-            try {
-                const teamsPageData = await fetchTeamsPage();
-                const teams_data = teamsPageData.teams_data;
-                const leaguesTeam = Object.values(teams_data).find((team): team is typeof team & Team =>
-                    team.selected_for_battle_type?.includes('leagues'),
-                );
-                if (leaguesTeam != null) {
-                    savePlayerLeagueTeam(leaguesTeam);
-                    return leaguesTeam;
-                }
-            } catch (e) {}
+        if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
+            const lastLeagueTeam = loadPlayerLeagueTeam();
+            if (lastLeagueTeam != null) return lastLeagueTeam;
         }
+        try {
+            const teamsPageData = await fetchTeamsPage();
+            const teams_data = teamsPageData.teams_data;
+            const leaguesTeam = Object.values(teams_data).find((team): team is typeof team & Team =>
+                team.selected_for_battle_type?.includes('leagues'),
+            );
+            if (leaguesTeam != null) {
+                savePlayerLeagueTeam(leaguesTeam);
+                return leaguesTeam;
+            }
+        } catch (e) {}
         return loadPlayerLeagueTeam();
     })();
     return playerLeagueTeam;
