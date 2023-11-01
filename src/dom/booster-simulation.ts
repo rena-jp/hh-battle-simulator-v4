@@ -1,4 +1,4 @@
-import { BoosterCounts, BoosterSimulationResult, SkillSimulationResult } from '../simulator/booster';
+import { BoosterCounts, BoosterKeys, BoosterSimulationResult, SkillSimulationResult } from '../simulator/booster';
 import { getChanceColor, getPointsColor } from '../utils/color';
 import { toLeaguePointsPerFight, toPercentage } from '../utils/string';
 import { column, columns, row } from '../utils/table';
@@ -12,6 +12,7 @@ function sortBoosterSimulationResults(results: BoosterSimulationResult[]) {
             compare(e => e.boosterCounts.mythic) ??
             compare(e => e.boosterCounts.cordyceps) ??
             compare(e => e.boosterCounts.chlorella) ??
+            compare(e => e.boosterCounts.jujubes) ??
             compare(e => e.boosterCounts.ginseng) ??
             0
         );
@@ -21,9 +22,10 @@ function sortBoosterSimulationResults(results: BoosterSimulationResult[]) {
 function getBoosterIcon(rarity: string, booster: string) {
     return `<div class="sim-booster-slot slot ${rarity}"><div class="sim-booster-icon sim-icon-${booster}"></div></div>`;
 }
-const BoosterKeys = ['ginseng', 'chlorella', 'cordyceps', 'mythic'] as const;
+
 const BoosterIconMap = {
     ginseng: getBoosterIcon('legendary', 'ginseng'),
+    jujubes: getBoosterIcon('legendary', 'jujubes'),
     chlorella: getBoosterIcon('legendary', 'chlorella'),
     cordyceps: getBoosterIcon('legendary', 'cordyceps'),
     headband: getBoosterIcon('mythic', 'headband'),

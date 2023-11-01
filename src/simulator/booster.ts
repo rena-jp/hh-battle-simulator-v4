@@ -9,6 +9,7 @@ import {
     toHeroCaracs,
     truncateHeroCaracs,
 } from '../data/hero';
+import { getConfig } from '../interop/hh-plus-plus-config';
 import { fetchTeamParams } from '../page/edit-team';
 import { loadGinsengCaracs } from '../store/hero';
 import { TeamParams, loadTeamParams } from '../store/team';
@@ -98,12 +99,8 @@ async function getTeamParams(team: Team) {
     return await fetchTeamParams(teamId, window.Hero as HeroType);
 }
 
-export interface BoosterCounts {
-    ginseng: number;
-    chlorella: number;
-    cordyceps: number;
-    mythic: number;
-}
+export const BoosterKeys = ['ginseng', 'jujubes', 'chlorella', 'cordyceps', 'mythic'] as const;
+export type BoosterCounts = Record<(typeof BoosterKeys)[number], number>;
 
 function calcBoostedTeam(
     baseTeam: Team,
@@ -111,7 +108,7 @@ function calcBoostedTeam(
     ginsengCaracs: FighterCaracs[],
     boosterCounts: BoosterCounts,
 ) {
-    const { ginseng, chlorella, cordyceps } = boosterCounts;
+    const { ginseng, jujubes, chlorella, cordyceps } = boosterCounts;
     const heroCaracs = ginsengCaracs[ginseng];
     const caracs = new FighterCaracsCalculator(heroCaracs)
         .multiply(teamParams.multiplier)
@@ -120,6 +117,7 @@ function calcBoostedTeam(
             toFighterCaracsBonus({
                 damage: 1 + 0.1 * cordyceps,
                 ego: 1 + 0.1 * chlorella,
+                chance: 1 + 0.2 * jujubes,
             }),
         )
         .round()
@@ -159,17 +157,22 @@ export interface BoosterSimulationResult {
     result: number;
 }
 
-function simulateBoosterCombination(
+async function simulateBoosterCombination(
     f: (boosterCounts: BoosterCounts) => Promise<number>,
 ): Promise<BoosterSimulationResult[]> {
+    const { simulateGinseng, simulateJujubes, simulateChlorella, simulateCordyceps } = getConfig();
+    if (!(simulateGinseng || simulateJujubes || simulateChlorella || simulateCordyceps)) return [];
     return Promise.all(
         [...Array(2)].flatMap((_, mythic) =>
-            [...Array(5)].flatMap((_, cordyceps) =>
-                [...Array(5 - cordyceps)].map((_, chlorella) => {
-                    const ginseng = 4 - cordyceps - chlorella;
-                    const boosterCounts = { ginseng, chlorella, cordyceps, mythic };
-                    return f(boosterCounts).then(result => ({ boosterCounts, result }));
-                }),
+            [...Array(simulateCordyceps ? 5 : 1)].flatMap((_, cordyceps) =>
+                [...Array(simulateChlorella ? 5 - cordyceps : 1)].flatMap((_, chlorella) =>
+                    [...Array(simulateJujubes ? 5 - cordyceps - chlorella : 1)].flatMap((_, jujubes) => {
+                        const ginseng = 4 - cordyceps - chlorella - jujubes;
+                        if (!simulateGinseng && ginseng > 0) return [];
+                        const boosterCounts = { ginseng, jujubes, chlorella, cordyceps, mythic };
+                        return f(boosterCounts).then(result => ({ boosterCounts, result }));
+                    }),
+                ),
             ),
         ),
     );
@@ -198,9 +201,9 @@ export async function simulateBoosterCombinationWithHeadband(
     opponentTeam: Team,
 ): Promise<BoosterSimulationResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
-    if (ginsengCaracs == null) return [];
+    if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
-    if (teamParams == null) return [];
+    if (teamParams == null) throw new Error('Team data not found');
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
         const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
         const mythicBoosterMultiplier = 1 + 0.25 * boosterCounts.mythic; // Headband
@@ -210,9 +213,9 @@ export async function simulateBoosterCombinationWithHeadband(
 
 export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
     const ginsengCaracs = loadGinsengCaracs();
-    if (ginsengCaracs == null) return [];
+    if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
-    if (teamParams == null) return [];
+    if (teamParams == null) throw new Error('Team data not found');
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
         const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
         const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME

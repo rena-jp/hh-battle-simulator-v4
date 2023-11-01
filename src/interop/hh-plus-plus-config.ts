@@ -1,16 +1,17 @@
 import { getHHPlusPlusConfig } from './hh-plus-plus';
 
-interface Config {
-    doSimulateLeagueTable: boolean;
-    doSimulateFoughtOpponents: boolean;
-    replaceHHLeaguesPlusPlus: boolean;
-}
-
-const config: Config = {
+const config = {
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
     replaceHHLeaguesPlusPlus: true,
+    addBoosterSimulator: true,
+    simulateGinseng: true,
+    simulateJujubes: true,
+    simulateChlorella: true,
+    simulateCordyceps: true,
 };
+
+type Config = typeof config;
 
 export async function registerConfig() {
     const hhPlusPlusConfig = await getHHPlusPlusConfig();
@@ -43,6 +44,29 @@ export async function registerConfig() {
         },
         run() {
             config.replaceHHLeaguesPlusPlus = true;
+        },
+    });
+
+    config.addBoosterSimulator = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'BoosterSimulator',
+            label: 'Booster Sim',
+            default: true,
+            subSettings: [
+                { key: 'ginseng', default: true, label: 'Ginseng' },
+                { key: 'jujubes', default: false, label: 'Jujubes' },
+                { key: 'chlorella', default: true, label: 'Chlorella' },
+                { key: 'cordyceps', default: true, label: 'Cordyceps' },
+            ],
+        },
+        run(subSettings: any) {
+            config.addBoosterSimulator = true;
+            config.simulateGinseng = subSettings.ginseng;
+            config.simulateJujubes = subSettings.jujubes;
+            config.simulateChlorella = subSettings.chlorella;
+            config.simulateCordyceps = subSettings.cordyceps;
         },
     });
 

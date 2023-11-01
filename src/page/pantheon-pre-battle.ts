@@ -15,6 +15,7 @@ import { checkPage, getOpponentIdFromUrl } from '../utils/page';
 import { GameWindow, assertGameWindow } from './base/common';
 import { PantheonPreBattleGlobal } from './types/pantheon-pre-battle';
 import { Popup } from '../dom/popup';
+import { getConfig } from '../interop/hh-plus-plus-config';
 
 type PantheonPreBattleWindow = Window & GameWindow & PantheonPreBattleGlobal;
 
@@ -30,10 +31,11 @@ export async function PantheonPreBattlePage(window: Window) {
     await beforeGameInited();
     assertPantheonPreBattleWindow(window);
 
+    const config = getConfig();
     updateMythicBooster(window);
     saveOpponentTeam(window);
     addChance(window);
-    addBoosterSimulator(window);
+    if (config.addBoosterSimulator) addBoosterSimulator(window);
     addSkillSimulator(window);
 }
 
@@ -101,13 +103,12 @@ async function addBoosterSimulator(window: PantheonPreBattleWindow) {
             inited = true;
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
-                const results = await simulateBoosterCombinationWithHeadband(playerTeam, opponentTeam);
-                if (results == null || results.length === 0) {
-                    popup.setContent(
-                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
-                    );
-                } else {
+                try {
+                    const results = await simulateBoosterCombinationWithHeadband(playerTeam, opponentTeam);
                     popup.setContent(createBoosterChanceTable(results));
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : e;
+                    popup.setContent(`Error: ${message}<br>1. Go to the market page<br>2. Try again`);
                 }
             });
         }

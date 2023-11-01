@@ -4,6 +4,7 @@ import { ChanceView } from '../dom/chance';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
+import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import {
     calcMythicBoosterMultiplierFromFighters,
@@ -32,11 +33,12 @@ export async function LeaguePreBattlePage(window: Window) {
     await beforeGameInited();
     asserLeaguetPreBattleWindow(window);
 
+    const config = getConfig();
     updatePlayerLeagueTeam(window);
     updateMythicBooster(window);
     saveOpponentTeam(window);
     addChanceAndPoints(window);
-    addBoosterSimulation(window);
+    if (config.addBoosterSimulator) addBoosterSimulator(window);
     addSkillSimulator(window);
 }
 
@@ -99,7 +101,7 @@ async function addChanceAndPoints(window: LeaguesPreBattleWindow) {
     $('.opponent .icon-area').before(pointsView.getElement().addClass('sim-right'));
 }
 
-async function addBoosterSimulation(window: LeaguesPreBattleWindow) {
+async function addBoosterSimulator(window: LeaguesPreBattleWindow) {
     const { hero_data, opponent_fighter } = window;
     const playerTeam = hero_data.team;
     const opponentTeam = opponent_fighter.player.team;
@@ -116,13 +118,12 @@ async function addBoosterSimulation(window: LeaguesPreBattleWindow) {
             inited = true;
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
-                const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
-                if (results == null || results.length === 0) {
-                    popup.setContent(
-                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
-                    );
-                } else {
+                try {
+                    const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
                     popup.setContent(createBoosterPointsTable(results));
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : e;
+                    popup.setContent(`Error: ${message}<br>1. Go to the market page<br>2. Try again`);
                 }
             });
         }
