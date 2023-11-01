@@ -56,6 +56,29 @@ table.sim-table td {
     border: 1px solid #999;
 }
 
+table.sim-points-table {
+    border-collapse: collapse;
+    color: #fff;
+    background-color: #000;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    text-shadow: -1px -1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, 1px 1px 0 #000;
+}
+
+table.sim-points-table td {
+    padding: 1px 0.25rem;
+}
+
+.sim-points-table .sim-bar-container {
+    width: 5rem;
+}
+
+.sim-points-table .sim-bar {
+    height: 1.25rem;
+    margin-bottom: -1.25rem;
+    background-color: #ccf9;
+}
+
 .sim-column {
     text-align: center;
     text-wrap: nowrap;

@@ -85,7 +85,9 @@ async function saveOpponentTeam(window: LeaguesPreBattleWindow) {
 async function addChanceAndPoints(window: LeaguesPreBattleWindow) {
     const { hero_data, opponent_fighter } = window;
     const { player, opponent } = calcBattlersFromFighters(hero_data, opponent_fighter.player);
-    const resultPromise = simulateFromBattlers('Standard', player, opponent);
+    const { calculateLeaguePointsTable } = getConfig();
+    const simType = calculateLeaguePointsTable ? 'Full' : 'Standard';
+    const resultPromise = simulateFromBattlers(simType, player, opponent);
     await afterGameInited();
 
     const chanceView = new ChanceView();

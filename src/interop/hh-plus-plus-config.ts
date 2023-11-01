@@ -11,6 +11,7 @@ const config = {
     simulateCordyceps: true,
     addSkillSimulator: true,
     skillLevelsToBeSimulated: [5, 4, 3, 2, 1],
+    calculateLeaguePointsTable: false,
 };
 
 type Config = typeof config;
@@ -90,6 +91,19 @@ export async function registerConfig() {
         run(subSettings: any) {
             config.addSkillSimulator = true;
             config.skillLevelsToBeSimulated = [5, 4, 3, 2, 1].filter(e => subSettings['level' + e]);
+        },
+    });
+
+    config.calculateLeaguePointsTable = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'CalculateLeaguePointsTable',
+            label: 'Calculate each probability of league score',
+            default: false,
+        },
+        run() {
+            config.calculateLeaguePointsTable = true;
         },
     });
 
