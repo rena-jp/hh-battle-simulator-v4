@@ -39,7 +39,7 @@ export async function LeaguePreBattlePage(window: Window) {
     saveOpponentTeam(window);
     addChanceAndPoints(window);
     if (config.addBoosterSimulator) addBoosterSimulator(window);
-    addSkillSimulator(window);
+    if (config.addSkillSimulator) addSkillSimulator(window);
 }
 
 function updatePlayerLeagueTeam(window: LeaguesPreBattleGlobal) {
@@ -149,13 +149,12 @@ async function addSkillSimulator(window: LeaguesPreBattleWindow) {
             inited = true;
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
-                const results = await simulateSkillCombinationWithAME(playerTeam, opponentTeam);
-                if (results == null || results.length === 0) {
-                    popup.setContent(
-                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
-                    );
-                } else {
+                try {
+                    const results = await simulateSkillCombinationWithAME(playerTeam, opponentTeam);
                     popup.setContent(createSkillPointsTable(results));
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : e;
+                    popup.setContent(`Error: ${message}<br>1. Go to the market page<br>2. Try again`);
                 }
             });
         }

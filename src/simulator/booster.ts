@@ -231,7 +231,7 @@ export interface SkillSimulationResult {
     }[];
 }
 
-function simulateSkillCombination(
+async function simulateSkillCombination(
     f: (boosterCounts: BoosterCounts, skill: CalculatedSkill) => Promise<number>,
 ): Promise<SkillSimulationResult[]> {
     const skillMap = {
@@ -255,10 +255,12 @@ function simulateSkillCombination(
             },
         };
     };
+    const skillLevelsToBeSimulated = getConfig().skillLevelsToBeSimulated;
+    if (skillLevelsToBeSimulated.length === 0) return [];
     return Promise.all(
         [11, 12, 13, 14].map(async skillId => {
             const results = await Promise.all(
-                [5, 4, 3, 2, 1].map(async level => {
+                skillLevelsToBeSimulated.map(async level => {
                     const skill = create5thSkill(skillId, level);
                     const results = await simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
                         return f(boosterCounts, skill);
@@ -277,9 +279,9 @@ export async function simulateSkillCombinationWithHeadband(
     opponentTeam: Team,
 ): Promise<SkillSimulationResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
-    if (ginsengCaracs == null) return [];
+    if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
-    if (teamParams == null) return [];
+    if (teamParams == null) throw new Error('Team data not found');
     return simulateSkillCombination(async (boosterCounts: BoosterCounts, skill: CalculatedSkill) => {
         const boostedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
         const skilledTeam = calcSkilledTeam(boostedTeam, skill);
@@ -293,9 +295,9 @@ export async function simulateSkillCombinationWithAME(
     opponentTeam: Team,
 ): Promise<SkillSimulationResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
-    if (ginsengCaracs == null) return [];
+    if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
-    if (teamParams == null) return [];
+    if (teamParams == null) throw new Error('Team data not found');
     return simulateSkillCombination(async (boosterCounts: BoosterCounts, skill: CalculatedSkill) => {
         const boostedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
         const skilledTeam = calcSkilledTeam(boostedTeam, skill);

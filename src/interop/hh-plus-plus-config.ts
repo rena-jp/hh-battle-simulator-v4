@@ -9,6 +9,8 @@ const config = {
     simulateJujubes: true,
     simulateChlorella: true,
     simulateCordyceps: true,
+    addSkillSimulator: true,
+    skillLevelsToBeSimulated: [5, 4, 3, 2, 1],
 };
 
 type Config = typeof config;
@@ -67,6 +69,27 @@ export async function registerConfig() {
             config.simulateJujubes = subSettings.jujubes;
             config.simulateChlorella = subSettings.chlorella;
             config.simulateCordyceps = subSettings.cordyceps;
+        },
+    });
+
+    config.addSkillSimulator = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'SkillSimulator',
+            label: 'Skill Sim',
+            default: false,
+            subSettings: [
+                { key: 'level5', default: true, label: 'Level 5' },
+                { key: 'level4', default: true, label: 'Level 4' },
+                { key: 'level3', default: false, label: 'Level 3' },
+                { key: 'level2', default: false, label: 'Level 2' },
+                { key: 'level1', default: false, label: 'Level 1' },
+            ],
+        },
+        run(subSettings: any) {
+            config.addSkillSimulator = true;
+            config.skillLevelsToBeSimulated = [5, 4, 3, 2, 1].filter(e => subSettings['level' + e]);
         },
     });
 

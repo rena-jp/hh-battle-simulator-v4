@@ -36,7 +36,7 @@ export async function PantheonPreBattlePage(window: Window) {
     saveOpponentTeam(window);
     addChance(window);
     if (config.addBoosterSimulator) addBoosterSimulator(window);
-    addSkillSimulator(window);
+    if (config.addSkillSimulator) addSkillSimulator(window);
 }
 
 function updateMythicBooster(window: PantheonPreBattleWindow) {
@@ -134,13 +134,12 @@ async function addSkillSimulator(window: PantheonPreBattleWindow) {
             inited = true;
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
-                const results = await simulateSkillCombinationWithHeadband(playerTeam, opponentTeam);
-                if (results == null || results.length === 0) {
-                    popup.setContent(
-                        'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
-                    );
-                } else {
+                try {
+                    const results = await simulateSkillCombinationWithHeadband(playerTeam, opponentTeam);
                     popup.setContent(createSkillChanceTable(results));
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : e;
+                    popup.setContent(`Error: ${message}<br>1. Go to the market page<br>2. Try again`);
                 }
             });
         }
