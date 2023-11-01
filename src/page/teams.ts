@@ -133,7 +133,7 @@ async function fetchTeamsPage() {
 
 let playerLeagueTeam: Promise<Team | null> | null = null;
 export async function fetchPlayerLeaguesTeam() {
-    playerLeagueTeam = (async () => {
+    playerLeagueTeam ??= (async () => {
         const { referrer } = document;
         if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].every(e => !referrer.includes(e))) {
             try {
