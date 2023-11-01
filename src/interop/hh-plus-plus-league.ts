@@ -10,14 +10,13 @@ import { simulateBoosterCombinationWithAME, simulateSkillCombinationWithAME } fr
 import { calcBattlersFromTeams } from '../simulator/team';
 import { loadBoosterData } from '../store/booster';
 import { checkPage } from '../utils/page';
-import { getHHPlusPlus, getHHPlusPlusConfig } from './hh-plus-plus';
+import { getHHPlusPlus } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
 
 export async function replaceHHPlusPlusLeague() {
     if (!checkPage('/tower-of-fame.html')) return;
     const HHPlusPlus = await getHHPlusPlus();
     if (HHPlusPlus == null) return;
-    await getHHPlusPlusConfig(); // FIXME
     const config = getConfig();
     if (!config.replaceHHLeaguesPlusPlus) return;
 
@@ -77,7 +76,9 @@ export async function replaceHHPlusPlusLeague() {
                     forSim.battleTable = createBattleTable(player, opponent);
                     const hasAssumptions = playerTeam.id_team == null;
                     forSim.hasAssumptions = hasAssumptions;
-                    forSim.result = simulateFromBattlers('Standard', player, opponent).then(result => ({
+                    const { calculateLeaguePointsTable } = getConfig();
+                    const simType = calculateLeaguePointsTable ? 'Full' : 'Standard';
+                    forSim.result = simulateFromBattlers(simType, player, opponent).then(result => ({
                         ...result,
                         hasAssumptions,
                     }));
@@ -98,62 +99,62 @@ export async function replaceHHPlusPlusLeague() {
                 });
                 $('.opponent .icon-area').before(pointsView.getElement().addClass('sim-right'));
 
-                const boosterPopup = new Popup('Booster simulator');
-                const boosterIconButton = $(
-                    '<div class="sim-result"><div class="sim-icon-button sim-icon-ame"></div></div>',
-                )
-                    .addClass('sim-left')
-                    .addClass('sim-top')
-                    .attr('tooltip', 'Booster simulator');
-                boosterIconButton.on('click', () => {
-                    if (result.boosterTable == null) {
-                        boosterPopup.setContent('Now loading...');
-                        queueMicrotask(async () => {
-                            const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
-                            if (results == null || results.length === 0) {
-                                boosterPopup.setContent(
-                                    'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
-                                );
-                            } else {
-                                result.boosterTable = createBoosterPointsTable(results);
-                                boosterPopup.setContent(result.boosterTable);
-                            }
-                        });
-                    } else {
-                        boosterPopup.setContent(result.boosterTable);
-                    }
-                    boosterPopup.toggle();
-                });
-
-                const skillPopup = new Popup('Skill simulator');
-                const skillIconButton = $(
-                    '<div class="sim-result"><div class="sim-icon-button sim-icon-girl-skills"></div></div>',
-                )
-                    .addClass('sim-right')
-                    .addClass('sim-top')
-                    .attr('tooltip', 'Skill simulator');
-                skillIconButton.on('click', () => {
-                    if (result.skillTable == null) {
-                        skillPopup.setContent('Now loading...');
-                        queueMicrotask(async () => {
-                            const results = await simulateSkillCombinationWithAME(playerTeam, opponentTeam);
-                            if (results == null || results.length === 0) {
-                                skillPopup.setContent(
-                                    'Error<br>1. Go to the market page<br>2. Go to every team editing page (not team selecting page)<br>3. Try again',
-                                );
-                            } else {
-                                result.skillTable = createSkillPointsTable(results);
-                                skillPopup.setContent(result.skillTable);
-                            }
-                        });
-                    } else {
-                        skillPopup.setContent(result.skillTable);
-                    }
-                    skillPopup.toggle();
-                });
-
                 if (playerTeam.id_team != null) {
-                    $('.opponent .icon-area').before(boosterIconButton).before(skillIconButton);
+                    if (config.addBoosterSimulator) {
+                        const boosterPopup = new Popup('Booster simulator');
+                        const boosterIconButton = $(
+                            '<div class="sim-result"><div class="sim-icon-button sim-icon-ame"></div></div>',
+                        )
+                            .addClass('sim-left')
+                            .addClass('sim-top')
+                            .attr('tooltip', 'Booster simulator');
+                        boosterIconButton.on('click', async () => {
+                            boosterPopup.toggle();
+                            if (forSim.boosterTable == null) {
+                                boosterPopup.setContent('Now loading...');
+                                if (forSim.boosterResults == null) {
+                                    forSim.boosterResults = simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
+                                }
+                                try {
+                                    const results = await forSim.boosterResults;
+                                    forSim.boosterTable = createBoosterPointsTable(results);
+                                } catch (e) {
+                                    const message = e instanceof Error ? e.message : e;
+                                    forSim.boosterTable = `Error: ${message}<br>1. Go to the market page<br>2. Try again`;
+                                }
+                            }
+                            boosterPopup.setContent(forSim.boosterTable);
+                        });
+                        $('.opponent .icon-area').before(boosterIconButton);
+                    }
+
+                    if (config.addSkillSimulator) {
+                        const skillPopup = new Popup('Skill simulator');
+                        const skillIconButton = $(
+                            '<div class="sim-result"><div class="sim-icon-button sim-icon-girl-skills"></div></div>',
+                        )
+                            .addClass('sim-right')
+                            .addClass('sim-top')
+                            .attr('tooltip', 'Skill simulator');
+                        skillIconButton.on('click', async () => {
+                            skillPopup.toggle();
+                            if (forSim.skillTable == null) {
+                                skillPopup.setContent('Now loading...');
+                                if (forSim.skillResults == null) {
+                                    forSim.skillResults = simulateSkillCombinationWithAME(playerTeam, opponentTeam);
+                                }
+                                try {
+                                    const results = await forSim.skillResults;
+                                    forSim.skillTable = createSkillPointsTable(results);
+                                } catch (e) {
+                                    const message = e instanceof Error ? e.message : e;
+                                    forSim.skillTable = `Error: ${message}<br>1. Go to the market page<br>2. Try again`;
+                                }
+                            }
+                            skillPopup.setContent(forSim.skillTable);
+                        });
+                        $('.opponent .icon-area').before(skillIconButton);
+                    }
                 }
                 return;
             }
