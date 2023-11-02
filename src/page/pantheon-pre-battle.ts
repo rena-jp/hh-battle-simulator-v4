@@ -34,9 +34,11 @@ export async function PantheonPreBattlePage(window: Window) {
     const config = getConfig();
     updateMythicBooster(window);
     saveOpponentTeam(window);
-    addChance(window);
-    if (config.addBoosterSimulator) addBoosterSimulator(window);
-    if (config.addSkillSimulator) addSkillSimulator(window);
+    if (config.doSimulatePantheon) {
+        addChance(window);
+        if (config.addBoosterSimulator) addBoosterSimulator(window);
+        if (config.addSkillSimulator) addSkillSimulator(window);
+    }
 }
 
 function updateMythicBooster(window: PantheonPreBattleWindow) {

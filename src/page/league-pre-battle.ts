@@ -37,9 +37,11 @@ export async function LeaguePreBattlePage(window: Window) {
     updatePlayerLeagueTeam(window);
     updateMythicBooster(window);
     saveOpponentTeam(window);
-    addChanceAndPoints(window);
-    if (config.addBoosterSimulator) addBoosterSimulator(window);
-    if (config.addSkillSimulator) addSkillSimulator(window);
+    if (config.doSimulateLeague) {
+        addChanceAndPoints(window);
+        if (config.addBoosterSimulator) addBoosterSimulator(window);
+        if (config.addSkillSimulator) addSkillSimulator(window);
+    }
 }
 
 function updatePlayerLeagueTeam(window: LeaguesPreBattleGlobal) {

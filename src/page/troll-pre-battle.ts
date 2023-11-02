@@ -1,5 +1,6 @@
 import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
+import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import { calcMythicBoosterMultiplierFromFighters } from '../simulator/booster';
 import { calcBattlersFromFighters } from '../simulator/fighter';
@@ -24,9 +25,10 @@ export async function TrollPreBattlePage(window: Window) {
     await beforeGameInited();
     assertTrollPreBattleWindow(window);
 
+    const config = getConfig();
     updateMythicBooster(window);
     saveOpponentTeam(window);
-    addChance(window);
+    if (config.doSimulateTroll) addChance(window);
 }
 
 function updateMythicBooster(window: TrollPreBattleWindow) {

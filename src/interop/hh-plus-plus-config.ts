@@ -1,6 +1,11 @@
 import { getHHPlusPlusConfig } from './hh-plus-plus';
 
 const config = {
+    addBattleSimulator: true,
+    doSimulateTroll: true,
+    doSimulateLeague: true,
+    doSimulateSeason: true,
+    doSimulatePantheon: true,
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
     replaceHHLeaguesPlusPlus: true,
@@ -22,6 +27,33 @@ export async function registerConfig() {
 
     hhPlusPlusConfig.registerGroup({ key: 'sim-v4', name: 'Sim v4' });
 
+    config.addBattleSimulator = false;
+    config.doSimulateTroll = false;
+    config.doSimulateLeague = false;
+    config.doSimulateSeason = false;
+    config.doSimulatePantheon = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'BattleSimulator',
+            label: 'Battle Sim',
+            default: true,
+            subSettings: [
+                { key: 'troll', default: true, label: 'Villain' },
+                { key: 'league', default: true, label: 'League' },
+                { key: 'season', default: true, label: 'Season' },
+                { key: 'pantheon', default: true, label: 'Pantheon' },
+            ],
+        },
+        run(subSettings: any) {
+            config.addBattleSimulator = true;
+            config.doSimulateTroll = subSettings.troll;
+            config.doSimulateLeague = subSettings.league;
+            config.doSimulateSeason = subSettings.season;
+            config.doSimulatePantheon = subSettings.pantheon;
+        },
+    });
+
     config.doSimulateLeagueTable = false;
     hhPlusPlusConfig.registerModule({
         group: 'sim-v4',
@@ -37,16 +69,16 @@ export async function registerConfig() {
         },
     });
 
-    config.replaceHHLeaguesPlusPlus = false;
+    config.calculateLeaguePointsTable = false;
     hhPlusPlusConfig.registerModule({
         group: 'sim-v4',
         configSchema: {
-            baseKey: 'ReplaceHHLeaguesPlusPlus',
-            label: 'Replace HH Leagues++ sim',
-            default: true,
+            baseKey: 'CalculateLeaguePointsTable',
+            label: 'Calculate each probability of league score (maybe slow)',
+            default: false,
         },
         run() {
-            config.replaceHHLeaguesPlusPlus = true;
+            config.calculateLeaguePointsTable = true;
         },
     });
 
@@ -94,16 +126,16 @@ export async function registerConfig() {
         },
     });
 
-    config.calculateLeaguePointsTable = false;
+    config.replaceHHLeaguesPlusPlus = false;
     hhPlusPlusConfig.registerModule({
         group: 'sim-v4',
         configSchema: {
-            baseKey: 'CalculateLeaguePointsTable',
-            label: 'Calculate each probability of league score',
-            default: false,
+            baseKey: 'ReplaceHHLeaguesPlusPlus',
+            label: 'Replace HH Leagues++ sim',
+            default: true,
         },
         run() {
-            config.calculateLeaguePointsTable = true;
+            config.replaceHHLeaguesPlusPlus = true;
         },
     });
 

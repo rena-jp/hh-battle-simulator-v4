@@ -1,6 +1,7 @@
 import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
 import { createMojoElement$ } from '../dom/mojo';
+import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import { calcBattlerFromFighters } from '../simulator/fighter';
 import { calcCounterBonus } from '../simulator/team';
@@ -28,7 +29,8 @@ export async function SeasonArenaPage(window: Window) {
     const { hero_data, caracs_per_opponent, opponents } = window;
 
     updateMythicBooster();
-    addSimulation();
+    const config = getConfig();
+    if (config.doSimulateSeason) addSimulation();
 
     async function addSimulation() {
         opponents.forEach(async opponent_fighter => {
