@@ -273,7 +273,7 @@ export async function EditTeamPage(window: Window) {
 
         const validateButton = document.getElementById('validate-team');
         if (validateButton != null) {
-            validateButton.parentNode?.addEventListener(
+            validateButton.addEventListener(
                 'click',
                 () => {
                     updateTeamParams(getTeam(), Hero);
