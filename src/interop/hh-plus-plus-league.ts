@@ -13,6 +13,8 @@ import { checkPage } from '../utils/page';
 import { getHHPlusPlus } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
 
+let lastOpponentTeam: Team | undefined;
+
 export async function replaceHHPlusPlusLeague() {
     if (!checkPage('/tower-of-fame.html')) return;
     const HHPlusPlus = await getHHPlusPlus();
@@ -64,6 +66,7 @@ export async function replaceHHPlusPlusLeague() {
             if (forSim != null) {
                 let playerTeam: Team = forSim.playerTeam;
                 const opponentTeam: Team = forSim.opponentTeam;
+                lastOpponentTeam = opponentTeam;
 
                 if (forSim.result == null || (forSim.hasAssumptions && playerTeam.id_team != null)) {
                     playerTeam = playerLeagueTeam ?? playerTeam;
@@ -161,4 +164,8 @@ export async function replaceHHPlusPlusLeague() {
             return this.original.display(result);
         }
     };
+}
+
+export function getLeaguesPlusPlusOpponentTeam() {
+    return lastOpponentTeam;
 }

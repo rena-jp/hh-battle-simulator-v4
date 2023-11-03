@@ -11,6 +11,7 @@ import { GameWindow, assertGameWindow } from './base/common';
 import { TowerOfFameGlobal } from './types/tower-of-fame';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
 import { fetchPlayerLeaguesTeam } from './teams';
+import { getLeaguesPlusPlusOpponentTeam } from '../interop/hh-plus-plus-league';
 
 interface Opponent {
     can_fight: number;
@@ -232,12 +233,12 @@ async function updateOpponentTeam() {
         const update = () => {
             const config = getConfig();
             if (config.replaceHHLeaguesPlusPlus) {
-                const opponent_fighter = window.opponent_fighter as OpponentFighter;
-                if (opponent_fighter != null) {
+                const opponentTeam = getLeaguesPlusPlusOpponentTeam();
+                if (opponentTeam != null) {
                     saveOpponentTeamData({
                         battleType: 'leagues',
                         opponentId: '',
-                        team: opponent_fighter.player.team,
+                        team: opponentTeam,
                     });
                     return;
                 }
