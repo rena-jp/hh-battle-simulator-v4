@@ -21,6 +21,7 @@ import { createPointsTable } from '../dom/points-table';
 import { EditTeamGlobal } from './types/edit-team';
 import { calcBattlerFromTeams } from '../simulator/team';
 import { HeroType } from '../data/hero';
+import { getConfig } from '../interop/hh-plus-plus-config';
 
 type EditTeamWindow = GameWindow &
     EditTeamGlobal & {
@@ -48,6 +49,8 @@ export async function EditTeamPage(window: Window) {
     await beforeGameInited();
 
     assertEditTeamWindow(window);
+
+    const config = getConfig();
 
     const { availableGirls } = window;
     const girlMap = Object.fromEntries(availableGirls.map((e: any) => [e.id_girl, e]));
@@ -87,8 +90,8 @@ export async function EditTeamPage(window: Window) {
         id_team: window.hero_data.team.id_team,
     });
 
-    addSimulation(window);
     saveTeamSimulationParams(window);
+    if (config.doSimulateEditTeam) addSimulation(window);
 
     async function addSimulation(window: EditTeamWindow) {
         const { hero_data, teamGirls, theme_resonance_bonuses, availableGirls, localStorageGetItem } = window;
@@ -243,7 +246,8 @@ export async function EditTeamPage(window: Window) {
             const _hasAssumptions = hasAssumptions;
             const player = calcBattlerFromTeams(currentTeam, opponentTeam2, mythicBoosterMultiplier ?? 1);
             const opponent = calcBattlerFromTeams(opponentTeam2, currentTeam);
-            const resultPromise = simulateFromBattlers('Standard', player, opponent).then(result => {
+            const simType = config.calculateLeaguePointsTable ? 'Full' : 'Standard';
+            const resultPromise = simulateFromBattlers(simType, player, opponent).then(result => {
                 return {
                     ...result,
                     hasAssumptions: _hasAssumptions,

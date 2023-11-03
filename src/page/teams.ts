@@ -2,6 +2,7 @@ import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
+import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import { calcBattlerFromTeams } from '../simulator/team';
 import { loadPlayerLeagueTeam, savePlayerLeagueTeam } from '../store/team';
@@ -24,7 +25,8 @@ export async function TeamsPage(window: Window) {
 
     assertTeamsWindow(window);
 
-    addSimulation(window);
+    const config = getConfig();
+    if (config.doSimulateTeams) addSimulation(window);
     updateLeagueTeam(window);
 }
 
@@ -44,7 +46,9 @@ async function addSimulation(window: TeamsWindow) {
             .map((playerTeam: any) => {
                 const player = calcBattlerFromTeams(playerTeam, opponentTeam, mythicBoosterMultiplier);
                 const opponent = calcBattlerFromTeams(opponentTeam, playerTeam);
-                const resultPromise = simulateFromBattlers('Standard', player, opponent);
+                const { calculateLeaguePointsTable } = getConfig();
+                const simType = calculateLeaguePointsTable ? 'Full' : 'Standard';
+                const resultPromise = simulateFromBattlers(simType, player, opponent);
                 return [playerTeam.id_team, { resultPromise, player, opponent }] as [
                     string,
                     { resultPromise: Promise<FullResult>; player: Battler; opponent: Battler },

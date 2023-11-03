@@ -6,6 +6,8 @@ const config = {
     doSimulateLeague: true,
     doSimulateSeason: true,
     doSimulatePantheon: true,
+    doSimulateTeams: true,
+    doSimulateEditTeam: true,
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
     replaceHHLeaguesPlusPlus: true,
@@ -32,6 +34,8 @@ export async function registerConfig() {
     config.doSimulateLeague = false;
     config.doSimulateSeason = false;
     config.doSimulatePantheon = false;
+    config.doSimulateTeams = false;
+    config.doSimulateEditTeam = false;
     hhPlusPlusConfig.registerModule({
         group: 'sim-v4',
         configSchema: {
@@ -43,6 +47,8 @@ export async function registerConfig() {
                 { key: 'league', default: true, label: 'League' },
                 { key: 'season', default: true, label: 'Season' },
                 { key: 'pantheon', default: true, label: 'Pantheon' },
+                { key: 'teams', default: true, label: 'Team Selecting' },
+                { key: 'editTeam', default: true, label: 'Team Editing' },
             ],
         },
         run(subSettings: any) {
@@ -51,6 +57,8 @@ export async function registerConfig() {
             config.doSimulateLeague = subSettings.league;
             config.doSimulateSeason = subSettings.season;
             config.doSimulatePantheon = subSettings.pantheon;
+            config.doSimulateTeams = subSettings.teams;
+            config.doSimulateEditTeam = subSettings.editTeam;
         },
     });
 
