@@ -15,6 +15,14 @@ export function toPercentage(value: number): string {
     return '0%';
 }
 
+export function toPrecisePercentage(value: number): string {
+    const percentage = value * 100;
+    if (percentage >= 100) return '100%';
+    if (percentage >= 0.01) return `${truncateSoftly(percentage, 2)}%`; // 0.01%-99.99%
+    if (percentage >= 0) return `${truncateSoftly(percentage, 3)}%`; // 0% or 0.001%-0.009%
+    return '0%';
+}
+
 export function toLeaguePointsPerFight(value: number): string {
     if (value >= 25) return '25';
     if (value > 24.9) return truncateSoftly(value, 3);

@@ -1,5 +1,5 @@
 import { getPointsColor } from '../utils/color';
-import { toPercentage, toPreciseLeaguePointsPerFight } from '../utils/string';
+import { toPreciseLeaguePointsPerFight, toPrecisePercentage } from '../utils/string';
 import { column, columns, row } from '../utils/table';
 
 export function createPointsTable(result: StandardResult | FullResult): string {
@@ -16,7 +16,7 @@ export function createPointsTable(result: StandardResult | FullResult): string {
                 '</td>',
                 '<td class="sim-bar-container">',
                 `<div class="sim-bar" style="width: ${(e.probability * 5) / max}rem;"></div>`,
-                toPercentage(e.probability),
+                toPrecisePercentage(e.probability),
                 '</td>',
                 '</tr>',
             ]);

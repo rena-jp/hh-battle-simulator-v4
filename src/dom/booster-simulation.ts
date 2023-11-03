@@ -1,6 +1,6 @@
 import { BoosterCounts, BoosterKeys, BoosterSimulationResult, SkillSimulationResult } from '../simulator/booster';
 import { getChanceColor, getPointsColor } from '../utils/color';
-import { toLeaguePointsPerFight, toPercentage } from '../utils/string';
+import { toLeaguePointsPerFight, toPrecisePercentage } from '../utils/string';
 import { column, columns, row } from '../utils/table';
 
 function sortBoosterSimulationResults(results: BoosterSimulationResult[]) {
@@ -47,11 +47,11 @@ export function createBoosterChanceTable(results: BoosterSimulationResult[]) {
             row(
                 columns(1, [
                     getBoosterIcons(e.boosterCounts, 'headband'),
-                    `<span class="sim-chance" style="color: ${getChanceColor(e.result)}">${toPercentage(
+                    `<span class="sim-chance" style="color: ${getChanceColor(e.result)}">${toPrecisePercentage(
                         e.result,
                     )}</span>`,
                     getBoosterIcons(withHB[i].boosterCounts, 'headband'),
-                    `<span class="sim-chance" style="color: ${getChanceColor(withHB[i].result)}">${toPercentage(
+                    `<span class="sim-chance" style="color: ${getChanceColor(withHB[i].result)}">${toPrecisePercentage(
                         withHB[i].result,
                     )}</span>`,
                 ]),
@@ -90,9 +90,9 @@ export function createSkillChanceTable(results: SkillSimulationResult[]) {
                             return row(
                                 columns(1, [
                                     getBoosterIcons(e.boosterCounts, 'headband'),
-                                    `<span class="sim-chance" style="color: ${getChanceColor(e.result)}">${toPercentage(
+                                    `<span class="sim-chance" style="color: ${getChanceColor(
                                         e.result,
-                                    )}</span>`,
+                                    )}">${toPrecisePercentage(e.result)}</span>`,
                                 ]),
                             );
                         }),
