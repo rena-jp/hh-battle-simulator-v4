@@ -175,3 +175,38 @@ export function createSkillPointsTable(results: SkillSimulationResult[]) {
         return $('<table class="sim-booster-table"></table>').append(rows.join('')).prop('outerHTML');
     }
 }
+
+export function createAllBoosterPointsTable(results: BoosterSimulationResult[], opponentCount: number) {
+    sortBoosterSimulationResults(results);
+    const withoutAME = results.filter(e => e.boosterCounts.mythic <= 0);
+    const withAME = results.filter(e => e.boosterCounts.mythic > 0);
+    return createTable();
+
+    function createTable() {
+        const test = withoutAME.map((e, i) =>
+            row(
+                columns(1, [
+                    getBoosterIcons(e.boosterCounts, 'ame'),
+                    `<span class="sim-points" style="color: ${getPointsColor(e.result)}">${(
+                        e.result *
+                        opponentCount *
+                        3
+                    ).toFixed()}</span>`,
+                    `<span class="sim-points" style="color: ${getPointsColor(e.result)}">(${toLeaguePointsPerFight(
+                        e.result,
+                    )})</span>`,
+                    getBoosterIcons(withAME[i].boosterCounts, 'ame'),
+                    `<span class="sim-points" style="color: ${getPointsColor(withAME[i].result)}">${(
+                        withAME[i].result *
+                        opponentCount *
+                        3
+                    ).toFixed()}</span>`,
+                    `<span class="sim-points" style="color: ${getPointsColor(
+                        withAME[i].result,
+                    )}">(${toLeaguePointsPerFight(withAME[i].result)})</span>`,
+                ]),
+            ),
+        );
+        return $('<table class="sim-booster-table"></table>').append(test.join('')).prop('outerHTML');
+    }
+}

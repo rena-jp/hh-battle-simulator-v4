@@ -211,16 +211,29 @@ export async function simulateBoosterCombinationWithHeadband(
     });
 }
 
-export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
+export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team | Team[]) {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
     if (teamParams == null) throw new Error('Team data not found');
-    return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
-        const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
-        const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
-        return simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
-    });
+    if (Array.isArray(opponentTeam)) {
+        return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
+            const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+            const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+            const results = await Promise.all(
+                opponentTeam.map(opponentTeam =>
+                    simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier),
+                ),
+            );
+            return results.reduce((p, c) => p + c, 0) / results.length;
+        });
+    } else {
+        return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
+            const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+            const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+            return simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
+        });
+    }
 }
 
 export interface SkillSimulationResult {

@@ -12,6 +12,9 @@ import { TowerOfFameGlobal } from './types/tower-of-fame';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
 import { fetchPlayerLeaguesTeam } from './teams';
 import { getLeaguesPlusPlusOpponentTeam } from '../interop/hh-plus-plus-league';
+import { Popup } from '../dom/popup';
+import { simulateBoosterCombinationWithAME } from '../simulator/booster';
+import { createAllBoosterPointsTable } from '../dom/booster-simulation';
 
 interface Opponent {
     can_fight: number;
@@ -74,16 +77,14 @@ export async function TowerOfFamePage(window: Window) {
         const playerTeam = await fetchPlayerLeaguesTeam();
         if (playerTeam == null) return;
 
-        let opponents = opponents_list.filter(
+        const opponents = opponents_list.filter(
             (opponent): opponent is Opponent => +opponent.player.id_fighter !== playerId,
         );
-        if (!config.doSimulateFoughtOpponents) {
-            opponents = opponents.filter(
-                opponent => Object.values(opponent.match_history)[0].filter(e => e != null).length < 3,
-            );
-        }
+        const unfoughtOpponents = opponents.filter(
+            opponent => Object.values(opponent.match_history)[0].filter(e => e != null).length < 3,
+        );
 
-        const resultPromises = opponents.map(opponent =>
+        const resultPromises = (config.doSimulateFoughtOpponents ? opponents : unfoughtOpponents).map(opponent =>
             simulateFromTeams('Points', playerTeam, opponent.player.team, mythicBoosterMultiplier).then(
                 result => [opponent.player.id_fighter, result] as [string, PointsResult],
             ),
@@ -145,6 +146,8 @@ export async function TowerOfFamePage(window: Window) {
             )}</em>`,
         );
 
+        const popup = new Popup('Average of all players');
+        let boosterSimulatorInited = false;
         const replacePowerViewWithSimResult = () => {
             const powerColumnMap: Record<string, HTMLElement[]> = {};
             document.querySelectorAll('.data-row.body-row').forEach(row => {
@@ -165,7 +168,40 @@ export async function TowerOfFamePage(window: Window) {
                         .html(`${mark}${truncateSoftly(result.avgPoints, 2)}`)
                         .css('color', getPointsColor(result.avgPoints));
                 } else {
-                    $columnContent.text('-');
+                    if (
+                        +opponentId === playerId &&
+                        config.addBoosterSimulator &&
+                        config.addBoosterSimulatorToLeagueTable
+                    ) {
+                        const iconButton = $('<div class="sim-icon-button sim-icon-ame"></div>').attr(
+                            'tooltip',
+                            'Booster simulator (Average of all players)',
+                        );
+                        iconButton.on('click', () => {
+                            if (!boosterSimulatorInited) {
+                                boosterSimulatorInited = true;
+                                popup.setContent('Now loading...');
+                                queueMicrotask(async () => {
+                                    try {
+                                        const results = await simulateBoosterCombinationWithAME(
+                                            playerTeam,
+                                            opponents.map(e => e.player.team),
+                                        );
+                                        popup.setContent(createAllBoosterPointsTable(results, opponents.length));
+                                    } catch (e) {
+                                        const message = e instanceof Error ? e.message : e;
+                                        popup.setContent(
+                                            `Error: ${message}<br>1. Go to the market page<br>2. Try again`,
+                                        );
+                                    }
+                                });
+                            }
+                            popup.toggle();
+                        });
+                        $columnContent.append(iconButton);
+                    } else {
+                        $columnContent.text('-');
+                    }
                 }
                 $(powerColumnMap[opponentId]).empty().append($columnContent);
             });

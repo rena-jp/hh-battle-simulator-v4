@@ -188,3 +188,7 @@ table.sim-booster-table .sim-booster-icon {
 .sim-icon-girl-skills {
     background-image: url('${IMAGES_URL}/pictures/design/girl_skills/active_skills_icon.png');
 }
+
+.sim-column .sim-icon-button {
+    margin: -1rem auto;
+}

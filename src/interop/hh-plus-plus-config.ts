@@ -10,6 +10,7 @@ const config = {
     doSimulateEditTeam: true,
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
+    addBoosterSimulatorToLeagueTable: true,
     replaceHHLeaguesPlusPlus: true,
     addBoosterSimulator: true,
     simulateGinseng: true,
@@ -69,11 +70,15 @@ export async function registerConfig() {
             baseKey: 'DoSimulateLeagueTable',
             label: 'Run simulations in the league table (maybe slow)',
             default: true,
-            subSettings: [{ key: 'skip', default: false, label: 'Skip fought opponents' }],
+            subSettings: [
+                { key: 'skip', default: true, label: 'Skip fought opponents' },
+                { key: 'booster', default: false, label: 'Add booster simulator to league table' },
+            ],
         },
         run(subSettings: any) {
             config.doSimulateLeagueTable = true;
             config.doSimulateFoughtOpponents = !subSettings.skip;
+            config.addBoosterSimulatorToLeagueTable = subSettings.booster;
         },
     });
 
