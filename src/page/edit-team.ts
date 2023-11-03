@@ -267,11 +267,11 @@ export async function EditTeamPage(window: Window) {
     }
 
     async function saveTeamSimulationParams(window: EditTeamWindow) {
-        const { Hero, hero_data } = window;
+        const { Hero, hero_data, server_now_ts } = window;
 
         const initialTeam = hero_data.team;
         const mergedInitialTeam = { ...initialTeam, girls: initialTeam.girls.map(e => girlMap[e.id_girl]) };
-        updateTeamParams(mergedInitialTeam, Hero);
+        updateTeamParams(mergedInitialTeam, Hero, server_now_ts);
 
         await afterGameInited();
 
@@ -280,7 +280,7 @@ export async function EditTeamPage(window: Window) {
             validateButton.addEventListener(
                 'click',
                 () => {
-                    updateTeamParams(getTeam(), Hero);
+                    updateTeamParams(getTeam(), Hero, server_now_ts);
                 },
                 true,
             );
@@ -311,7 +311,7 @@ async function fetchEditTeamPage(id_team: string) {
 }
 
 let teamParams: TeamParams | undefined;
-export async function fetchTeamParams(teamId: string, hero: HeroType) {
+export async function fetchTeamParams(teamId: string, hero: HeroType, server_now_ts: number) {
     if (teamParams != null) return teamParams;
     const editTeamPage = await fetchEditTeamPage(teamId);
     const girlMap = Object.fromEntries(editTeamPage.availableGirls.map(e => [e.id_girl, e]));
@@ -319,15 +319,15 @@ export async function fetchTeamParams(teamId: string, hero: HeroType) {
         ...editTeamPage.hero_data.team,
         girls: editTeamPage.hero_data.team.girls.map(e => girlMap[e.id_girl]),
     };
-    teamParams = updateTeamParams(team, hero);
+    teamParams = updateTeamParams(team, hero, server_now_ts);
     return teamParams;
 }
 
-function updateTeamParams(team: TeamForSimulation, hero: HeroType) {
+function updateTeamParams(team: TeamForSimulation, hero: HeroType, server_now_ts: number) {
     const classBonus = loadClassBonus();
     if (classBonus == null) return;
 
-    const boosterBonus = loadBoosterBonus();
+    const boosterBonus = loadBoosterBonus(server_now_ts);
     if (boosterBonus == null) return;
 
     const heroCaracs = multiplyFighterCaracs(getFighterCaracsFromHero(hero), classBonus);

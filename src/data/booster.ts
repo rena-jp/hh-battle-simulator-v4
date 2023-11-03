@@ -1,4 +1,4 @@
-import { FighterCaracs, FighterCaracsCalculator, toFighterCaracs } from './fighter';
+import { FighterCaracs, toFighterCaracs } from './fighter';
 
 export interface Booster {
     item: {
@@ -10,6 +10,12 @@ export interface Booster {
     };
     lifetime: string;
     usages_remaining: string;
+}
+
+export interface NormalBooster {
+    multiplier?: FighterCaracs;
+    addend?: FighterCaracs;
+    lifetime: number;
 }
 
 export interface BoosterBonus {
@@ -49,32 +55,32 @@ const MythicBoosterMap: Record<string, MythicBoosterBonus | undefined> = {
 };
 
 export function getBoosterData(boosters: Booster[]) {
-    const multiplier = new FighterCaracsCalculator();
-    const addend = new FighterCaracsCalculator();
+    const normals: NormalBooster[] = [];
     let mythic = {} as MythicBoosterBonus;
-    boosters
-        .map(e => e.item)
-        .forEach(e => {
-            switch (e.rarity) {
-                case 'common':
-                case 'rare':
-                case 'epic':
-                    addend.add(toFighterCaracs(e));
-                    break;
-                case 'legendary':
-                    multiplier.add(toFighterCaracs(e));
-                    break;
-                case 'mythic':
-                    const mythicBonus = MythicBoosterMap[e.identifier];
-                    if (mythicBonus != null) {
-                        mythic = { ...mythic, ...mythicBonus };
-                    }
-                    break;
-            }
-        });
-    const normal = {
-        multiplier: multiplier.divide(100).add(1).result(),
-        addend: addend.result(),
-    };
-    return { normal, mythic };
+    boosters.forEach(e => {
+        const { item } = e;
+        switch (item.rarity) {
+            case 'common':
+            case 'rare':
+            case 'epic':
+                normals.push({
+                    addend: toFighterCaracs(item),
+                    lifetime: +e.lifetime,
+                });
+                break;
+            case 'legendary':
+                normals.push({
+                    multiplier: toFighterCaracs(item),
+                    lifetime: +e.lifetime,
+                });
+                break;
+            case 'mythic':
+                const mythicBonus = MythicBoosterMap[item.identifier];
+                if (mythicBonus != null) {
+                    mythic = { ...mythic, ...mythicBonus };
+                }
+                break;
+        }
+    });
+    return { normals, mythic };
 }

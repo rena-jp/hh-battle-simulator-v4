@@ -96,7 +96,7 @@ async function getTeamParams(team: Team) {
         return teamParams;
     }
     if (window.Hero == null) return;
-    return await fetchTeamParams(teamId, window.Hero as HeroType);
+    return await fetchTeamParams(teamId, window.Hero as HeroType, window.server_now_ts as number);
 }
 
 export const BoosterKeys = ['ginseng', 'jujubes', 'chlorella', 'cordyceps', 'mythic'] as const;

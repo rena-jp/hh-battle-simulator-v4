@@ -8,7 +8,7 @@ import { fetchPlayerLeaguesTeam } from '../page/teams';
 import { simulateFromBattlers } from '../simulator/battle';
 import { simulateBoosterCombinationWithAME, simulateSkillCombinationWithAME } from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
-import { loadBoosterData } from '../store/booster';
+import { loadMythicBoosterBonus } from '../store/booster';
 import { checkPage } from '../utils/page';
 import { getHHPlusPlus } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
@@ -43,7 +43,7 @@ export async function replaceHHPlusPlusLeague() {
                     inited = true;
                     (async () => {
                         playerLeagueTeam = await fetchPlayerLeaguesTeam();
-                        leagueBoosterMultiplier = loadBoosterData().mythic?.leagues;
+                        leagueBoosterMultiplier = loadMythicBoosterBonus().leagues ?? 1;
                         const forSim = lastDisplay?.forSim;
                         if (forSim != null && forSim.hasAssumptions === true) {
                             forSim.playerTeam = playerLeagueTeam;
@@ -70,7 +70,8 @@ export async function replaceHHPlusPlusLeague() {
 
                 if (forSim.result == null || (forSim.hasAssumptions && playerTeam.id_team != null)) {
                     playerTeam = playerLeagueTeam ?? playerTeam;
-                    const mythicBoosterMultiplier: number = leagueBoosterMultiplier ?? forSim.mythicBoosterMultiplier;
+                    const mythicBoosterMultiplier: number =
+                        leagueBoosterMultiplier ?? forSim.mythicBoosterMultiplier ?? 1;
                     const { player, opponent } = calcBattlersFromTeams(
                         playerTeam,
                         opponentTeam,
