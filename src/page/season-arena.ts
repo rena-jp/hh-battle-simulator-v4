@@ -1,17 +1,18 @@
 import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
-import { createMojoElement$ } from '../dom/mojo';
+import { MojoView } from '../dom/mojo';
 import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import { calcBattlerFromFighters } from '../simulator/fighter';
 import { calcCounterBonus } from '../simulator/team';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
+import { saveOpponentTeamData } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
 import { checkPage } from '../utils/page';
 import { GameWindow, assertGameWindow } from './base/common';
 import { SeasonArenaGlobal } from './types/season-arena';
 
-type SeasonArenaWindow = Window & GameWindow & SeasonArenaGlobal;
+type SeasonArenaWindow = GameWindow & SeasonArenaGlobal;
 
 function assertSeasonArenaWindow(window: Window): asserts window is SeasonArenaWindow {
     assertGameWindow(window);
@@ -29,6 +30,7 @@ export async function SeasonArenaPage(window: Window) {
     const { hero_data, caracs_per_opponent, opponents } = window;
 
     updateMythicBooster();
+    saveOpponentTeam(window);
     const config = getConfig();
     if (config.doSimulateSeason) addSimulation();
 
@@ -48,11 +50,12 @@ export async function SeasonArenaPage(window: Window) {
             chanceView.updateAsync(resultPromise);
             chanceView.setTooltip(createBattleTable(player, opponent));
 
-            const mojoView = createMojoElement$(resultPromise, mojo).addClass('sim-right');
+            const mojoView = new MojoView(mojo);
+            mojoView.updateAsync(resultPromise);
 
             $(`[data-opponent="${opponentId}"] .icon-area`)
                 .before(chanceView.getElement().addClass('sim-left'))
-                .before(mojoView);
+                .before(mojoView.getElement().addClass('sim-right'));
         });
     }
 
@@ -65,5 +68,35 @@ export async function SeasonArenaPage(window: Window) {
         const mythicBoosterData = loadMythicBoosterBonus();
         mythicBoosterData.seasons = percentage / 100;
         saveMythicBoosterBonus(mythicBoosterData);
+    }
+}
+
+async function saveOpponentTeam(window: SeasonArenaWindow) {
+    const { opponents, localStorageSetItem } = window;
+
+    const update = () => {
+        localStorageSetItem('battle_type', 'seasons');
+        const opponentId = $('.selected_opponent').attr('data-opponent');
+        if (opponentId == null) return;
+        const opponent = opponents.find(e => e.player.id_fighter === opponentId);
+        if (opponent == null) return;
+        const opponentTeam = opponent.player.team;
+        const mojo = opponent.rewards.rewards.find(e => e.type === 'victory_points')?.value;
+        saveOpponentTeamData({
+            battleType: 'seasons',
+            opponentId,
+            team: opponentTeam,
+            mojo: +(mojo ?? 0),
+        });
+    };
+
+    update();
+
+    await afterGameInited();
+
+    const button = document.getElementById('change_team');
+    if (button != null) {
+        button.addEventListener('click', update, true);
+        button.addEventListener('auxclick', update, true);
     }
 }

@@ -10,7 +10,7 @@ import {
     toFighterCaracs,
 } from '../data/fighter';
 import { loadClassBonus } from '../store/hero';
-import { TeamParams, saveTeamParams } from '../store/team';
+import { TeamParams, loadOpponentTeamData, saveTeamParams } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
 import { checkPage } from '../utils/page';
 import { GameWindow, assertGameWindow, loadMythicBoosterMultiplier, loadOpponentTeam } from './base/common';
@@ -22,6 +22,7 @@ import { EditTeamGlobal } from './types/edit-team';
 import { calcBattlerFromTeams } from '../simulator/team';
 import { HeroType } from '../data/hero';
 import { getConfig } from '../interop/hh-plus-plus-config';
+import { MojoView } from '../dom/mojo';
 
 type EditTeamWindow = GameWindow &
     EditTeamGlobal & {
@@ -125,6 +126,12 @@ export async function EditTeamPage(window: Window) {
             $iconArea.before(pointsView.getElement().addClass('sim-right'));
         }
 
+        const mojo = loadOpponentTeamData()?.mojo;
+        const mojoView = battleType === 'seasons' && mojo != null ? new MojoView(mojo) : null;
+        if (mojoView != null) {
+            $iconArea.before(mojoView.getElement().addClass('sim-right'));
+        }
+
         update();
 
         const statsContainer = document.querySelector('.player_stats');
@@ -168,6 +175,7 @@ export async function EditTeamPage(window: Window) {
             // reset sim
             chanceView.reset();
             pointsView?.reset();
+            mojoView?.reset();
         }
 
         function updateStats() {
@@ -246,7 +254,7 @@ export async function EditTeamPage(window: Window) {
             const _hasAssumptions = hasAssumptions;
             const player = calcBattlerFromTeams(currentTeam, opponentTeam2, mythicBoosterMultiplier ?? 1);
             const opponent = calcBattlerFromTeams(opponentTeam2, currentTeam);
-            const simType = config.calculateLeaguePointsTable ? 'Full' : 'Standard';
+            const simType = pointsView == null ? 'Chance' : config.calculateLeaguePointsTable ? 'Full' : 'Standard';
             const resultPromise = simulateFromBattlers(simType, player, opponent).then(result => {
                 return {
                     ...result,
@@ -258,10 +266,15 @@ export async function EditTeamPage(window: Window) {
             chanceView.setTooltip(createBattleTable(player, opponent));
 
             if (pointsView != null) {
-                pointsView.updateAsync(resultPromise);
-                resultPromise.then(result => {
+                const leaguePromise = resultPromise as Promise<StandardResult | FullResult>;
+                pointsView.updateAsync(leaguePromise);
+                leaguePromise.then(result => {
                     pointsView.setTooltip(createPointsTable(result));
                 });
+            }
+
+            if (mojoView != null) {
+                mojoView.updateAsync(resultPromise);
             }
         }
     }

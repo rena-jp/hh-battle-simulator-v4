@@ -57,6 +57,7 @@ export function loadOpponentTeam(window: GameWindow): Team | null {
         leagues: () => localStorageGetItem('leagues_id'),
         trolls: () => localStorageGetItem('troll_id'),
         pantheon: () => localStorageGetItem('pantheon_id'),
+        seasons: () => opponentTeamData.opponentId,
     };
     const opponentId = opponentIdMap[battleType]?.();
     if (opponentId === opponentTeamData.opponentId) return opponentTeamData.team;

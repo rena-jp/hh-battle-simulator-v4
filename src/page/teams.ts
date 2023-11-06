@@ -1,11 +1,12 @@
 import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
+import { MojoView } from '../dom/mojo';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
 import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import { calcBattlerFromTeams } from '../simulator/team';
-import { loadPlayerLeagueTeam, savePlayerLeagueTeam } from '../store/team';
+import { loadOpponentTeamData, loadPlayerLeagueTeam, savePlayerLeagueTeam } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
 import { checkPage } from '../utils/page';
 import { GameWindow, assertGameWindow, loadMythicBoosterMultiplier, loadOpponentTeam } from './base/common';
@@ -36,6 +37,8 @@ async function addSimulation(window: TeamsWindow) {
     const opponentTeam = loadOpponentTeam(window);
     if (opponentTeam == null) return;
 
+    const mojo = loadOpponentTeamData()?.mojo;
+
     const battleType = localStorageGetItem('battle_type');
     const mythicBoosterMultiplier = loadMythicBoosterMultiplier(battleType);
     if (mythicBoosterMultiplier == null) return;
@@ -47,7 +50,7 @@ async function addSimulation(window: TeamsWindow) {
                 const player = calcBattlerFromTeams(playerTeam, opponentTeam, mythicBoosterMultiplier);
                 const opponent = calcBattlerFromTeams(opponentTeam, playerTeam);
                 const { calculateLeaguePointsTable } = getConfig();
-                const simType = calculateLeaguePointsTable ? 'Full' : 'Standard';
+                const simType = battleType !== 'leagues' ? 'Chance' : calculateLeaguePointsTable ? 'Full' : 'Standard';
                 const resultPromise = simulateFromBattlers(simType, player, opponent);
                 return [playerTeam.id_team, { resultPromise, player, opponent }] as [
                     string,
@@ -90,6 +93,11 @@ async function addSimulation(window: TeamsWindow) {
                 pointsView.setTooltip(createPointsTable(result));
             });
             $iconArea.before(pointsView.getElement().addClass('sim-right'));
+        }
+        if (battleType === 'seasons' && mojo != null) {
+            const mojoView = new MojoView(mojo);
+            mojoView.updateAsync(resultPromise);
+            $iconArea.before(mojoView.getElement().addClass('sim-right'));
         }
     }
 }

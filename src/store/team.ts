@@ -5,6 +5,7 @@ export interface OpponentTeamData {
     battleType: string;
     opponentId: string;
     team: Team;
+    mojo?: number;
 }
 
 export interface TeamParams {
