@@ -1,7 +1,7 @@
 export class Popup {
     private element: JQuery<HTMLElement>;
     private content: JQuery<HTMLElement>;
-    constructor(caption: string) {
+    constructor(header: string | JQuery<HTMLElement>) {
         this.element = $('<div class="sim-popup"></div>');
 
         const closeButton = $('<div class="close-button xUncheck_mix_icn"></div>');
@@ -10,7 +10,11 @@ export class Popup {
         });
 
         this.element.append(closeButton);
-        this.element.append($('<h1 class="caption"></h1>').text(caption));
+        if (typeof header === 'string') {
+            this.element.append($('<h1 class="caption"></h1>').text(header));
+        } else {
+            this.element.append(header);
+        }
 
         const content = $('<div class="content"></div>');
         this.content = content;
@@ -24,12 +28,16 @@ export class Popup {
     }
     toggle() {
         if (this.element.parent().length === 0) {
-            this.element.appendTo('#contains_all');
+            this.show();
         } else {
-            this.element.detach();
+            this.hide();
         }
     }
-    setContent(html: string) {
-        this.content.html(html);
+    setContent(dom: string | JQuery<HTMLElement>) {
+        if (typeof dom === 'string') {
+            this.content.html(dom);
+        } else {
+            this.content.empty().append(dom);
+        }
     }
 }

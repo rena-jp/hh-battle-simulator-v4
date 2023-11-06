@@ -192,3 +192,22 @@ table.sim-booster-table .sim-booster-icon {
 .sim-column .sim-icon-button {
     margin: -1rem auto;
 }
+
+.sim-selectors.form-wrapper {
+    display: flex;
+    margin: -0.5rem 3rem 0 0;
+    gap: 0.5rem;
+    width: min-content;
+}
+
+.sim-selectors.form-wrapper > .form-control {
+    width: 9rem;
+}
+
+.sim-selectors.form-wrapper > .form-control > .select-group .selectric-items {
+    height: auto;
+}
+
+.sim-selectors.form-wrapper > .form-control > .select-group .selectric-items li:first-of-type {
+    padding-left: 5px;
+}

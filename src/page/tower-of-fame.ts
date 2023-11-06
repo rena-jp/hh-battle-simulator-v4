@@ -12,9 +12,7 @@ import { TowerOfFameGlobal } from './types/tower-of-fame';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
 import { fetchPlayerLeaguesTeam } from './teams';
 import { getLeaguesPlusPlusOpponentTeam } from '../interop/hh-plus-plus-league';
-import { Popup } from '../dom/popup';
-import { simulateBoosterCombinationWithAME } from '../simulator/booster';
-import { createAllBoosterPointsTable } from '../dom/booster-simulation';
+import { BoosterSimulatorPopup } from '../dom/booster-simulator-popup';
 
 interface Opponent {
     can_fight: number;
@@ -24,7 +22,7 @@ interface Opponent {
     };
     boosters: Booster[];
     match_history: Record<string, (number | null)[]>;
-    power: number;
+    power?: number;
     sim?:
         | {
               win: number;
@@ -36,14 +34,14 @@ interface Opponent {
         | any;
 }
 
-type Player = Omit<Opponent, 'match_history'> & {
-    match_history: Record<string, false>;
-};
+type Player = TowerOfFameGlobal['opponents_list'][number] &
+    Omit<Opponent, 'match_history'> & {
+        match_history: Record<string, false>;
+    };
 
-type TowerOfFameWindow = Window &
-    GameWindow & {
-        opponents_list: (Opponent | Player)[];
-    } & TowerOfFameGlobal;
+type TowerOfFameWindow = GameWindow & {
+    opponents_list: (Opponent | Player)[];
+} & TowerOfFameGlobal;
 
 function assertTowerOfFameWindow(window: Window): asserts window is TowerOfFameWindow {
     assertGameWindow(window);
@@ -68,7 +66,7 @@ export async function TowerOfFamePage(window: Window) {
 
         const playerId = Hero.infos.id;
 
-        const player = opponents_list.find(e => +e.player.id_fighter === playerId);
+        const player = opponents_list.find((e): e is Player => +e.player.id_fighter === playerId);
         if (player == null) return;
 
         const mythicBoosterMultiplier = newBoosterData?.mythic.leagues;
@@ -119,7 +117,7 @@ export async function TowerOfFamePage(window: Window) {
             const matchResults = matchHistory.filter(<T>(e: T | null): e is T => e != null);
             const knownPoints = matchResults.reduce((p, c) => p + parseInt(c.match_points), 0);
             const remainingChallenges = 3 - matchResults.length;
-            return p + knownPoints + c.power * remainingChallenges;
+            return p + knownPoints + c.power! * remainingChallenges;
         }, 0);
         const numOpponents = opponents_list.length - 1;
         const expectedAverage = expectedPoints / numOpponents / 3;
@@ -146,8 +144,18 @@ export async function TowerOfFamePage(window: Window) {
             )}</em>`,
         );
 
-        const popup = new Popup('Average of all players');
-        let boosterSimulatorInited = false;
+        const leagueOpponents = opponents.map(e => {
+            return {
+                id: e.player.id_fighter,
+                team: e.player.team,
+                numChallenges: 3 - Object.values(e.match_history)[0].filter(e => e != null).length,
+                isBoosted: e.boosters.filter(e => +e.lifetime > window.server_now_ts).length > 0,
+            };
+        });
+
+        const currentScore = +player.player_league_points;
+        const foughtCounts = leagueOpponents.reduce((p, c) => p + (3 - c.numChallenges), 0);
+        const popup = new BoosterSimulatorPopup(playerTeam, leagueOpponents, currentScore, foughtCounts);
         const replacePowerViewWithSimResult = () => {
             const powerColumnMap: Record<string, HTMLElement[]> = {};
             document.querySelectorAll('.data-row.body-row').forEach(row => {
@@ -175,27 +183,9 @@ export async function TowerOfFamePage(window: Window) {
                     ) {
                         const iconButton = $('<div class="sim-icon-button sim-icon-ame"></div>').attr(
                             'tooltip',
-                            'Booster simulator (Average of all players)',
+                            'Booster simulator',
                         );
                         iconButton.on('click', () => {
-                            if (!boosterSimulatorInited) {
-                                boosterSimulatorInited = true;
-                                popup.setContent('Now loading...');
-                                queueMicrotask(async () => {
-                                    try {
-                                        const results = await simulateBoosterCombinationWithAME(
-                                            playerTeam,
-                                            opponents.map(e => e.player.team),
-                                        );
-                                        popup.setContent(createAllBoosterPointsTable(results, opponents.length));
-                                    } catch (e) {
-                                        const message = e instanceof Error ? e.message : e;
-                                        popup.setContent(
-                                            `Error: ${message}<br>1. Go to the market page<br>2. Try again`,
-                                        );
-                                    }
-                                });
-                            }
                             popup.toggle();
                         });
                         $columnContent.append(iconButton);

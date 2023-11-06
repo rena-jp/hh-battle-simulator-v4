@@ -152,6 +152,32 @@ function calcSkilledTeam(baseTeam: Team, skill: CalculatedSkill) {
     return { ...baseTeam, girls };
 }
 
+interface BoosterCombination {
+    key: string;
+    counts: BoosterCounts;
+}
+
+let boosterCombinations: BoosterCombination[] | null = null;
+function getBoosterCombinations(): BoosterCombination[] {
+    if (boosterCombinations == null) {
+        const { simulateGinseng, simulateJujubes, simulateChlorella, simulateCordyceps } = getConfig();
+        boosterCombinations = [...Array(2)].flatMap((_, mythic) =>
+            [...Array(simulateCordyceps ? 5 : 1)].flatMap((_, cordyceps) =>
+                [...Array(simulateChlorella ? 5 - cordyceps : 1)].flatMap((_, chlorella) =>
+                    [...Array(simulateJujubes ? 5 - cordyceps - chlorella : 1)].flatMap((_, jujubes) => {
+                        const ginseng = 4 - cordyceps - chlorella - jujubes;
+                        if (!simulateGinseng && ginseng > 0) return [];
+                        const counts = { ginseng, jujubes, chlorella, cordyceps, mythic };
+                        const key = `${ginseng}${jujubes}${chlorella}${cordyceps}${mythic}`;
+                        return { key, counts };
+                    }),
+                ),
+            ),
+        );
+    }
+    return boosterCombinations;
+}
+
 export interface BoosterSimulationResult {
     boosterCounts: BoosterCounts;
     result: number;
@@ -160,42 +186,15 @@ export interface BoosterSimulationResult {
 async function simulateBoosterCombination(
     f: (boosterCounts: BoosterCounts) => Promise<number>,
 ): Promise<BoosterSimulationResult[]> {
-    const { simulateGinseng, simulateJujubes, simulateChlorella, simulateCordyceps } = getConfig();
-    if (!(simulateGinseng || simulateJujubes || simulateChlorella || simulateCordyceps)) return [];
+    const boosterCombinations = getBoosterCombinations();
     return Promise.all(
-        [...Array(2)].flatMap((_, mythic) =>
-            [...Array(simulateCordyceps ? 5 : 1)].flatMap((_, cordyceps) =>
-                [...Array(simulateChlorella ? 5 - cordyceps : 1)].flatMap((_, chlorella) =>
-                    [...Array(simulateJujubes ? 5 - cordyceps - chlorella : 1)].flatMap((_, jujubes) => {
-                        const ginseng = 4 - cordyceps - chlorella - jujubes;
-                        if (!simulateGinseng && ginseng > 0) return [];
-                        const boosterCounts = { ginseng, jujubes, chlorella, cordyceps, mythic };
-                        return f(boosterCounts).then(result => ({ boosterCounts, result }));
-                    }),
-                ),
-            ),
-        ),
+        boosterCombinations.map(async ({ counts }) => {
+            const result = await f(counts);
+            return { boosterCounts: counts, result };
+        }),
     );
 }
-/*
-function simulateBoosterCombinationMinimized(
-    f: (boosterCounts: BoosterCounts) => Promise<number>,
-): Promise<BoosterSimulationResult[]> {
-    return Promise.all(
-        [...Array(2)].flatMap((_, mythic) =>
-            [...Array(5)].flatMap((_, cordyceps) =>
-                Promise.all(
-                    [...Array(5 - cordyceps)].map((_, chlorella) => {
-                        const ginseng = 4 - cordyceps - chlorella;
-                        const boosterCounts = { ginseng, chlorella, cordyceps, mythic };
-                        return f(boosterCounts).then(result => ({ boosterCounts, result }));
-                    }),
-                ).then(results => results.reduce((p, c) => (p.result > c.result ? p : c))),
-            ),
-        ),
-    );
-}
-*/
+
 export async function simulateBoosterCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
@@ -211,29 +210,73 @@ export async function simulateBoosterCombinationWithHeadband(
     });
 }
 
-export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team | Team[]) {
+export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
     if (teamParams == null) throw new Error('Team data not found');
-    if (Array.isArray(opponentTeam)) {
-        return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
-            const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
-            const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
-            const results = await Promise.all(
-                opponentTeam.map(opponentTeam =>
-                    simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier),
-                ),
-            );
-            return results.reduce((p, c) => p + c, 0) / results.length;
-        });
-    } else {
-        return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
-            const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
-            const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
-            return simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
-        });
-    }
+    return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
+        const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+        return simulateFromTeams('FastPoints', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
+    });
+}
+
+export interface LeagueOpponent {
+    id: string;
+    team: Team;
+    numChallenges: number;
+    isBoosted: boolean;
+}
+
+export interface LeagueTableResultCache {
+    boosterKey: string;
+    boosterCounts: BoosterCounts;
+    opponentId: string;
+    challenges: number;
+    result: Promise<FastPointsResult>;
+}
+
+export interface LeagueTableResult {
+    boosterKey: string;
+    boosterCounts: BoosterCounts;
+    opponentId: string;
+    challenges: number;
+    result: FastPointsResult;
+}
+
+export async function simulateLeagueTable(
+    playerTeam: Team,
+    opponents: LeagueOpponent[],
+    cache: Map<string, LeagueTableResultCache>,
+): Promise<LeagueTableResult[]> {
+    const ginsengCaracs = loadGinsengCaracs();
+    if (ginsengCaracs == null) throw new Error('Market data not found');
+    const teamParams = await getTeamParams(playerTeam);
+    if (teamParams == null) throw new Error('Team data not found');
+    const boosterCombinations = getBoosterCombinations();
+    return await Promise.all(
+        boosterCombinations.flatMap(booster => {
+            const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, booster.counts);
+            const mythicBoosterMultiplier = 1 + 0.15 * booster.counts.mythic; // AME
+            return opponents.map(async e => {
+                const key = `${e.id}-${booster.key}`;
+                let value = cache.get(key);
+                if (value == null) {
+                    value = {
+                        boosterKey: booster.key,
+                        boosterCounts: booster.counts,
+                        opponentId: e.id,
+                        challenges: e.numChallenges,
+                        result: simulateFromTeams('FastPoints', calculatedTeam, e.team, mythicBoosterMultiplier),
+                    };
+                    cache.set(key, value);
+                }
+                const result = await value.result;
+                return { ...value, result };
+            });
+        }),
+    );
 }
 
 export interface SkillSimulationResult {
