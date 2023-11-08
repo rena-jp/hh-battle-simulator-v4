@@ -21,17 +21,17 @@ import { LeaguesPreBattleGlobal } from './types/leagues-pre-battle';
 
 type LeaguesPreBattleWindow = Window & GameWindow & LeaguesPreBattleGlobal;
 
-function asserLeaguetPreBattleWindow(window: Window): asserts window is LeaguesPreBattleWindow {
+function asserLeaguesPreBattleWindow(window: Window): asserts window is LeaguesPreBattleWindow {
     assertGameWindow(window);
     const { hero_data, opponent_fighter } = window;
     if (hero_data == null) throw new Error('hero_data is not found.');
     if (opponent_fighter == null) throw new Error('opponent_fighter is not found.');
 }
 
-export async function LeaguePreBattlePage(window: Window) {
+export async function LeaguesPreBattlePage(window: Window) {
     if (!checkPage('/leagues-pre-battle.html')) return;
     await beforeGameInited();
-    asserLeaguetPreBattleWindow(window);
+    asserLeaguesPreBattleWindow(window);
 
     const config = getConfig();
     updatePlayerLeagueTeam(window);

@@ -1,5 +1,7 @@
 import { loadBoosterData } from '../../store/booster';
 import { loadOpponentTeamData } from '../../store/team';
+import { beforeGameInited } from '../../utils/async';
+import { checkPage } from '../../utils/page';
 
 declare global {
     interface Window {
@@ -46,6 +48,142 @@ export function assertGameWindow(window: Window): asserts window is GameWindow {
     // from body
     const { Hero } = window;
     if (Hero == null) throw new Error('Hero is not found.');
+}
+
+export async function GamePage(window: Window) {
+    await beforeGameInited();
+    assertGameWindow(window);
+
+    addGirlTraitsToTooltip(window);
+}
+
+async function addGirlTraitsToTooltip(window: GameWindow) {
+    const { tooltips } = window;
+    if (tooltips == null || typeof tooltips !== 'object') return;
+    if (!('[data-new-girl-tooltip]' in tooltips)) return;
+    if (typeof tooltips['[data-new-girl-tooltip]'] !== 'function') return;
+    const old = tooltips['[data-new-girl-tooltip]'];
+    const map = new Map<number, string[]>();
+    tooltips['[data-new-girl-tooltip]'] = function dataNewGirlTooltip(...args: any[]) {
+        const ret = old(...args);
+        const element = $(args[0]);
+        const data = JSON.parse(element.attr('data-new-girl-tooltip') ?? '');
+        const id =
+            data.id_girl ??
+            (() => {
+                const icon = element.is('[girl-ico-src]') ? element : element.find('[girl-ico-src]');
+                return icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/ico/)?.[1] as string;
+            })() ??
+            (() => {
+                const icon = element.is('img[src]') ? element : element.find('img[src]');
+                return icon.attr('src')?.match(/pictures\/girls\/(\d+)\/ico/)?.[1] as string;
+            })();
+        if (id != null) {
+            const traits = map.get(+id);
+            if (traits != null) {
+                const zodiacMap = {
+                    '♈': 'aries',
+                    '♉': 'taurus',
+                    '♊': 'gemini',
+                    '♋': 'cancer',
+                    '♌': 'leo',
+                    '♍': 'virgo',
+                    '♎': 'libra',
+                    '♏': 'scorpio',
+                    '♐': 'sagittarius',
+                    '♑': 'capricorn',
+                    '♒': 'aquarius',
+                    '♓': 'pisces',
+                } as Record<string, string>;
+                const baseUrl = window.IMAGES_URL + '/pictures/design/blessings_icons/';
+                const getIcon = (icon: string) =>
+                    `<span class="sim-trait-icon" style="background-image: url('${baseUrl}${icon}');"></span>`;
+                const getHairColorIcon = (color: string) =>
+                    color == '' ? '' : getIcon(`hair_colors/hair_color_${color}.png`);
+                const getEyeColorIcon = (color: string) =>
+                    color == '' ? '' : getIcon(`eye_colors/eye_color_${color}.png`);
+                const getZodiacIcon = (zodiac: string) =>
+                    getIcon(`zodiac_signs/zodiac_sign_${zodiacMap[zodiac.charAt(0)]}.png`);
+                const getPoseIcon = (pose: string) => getIcon(`positions/fav_pose_${pose}.png`);
+                const icons = [
+                    '<div class="sim-traits">',
+                    getHairColorIcon(traits[0]),
+                    getHairColorIcon(traits[1]),
+                    ' ',
+                    getEyeColorIcon(traits[2]),
+                    getEyeColorIcon(traits[3]),
+                    ' ',
+                    getZodiacIcon(traits[4]),
+                    ' ',
+                    getPoseIcon(traits[5]),
+                    '</div>',
+                ];
+                const body = ret.body as string;
+                ret.body = body + icons.join('');
+            }
+        }
+        return ret;
+    };
+
+    const addToMap = (girl: any) => {
+        const data = [
+            girl.hair_color1 ?? girl.girl.hair_color1,
+            girl.hair_color2 ?? girl.girl.hair_color2,
+            girl.eye_color1 ?? girl.girl.eye_color1,
+            girl.eye_color2 ?? girl.girl.eye_color2,
+            girl.zodiac ?? girl.girl.zodiac,
+            girl.figure ?? girl.girl.figure,
+        ];
+        map.set(+girl.id_girl, data);
+    };
+
+    if (
+        checkPage(
+            '/troll-battle.html',
+            '/troll-pre-battle.html',
+            '/leagues-pre-battle.html',
+            '/pantheon-pre-battle.html',
+        )
+    ) {
+        const hero_data = window.hero_data as any;
+        hero_data.team.girls.map((e: any) => addToMap(e));
+        const opponent_fighter = window.opponent_fighter as any;
+        opponent_fighter.player.team.girls.map((e: any) => addToMap(e));
+    }
+    if (checkPage('/league-battle.html', '/pantheon-battle.html', '/season-battle.html')) {
+        const hero_fighter = window.hero_fighter as any;
+        hero_fighter.team.girls.map((e: any) => addToMap(e));
+        const opponent_fighter = window.opponent_fighter as any;
+        opponent_fighter.team.girls.map((e: any) => addToMap(e));
+    }
+    if (checkPage('/tower-of-fame.html')) {
+        const opponents_list = window.opponents_list as any;
+        opponents_list.forEach((e: any) => e.player.team.girls.map((e: any) => addToMap(e)));
+    }
+    if (checkPage('/season-arena.html')) {
+        const hero_data = window.hero_data as any;
+        hero_data.team.girls.map((e: any) => addToMap(e));
+        const opponents = window.opponents as any;
+        opponents.forEach((e: any) => e.player.team.girls.map((e: any) => addToMap(e)));
+    }
+    if (checkPage('/teams.html')) {
+        const teams_data = window.teams_data as any;
+        Object.values(teams_data).forEach((team: any) => {
+            team.girls.map((e: any) => addToMap(e));
+        });
+    }
+    if (checkPage('/edit-team.html')) {
+        const availableGirls = window.availableGirls as any;
+        availableGirls.forEach((e: any) => addToMap(e));
+    }
+    if (checkPage('/waifu.html')) {
+        const girlsDataList = window.girlsDataList as any;
+        girlsDataList.forEach((e: any) => addToMap(e));
+    }
+    if (checkPage('/path-of-valor.html', '/path-of-glory.html')) {
+        const path_girls = window.path_girls as any;
+        path_girls.forEach((e: any) => addToMap(e));
+    }
 }
 
 export function loadOpponentTeam(window: GameWindow): Team | null {
