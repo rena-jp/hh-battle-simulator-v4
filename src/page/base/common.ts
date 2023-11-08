@@ -1,3 +1,4 @@
+import { getConfig } from '../../interop/hh-plus-plus-config';
 import { loadBoosterData } from '../../store/booster';
 import { loadOpponentTeamData } from '../../store/team';
 import { beforeGameInited } from '../../utils/async';
@@ -54,7 +55,8 @@ export async function GamePage(window: Window) {
     await beforeGameInited();
     assertGameWindow(window);
 
-    addGirlTraitsToTooltip(window);
+    const config = getConfig();
+    if (config.addGirlTraitsToGirlTooltip) addGirlTraitsToTooltip(window);
 }
 
 async function addGirlTraitsToTooltip(window: GameWindow) {

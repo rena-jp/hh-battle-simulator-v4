@@ -20,6 +20,7 @@ const config = {
     addSkillSimulator: true,
     skillLevelsToBeSimulated: [5, 4, 3, 2, 1],
     calculateLeaguePointsTable: false,
+    addGirlTraitsToGirlTooltip: true,
 };
 
 type Config = typeof config;
@@ -149,6 +150,19 @@ export async function registerConfig() {
         },
         run() {
             config.replaceHHLeaguesPlusPlus = true;
+        },
+    });
+
+    config.addGirlTraitsToGirlTooltip = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'AddGirlTraitsToGirlTooltip',
+            label: "Add girl's traits to girl's tooltip",
+            default: true,
+        },
+        run() {
+            config.addGirlTraitsToGirlTooltip = true;
         },
     });
 
