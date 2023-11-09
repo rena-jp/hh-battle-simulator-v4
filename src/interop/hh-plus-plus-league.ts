@@ -6,7 +6,10 @@ import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
 import { fetchPlayerLeaguesTeam } from '../page/teams';
 import { simulateFromBattlers } from '../simulator/battle';
-import { simulateBoosterCombinationWithAME, simulateSkillCombinationWithAME } from '../simulator/booster';
+import {
+    simulatePointsForBoosterCombinationWithAME,
+    simulatePointsForSkillCombinationWithAME,
+} from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
 import { loadMythicBoosterBonus } from '../store/booster';
 import { checkPage } from '../utils/page';
@@ -117,7 +120,10 @@ export async function replaceHHPlusPlusLeague() {
                             if (forSim.boosterTable == null) {
                                 boosterPopup.setContent('Now loading...');
                                 if (forSim.boosterResults == null) {
-                                    forSim.boosterResults = simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
+                                    forSim.boosterResults = simulatePointsForBoosterCombinationWithAME(
+                                        playerTeam,
+                                        opponentTeam,
+                                    );
                                 }
                                 try {
                                     const results = await forSim.boosterResults;
@@ -145,7 +151,10 @@ export async function replaceHHPlusPlusLeague() {
                             if (forSim.skillTable == null) {
                                 skillPopup.setContent('Now loading...');
                                 if (forSim.skillResults == null) {
-                                    forSim.skillResults = simulateSkillCombinationWithAME(playerTeam, opponentTeam);
+                                    forSim.skillResults = simulatePointsForSkillCombinationWithAME(
+                                        playerTeam,
+                                        opponentTeam,
+                                    );
                                 }
                                 try {
                                     const results = await forSim.skillResults;

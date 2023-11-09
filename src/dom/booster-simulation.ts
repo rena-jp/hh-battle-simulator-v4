@@ -61,6 +61,31 @@ export function createBoosterChanceTable(results: BoosterSimulationResult[]) {
     }
 }
 
+export function createBoosterChanceTableWithAME(results: BoosterSimulationResult[]) {
+    sortBoosterSimulationResults(results);
+    const withoutHB = results.filter(e => e.boosterCounts.mythic <= 0);
+    const withHB = results.filter(e => e.boosterCounts.mythic > 0);
+    return createTable();
+
+    function createTable() {
+        const test = withoutHB.map((e, i) =>
+            row(
+                columns(1, [
+                    getBoosterIcons(e.boosterCounts, 'ame'),
+                    `<span class="sim-chance" style="color: ${getChanceColor(e.result)}">${toPrecisePercentage(
+                        e.result,
+                    )}</span>`,
+                    getBoosterIcons(withHB[i].boosterCounts, 'ame'),
+                    `<span class="sim-chance" style="color: ${getChanceColor(withHB[i].result)}">${toPrecisePercentage(
+                        withHB[i].result,
+                    )}</span>`,
+                ]),
+            ),
+        );
+        return $('<table class="sim-booster-table"></table>').append(test.join('')).prop('outerHTML');
+    }
+}
+
 export function createSkillChanceTable(results: SkillSimulationResult[]) {
     results.forEach(result => {
         result.results.forEach(result => {
@@ -90,6 +115,51 @@ export function createSkillChanceTable(results: SkillSimulationResult[]) {
                             return row(
                                 columns(1, [
                                     getBoosterIcons(e.boosterCounts, 'headband'),
+                                    `<span class="sim-chance" style="color: ${getChanceColor(
+                                        e.result,
+                                    )}">${toPrecisePercentage(e.result)}</span>`,
+                                ]),
+                            );
+                        }),
+                        '</table>',
+                    ].join('');
+                }
+            }
+        }
+        const rows = [5, 4, 3, 2, 1].map(e => createRow(e));
+        return $('<table class="sim-booster-table"></table>').append(rows.join('')).prop('outerHTML');
+    }
+}
+
+export function createSkillChanceTableWithAME(results: SkillSimulationResult[]) {
+    results.forEach(result => {
+        result.results.forEach(result => {
+            sortBoosterSimulationResults(result.results);
+        });
+    });
+    return createTable();
+
+    function createTable() {
+        function createRow(level: number) {
+            return row(
+                columns(
+                    1,
+                    results.map(result => createColumn(result)),
+                ),
+            );
+            function createColumn(result: SkillSimulationResult) {
+                const skillName = result.skillName;
+                const boosterResults = result.results.find(e => e.level === level)?.results;
+                if (boosterResults == null) return '';
+                return createSubTable(boosterResults);
+                function createSubTable(boosterResults: BoosterSimulationResult[]) {
+                    return [
+                        '<table>',
+                        row(column(2, `Level ${level} ${skillName}`)),
+                        ...boosterResults.map(e => {
+                            return row(
+                                columns(1, [
+                                    getBoosterIcons(e.boosterCounts, 'ame'),
                                     `<span class="sim-chance" style="color: ${getChanceColor(
                                         e.result,
                                     )}">${toPrecisePercentage(e.result)}</span>`,

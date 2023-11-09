@@ -195,7 +195,7 @@ async function simulateBoosterCombination(
     );
 }
 
-export async function simulateBoosterCombinationWithHeadband(
+export async function simulateChanceForBoosterCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
 ): Promise<BoosterSimulationResult[]> {
@@ -210,7 +210,22 @@ export async function simulateBoosterCombinationWithHeadband(
     });
 }
 
-export async function simulateBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
+export async function simulateChanceForBoosterCombinationWithAME(
+    playerTeam: Team,
+    opponentTeam: Team,
+): Promise<BoosterSimulationResult[]> {
+    const ginsengCaracs = loadGinsengCaracs();
+    if (ginsengCaracs == null) throw new Error('Market data not found');
+    const teamParams = await getTeamParams(playerTeam);
+    if (teamParams == null) throw new Error('Team data not found');
+    return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
+        const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+        return simulateFromTeams('FastChance', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
+    });
+}
+
+export async function simulatePointsForBoosterCombinationWithAME(playerTeam: Team, opponentTeam: Team) {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) throw new Error('Market data not found');
     const teamParams = await getTeamParams(playerTeam);
@@ -330,7 +345,7 @@ async function simulateSkillCombination(
     );
 }
 
-export async function simulateSkillCombinationWithHeadband(
+export async function simulateChanceForSkillCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
 ): Promise<SkillSimulationResult[]> {
@@ -346,7 +361,23 @@ export async function simulateSkillCombinationWithHeadband(
     });
 }
 
-export async function simulateSkillCombinationWithAME(
+export async function simulateChanceForSkillCombinationWithAME(
+    playerTeam: Team,
+    opponentTeam: Team,
+): Promise<SkillSimulationResult[]> {
+    const ginsengCaracs = loadGinsengCaracs();
+    if (ginsengCaracs == null) throw new Error('Market data not found');
+    const teamParams = await getTeamParams(playerTeam);
+    if (teamParams == null) throw new Error('Team data not found');
+    return simulateSkillCombination(async (boosterCounts: BoosterCounts, skill: CalculatedSkill) => {
+        const boostedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
+        const skilledTeam = calcSkilledTeam(boostedTeam, skill);
+        const mythicBoosterMultiplier = 1 + 0.15 * boosterCounts.mythic; // AME
+        return simulateFromTeams('FastChance', skilledTeam, opponentTeam, mythicBoosterMultiplier);
+    });
+}
+
+export async function simulatePointsForSkillCombinationWithAME(
     playerTeam: Team,
     opponentTeam: Team,
 ): Promise<SkillSimulationResult[]> {

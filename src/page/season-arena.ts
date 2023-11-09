@@ -1,8 +1,14 @@
 import { createBattleTable } from '../dom/battle-table';
+import { createBoosterChanceTableWithAME, createSkillChanceTableWithAME } from '../dom/booster-simulation';
 import { ChanceView } from '../dom/chance';
 import { MojoView } from '../dom/mojo';
+import { Popup } from '../dom/popup';
 import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
+import {
+    simulateChanceForBoosterCombinationWithAME,
+    simulateChanceForSkillCombinationWithAME,
+} from '../simulator/booster';
 import { calcBattlerFromFighters } from '../simulator/fighter';
 import { calcCounterBonus } from '../simulator/team';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
@@ -32,7 +38,11 @@ export async function SeasonArenaPage(window: Window) {
     updateMythicBooster();
     saveOpponentTeam(window);
     const config = getConfig();
-    if (config.doSimulateSeason) addSimulation();
+    if (config.doSimulateSeason) {
+        addSimulation();
+        if (config.addBoosterSimulator) addBoosterSimulator(window);
+        if (config.addSkillSimulator) addSkillSimulator(window);
+    }
 
     async function addSimulation() {
         opponents.forEach(async opponent_fighter => {
@@ -99,4 +109,85 @@ async function saveOpponentTeam(window: SeasonArenaWindow) {
         button.addEventListener('click', update, true);
         button.addEventListener('auxclick', update, true);
     }
+}
+
+function getOpponent(window: SeasonArenaWindow) {
+    const { opponents } = window;
+    const opponentId = $('.selected_opponent').attr('data-opponent');
+    if (opponentId == null) return;
+    const opponent = opponents.find(e => e.player.id_fighter === opponentId);
+    if (opponent == null) return;
+    return opponent;
+}
+
+async function addBoosterSimulator(window: SeasonArenaWindow) {
+    const { hero_data } = window;
+    const playerTeam = hero_data.team;
+
+    await afterGameInited();
+
+    const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-headband"></div></div>')
+        .addClass('sim-right')
+        .attr('tooltip', 'Booster simulator');
+    const popupMap = {} as Record<number, Popup>;
+    iconButton.on('click', () => {
+        const opponent = getOpponent(window);
+        if (opponent == null) return;
+        let popup = popupMap[+opponent.player.id_fighter];
+        if (popup == null) {
+            popup = new Popup(`Booster simulator (${opponent.player.nickname})`);
+            popup.setContent('Now loading...');
+            popupMap[+opponent.player.id_fighter] = popup;
+            queueMicrotask(async () => {
+                try {
+                    const results = await simulateChanceForBoosterCombinationWithAME(playerTeam, opponent.player.team);
+                    popup.setContent(createBoosterChanceTableWithAME(results));
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : e;
+                    popup.setContent(`Error: ${message}<br>1. Go to the market page<br>2. Try again`);
+                }
+            });
+        }
+        Object.values(popupMap)
+            .filter(e => e != popup)
+            .forEach(e => e.hide());
+        popup.toggle();
+    });
+    $('.battle_hero .icon-area').before(iconButton);
+}
+
+async function addSkillSimulator(window: SeasonArenaWindow) {
+    const { hero_data } = window;
+    const playerTeam = hero_data.team;
+
+    await afterGameInited();
+
+    const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-girl-skills"></div></div>')
+        .addClass('sim-left')
+        .attr('tooltip', 'Skill simulator');
+    const popupMap = {} as Record<number, Popup>;
+    iconButton.on('click', () => {
+        const opponent = getOpponent(window);
+        if (opponent == null) return;
+        let popup = popupMap[+opponent.player.id_fighter];
+        if (popup == null) {
+            popup = new Popup(`Booster simulator (${opponent.player.nickname})`);
+            popup.setContent('Now loading...');
+            popupMap[+opponent.player.id_fighter] = popup;
+            queueMicrotask(async () => {
+                try {
+                    const results = await simulateChanceForSkillCombinationWithAME(playerTeam, opponent.player.team);
+                    popup.setContent(createSkillChanceTableWithAME(results));
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : e;
+                    popup.setContent(`Error: ${message}<br>1. Go to the market page<br>2. Try again`);
+                }
+            });
+        }
+        Object.values(popupMap)
+            .filter(e => e != popup)
+            .forEach(e => e.hide());
+        popup.toggle();
+    });
+    $('.battle_hero .icon-area').before(iconButton);
 }

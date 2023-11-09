@@ -8,8 +8,8 @@ import { getConfig } from '../interop/hh-plus-plus-config';
 import { simulateFromBattlers } from '../simulator/battle';
 import {
     calcMythicBoosterMultiplierFromFighters,
-    simulateBoosterCombinationWithAME,
-    simulateSkillCombinationWithAME,
+    simulatePointsForBoosterCombinationWithAME,
+    simulatePointsForSkillCombinationWithAME,
 } from '../simulator/booster';
 import { calcBattlersFromFighters } from '../simulator/fighter';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
@@ -123,7 +123,7 @@ async function addBoosterSimulator(window: LeaguesPreBattleWindow) {
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 try {
-                    const results = await simulateBoosterCombinationWithAME(playerTeam, opponentTeam);
+                    const results = await simulatePointsForBoosterCombinationWithAME(playerTeam, opponentTeam);
                     popup.setContent(createBoosterPointsTable(results));
                 } catch (e) {
                     const message = e instanceof Error ? e.message : e;
@@ -154,7 +154,7 @@ async function addSkillSimulator(window: LeaguesPreBattleWindow) {
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 try {
-                    const results = await simulateSkillCombinationWithAME(playerTeam, opponentTeam);
+                    const results = await simulatePointsForSkillCombinationWithAME(playerTeam, opponentTeam);
                     popup.setContent(createSkillPointsTable(results));
                 } catch (e) {
                     const message = e instanceof Error ? e.message : e;

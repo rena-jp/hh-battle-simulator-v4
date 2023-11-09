@@ -4,8 +4,8 @@ import { createBoosterChanceTable, createSkillChanceTable } from '../dom/booster
 import { simulateFromBattlers } from '../simulator/battle';
 import {
     calcMythicBoosterMultiplierFromFighters,
-    simulateBoosterCombinationWithHeadband,
-    simulateSkillCombinationWithHeadband,
+    simulateChanceForBoosterCombinationWithHeadband,
+    simulateChanceForSkillCombinationWithHeadband,
 } from '../simulator/booster';
 import { calcBattlersFromFighters } from '../simulator/fighter';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
@@ -106,7 +106,7 @@ async function addBoosterSimulator(window: PantheonPreBattleWindow) {
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 try {
-                    const results = await simulateBoosterCombinationWithHeadband(playerTeam, opponentTeam);
+                    const results = await simulateChanceForBoosterCombinationWithHeadband(playerTeam, opponentTeam);
                     popup.setContent(createBoosterChanceTable(results));
                 } catch (e) {
                     const message = e instanceof Error ? e.message : e;
@@ -137,7 +137,7 @@ async function addSkillSimulator(window: PantheonPreBattleWindow) {
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 try {
-                    const results = await simulateSkillCombinationWithHeadband(playerTeam, opponentTeam);
+                    const results = await simulateChanceForSkillCombinationWithHeadband(playerTeam, opponentTeam);
                     popup.setContent(createSkillChanceTable(results));
                 } catch (e) {
                     const message = e instanceof Error ? e.message : e;
