@@ -39,5 +39,8 @@ https://github.com/rena-jp/hh-battle-simulator-v4/raw/main/dist/hh-battle-simula
 #### Click on the skill icon nearby your team
 ![skill-sim](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/6558a399-77ac-4a66-aca0-01a13689549b)
 
+### Customized tooltip
+![tooltip](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/b69aec6d-e4b7-4736-a603-020de8cca191)
+
 ### Options (HH++ required)
-![options](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/2ba9767b-477c-47be-8dd2-e4d0104d6c39)
+![options](https://github.com/rena-jp/hh-battle-simulator-v4/assets/101486573/2e950447-a201-4963-a02a-a017cbd91c78)
