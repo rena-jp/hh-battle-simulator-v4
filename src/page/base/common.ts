@@ -8,6 +8,7 @@ declare global {
     interface Window {
         [key: string]: unknown;
     }
+    let girl_rewards: any[] | undefined;
 }
 
 export interface GameWindow extends Window {
@@ -74,11 +75,11 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
             data.id_girl ??
             (() => {
                 const icon = element.is('[girl-ico-src]') ? element : element.find('[girl-ico-src]');
-                return icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/ico/)?.[1] as string;
+                return icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
             })() ??
             (() => {
                 const icon = element.is('img[src]') ? element : element.find('img[src]');
-                return icon.attr('src')?.match(/pictures\/girls\/(\d+)\/ico/)?.[1] as string;
+                return icon.attr('src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
             })();
         if (id != null) {
             const traits = map.get(+id);
@@ -185,6 +186,30 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
     if (checkPage('/path-of-valor.html', '/path-of-glory.html')) {
         const path_girls = window.path_girls as any;
         path_girls.forEach((e: any) => addToMap(e));
+    }
+    if (checkPage('/activities.html')) {
+        const pop_hero_girls = window.pop_hero_girls as any;
+        Object.values(pop_hero_girls).forEach((e: any) => addToMap(e));
+    }
+    if (checkPage('pantheon.html')) {
+        if (Array.isArray(girl_rewards)) {
+            girl_rewards.forEach((e: any) => addToMap(e.girl_data));
+        }
+    }
+    if (checkPage('clubs.html')) {
+        const club_champion_data = window.club_champion_data as any;
+        const girl = club_champion_data?.champion?.girl;
+        if (girl != null) addToMap(girl);
+    }
+    if (checkPage('/girl/')) {
+        const girl = window.girl as any;
+        if (girl != null) addToMap(girl);
+        $(document).on('ajaxComplete', (event, jqXHR: JQueryXHR, ajaxOptions: JQueryAjaxSettings) => {
+            if (ajaxOptions.data?.includes('action=get_teams_for_girl')) {
+                const json = jqXHR.responseJSON;
+                json?.teams?.forEach((e: any) => e.girls.forEach((e: any) => addToMap(e)));
+            }
+        });
     }
 }
 
