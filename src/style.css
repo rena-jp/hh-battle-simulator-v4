@@ -97,7 +97,7 @@ table.sim-points-table td {
     left: 0;
     right: 0;
     top: 5rem;
-    z-index: 8;
+    z-index: 36;
     margin: auto;
     width: min-content;
     height: min-content;
