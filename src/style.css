@@ -25,7 +25,7 @@
     bottom: 12rem;
 }
 
-#season-arena .sim-result.sim-top {
+#season-arena .opponent .sim-result.sim-top {
     bottom: 11.5rem;
     line-height: 1rem;
 }
