@@ -155,9 +155,9 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
     }
     if (checkPage('/league-battle.html', '/pantheon-battle.html', '/season-battle.html')) {
         const hero_fighter = window.hero_fighter as any;
-        hero_fighter.team.girls.map((e: any) => addToMap(e));
+        hero_fighter.girls.map((e: any) => addToMap(e));
         const opponent_fighter = window.opponent_fighter as any;
-        opponent_fighter.team.girls.map((e: any) => addToMap(e));
+        opponent_fighter.girls.map((e: any) => addToMap(e));
     }
     if (checkPage('/tower-of-fame.html')) {
         const opponents_list = window.opponents_list as any;
