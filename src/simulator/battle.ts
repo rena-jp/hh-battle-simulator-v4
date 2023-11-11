@@ -189,24 +189,29 @@ const workerScript = (() => {
     }
 
     function simulateFull(player: Battler, opponent: Battler): FullResult {
-        const compressedPointsTable = simulate<number[]>(
+        type CompressedResult = {
+            minPoints: number;
+            maxPoints: number;
+            pointsTable: number[];
+        };
+        const compressedResult = simulate<CompressedResult>(
             player,
             opponent,
             createPlayerWinResult,
             createOpponentWinResult,
             mergeResult,
         );
-        const sumProbability = compressedPointsTable.reduce((p, c) => p + c);
-        const pointsTable = [0, 0, 0, ...compressedPointsTable.map(p => p / sumProbability)];
+        const sumProbability = compressedResult.pointsTable.reduce((p, c) => p + c);
+        const pointsTable = [0, 0, 0, ...compressedResult.pointsTable.map(p => p / sumProbability)];
         const [loss, win] = [
             [3, 14],
             [15, 26],
         ].map(args => pointsTable.slice(...args).reduce((p, c) => p + c));
-        const alwaysWin = loss <= 0;
-        const neverWin = win <= 0;
+        const minPoints = compressedResult.minPoints + 3;
+        const maxPoints = compressedResult.maxPoints + 3;
+        const alwaysWin = minPoints >= 15;
+        const neverWin = maxPoints < 15;
         const avgPoints = pointsTable.reduce((p, c, i) => p + c * i, 0);
-        const minPoints = pointsTable.findIndex(p => p > 0);
-        const maxPoints = pointsTable.findLastIndex(p => p > 0);
         return {
             chance: win / (win + loss),
             alwaysWin,
@@ -230,11 +235,27 @@ const workerScript = (() => {
         function createResult(points: number) {
             const pointsTable = Array<number>(23).fill(0);
             pointsTable[points] = 1;
-            return pointsTable;
+            return {
+                minPoints: points,
+                maxPoints: points,
+                pointsTable,
+            };
         }
 
-        function mergeResult(xResult: number[], xChance: number, yResult: number[], yChance: number) {
-            return xResult.map((x, i) => x * xChance + yResult[i] * yChance);
+        function mergeResult(xResult: CompressedResult, xChance: number, yResult: CompressedResult, yChance: number) {
+            const minPoints = Math.min(xResult.minPoints, yResult.minPoints);
+            const maxPoints = Math.max(xResult.maxPoints, yResult.maxPoints);
+            const xPointsTable = xResult.pointsTable;
+            const yPointsTable = yResult.pointsTable;
+            const pointsTable = Array<number>(23).fill(0);
+            for (let i = minPoints; i <= maxPoints; i++) {
+                pointsTable[i] = xPointsTable[i] * xChance + yPointsTable[i] * yChance;
+            }
+            return {
+                minPoints,
+                maxPoints,
+                pointsTable,
+            };
         }
     }
 
