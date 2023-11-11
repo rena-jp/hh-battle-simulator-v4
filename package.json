@@ -10,11 +10,11 @@
   "author": "rena",
   "license": "ISC",
   "devDependencies": {
-    "@types/jquery": "^3.5.24",
+    "@types/jquery": "^3.5.27",
     "clean-css-loader": "^4.2.1",
     "jsdom": "^22.1.0",
     "loader-utils": "^3.2.1",
-    "quicktype-core": "^23.0.76",
+    "quicktype-core": "^23.0.77",
     "ts-loader": "^9.5.0",
     "typescript": "^5.2.2",
     "webpack": "^5.89.0",
