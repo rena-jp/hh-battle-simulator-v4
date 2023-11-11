@@ -12,6 +12,7 @@ import {
 } from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
 import { loadMythicBoosterBonus } from '../store/booster';
+import { beforeGameInited } from '../utils/async';
 import { checkPage } from '../utils/page';
 import { getHHPlusPlus } from './hh-plus-plus';
 import { getConfig } from './hh-plus-plus-config';
@@ -20,6 +21,7 @@ let lastOpponentTeam: Team | undefined;
 
 export async function replaceHHPlusPlusLeague() {
     if (!checkPage('/tower-of-fame.html')) return;
+    await beforeGameInited();
     const HHPlusPlus = await getHHPlusPlus();
     if (HHPlusPlus == null) return;
     const config = getConfig();
