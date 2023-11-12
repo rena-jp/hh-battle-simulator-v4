@@ -311,7 +311,7 @@ async function fetchEditTeamPage(id_team: string) {
         const theme_resonance_bonuses = JSON.parse(
             html.match(/var\s+theme_resonance_bonuses\s*=\s*((?:\{|\[).*?(?:\}|\]));/)?.[1]!,
         );
-        const hero_data = eval('(' + html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)?.[1]! + ')');
+        const hero_data = Function('return ' + html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)?.[1]!)();
         const availableGirls = JSON.parse(html.match(/var\s+availableGirls\s*=\s*(\[.*?\]);/)?.[1]!);
         return {
             teamGirls,
