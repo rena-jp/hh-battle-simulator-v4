@@ -54,10 +54,12 @@ export function assertGameWindow(window: Window): asserts window is GameWindow {
 
 export async function GamePage(window: Window) {
     await beforeGameInited();
-    assertGameWindow(window);
+    try {
+        assertGameWindow(window);
 
-    const config = getConfig();
-    if (config.addGirlTraitsToGirlTooltip) addGirlTraitsToTooltip(window);
+        const config = getConfig();
+        if (config.addGirlTraitsToGirlTooltip) addGirlTraitsToTooltip(window);
+    } catch (e: any) {}
 }
 
 async function addGirlTraitsToTooltip(window: GameWindow) {
