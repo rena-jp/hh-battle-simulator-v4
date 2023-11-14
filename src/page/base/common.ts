@@ -108,8 +108,8 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                 const getEyeColorIcon = (color: string) =>
                     color == '' ? '' : getIcon(`eye_colors/eye_color_${color}.png`);
                 const getZodiacIcon = (zodiac: string) =>
-                    getIcon(`zodiac_signs/zodiac_sign_${zodiacMap[zodiac.charAt(0)]}.png`);
-                const getPoseIcon = (pose: string) => getIcon(`positions/fav_pose_${pose}.png`);
+                    zodiac == '' ? '' : getIcon(`zodiac_signs/zodiac_sign_${zodiacMap[zodiac.charAt(0)]}.png`);
+                const getPoseIcon = (pose: string) => (pose == '' ? '' : getIcon(`positions/fav_pose_${pose}.png`));
                 const icons = [
                     '<div class="sim-traits">',
                     getHairColorIcon(traits[0]),
@@ -131,14 +131,16 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
     };
 
     const addToMap = (girl: any) => {
+        if (girl.id_girl == null) return;
         const data = [
-            girl.hair_color1 ?? girl.girl.hair_color1,
-            girl.hair_color2 ?? girl.girl.hair_color2,
-            girl.eye_color1 ?? girl.girl.eye_color1,
-            girl.eye_color2 ?? girl.girl.eye_color2,
-            girl.zodiac ?? girl.girl.zodiac,
-            girl.figure ?? girl.girl.figure,
+            girl.hair_color1 ?? girl.girl?.hair_color1 ?? '',
+            girl.hair_color2 ?? girl.girl?.hair_color2 ?? '',
+            girl.eye_color1 ?? girl.girl?.eye_color1 ?? '',
+            girl.eye_color2 ?? girl.girl?.eye_color2 ?? '',
+            girl.zodiac ?? girl.girl?.zodiac ?? '',
+            girl.figure ?? girl.girl?.figure ?? '',
         ];
+        if (data.every(e => e === '')) return;
         map.set(+girl.id_girl, data);
     };
 
@@ -155,7 +157,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         const opponent_fighter = window.opponent_fighter as any;
         opponent_fighter.player.team.girls.map((e: any) => addToMap(e));
     }
-    if (checkPage('/league-battle.html', '/pantheon-battle.html', '/season-battle.html')) {
+    if (checkPage('/league-battle.html', '/pantheon-battle.html', '/season-battle.html', 'boss-bang-battle.html')) {
         const hero_fighter = window.hero_fighter as any;
         hero_fighter.girls.map((e: any) => addToMap(e));
         const opponent_fighter = window.opponent_fighter as any;
@@ -217,6 +219,19 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                 json?.teams?.forEach((e: any) => e.girls.forEach((e: any) => addToMap(e)));
             }
         });
+    }
+    if (checkPage('/event.html')) {
+        const event_girls = window.event_girls as any;
+        event_girls?.forEach((e: any) => addToMap(e));
+        // Boss Bang
+        const current_event = window.current_event as any;
+        current_event?.event_data?.indexed_hero_teams?.forEach((e: any) => {
+            e.girls?.forEach((e: any) => addToMap(e));
+        });
+    }
+    if (checkPage('add-boss-bang-team.html')) {
+        const availableGirls = window.availableGirls as any;
+        availableGirls.forEach((e: any) => addToMap(e));
     }
 }
 
