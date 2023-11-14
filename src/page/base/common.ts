@@ -203,6 +203,11 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         const girl = club_champion_data?.champion?.girl;
         if (girl != null) addToMap(girl);
     }
+    if (checkPage('/champions/')) {
+        const championData = window.championData as any;
+        const girl = championData?.champion?.girl;
+        if (girl != null) addToMap(girl);
+    }
     if (checkPage('/girl/')) {
         const girl = window.girl as any;
         if (girl != null) addToMap(girl);
