@@ -243,7 +243,7 @@ function updateBoosters(window: TowerOfFameWindow) {
     const newBoosterData = getBoosterData(activeBoosters);
     newBoosterData.mythic = {
         ...oldBoosterData.mythic,
-        leagues: 1,
+        // leagues: 1, // BUGFIX
         ...newBoosterData.mythic,
     };
     saveBoosterData(newBoosterData);
