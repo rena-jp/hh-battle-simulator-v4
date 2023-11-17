@@ -301,23 +301,30 @@ export async function EditTeamPage(window: Window) {
     }
 }
 
-type EditTeamPageData = Pick<EditTeamGlobal, 'teamGirls' | 'theme_resonance_bonuses' | 'hero_data' | 'availableGirls'>;
+type EditTeamPageData = Pick<
+    EditTeamGlobal,
+    'teamGirls' | 'theme_resonance_bonuses' | 'hero_data' | 'availableGirls'
+> & {
+    Hero_infos: EditTeamGlobal['Hero']['infos'];
+};
 let fetchedWindow: Promise<EditTeamPageData> | null = null;
 async function fetchEditTeamPage(id_team: string) {
     fetchedWindow ??= (async () => {
         const page = await fetch(`edit-team.html?id_team=${id_team}`);
         const html = await page.text();
-        const teamGirls = JSON.parse(html.match(/var\s+teamGirls\s*=\s*(\[.*?\]);/)?.[1]!);
+        const teamGirls = JSON.parse(html.match(/var\s+teamGirls\s*=\s*(\[.*?\]);/)![1]);
         const theme_resonance_bonuses = JSON.parse(
-            html.match(/var\s+theme_resonance_bonuses\s*=\s*((?:\{|\[).*?(?:\}|\]));/)?.[1]!,
+            html.match(/var\s+theme_resonance_bonuses\s*=\s*((?:\{|\[).*?(?:\}|\]));/)![1],
         );
-        const hero_data = Function('return ' + html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)?.[1]!)();
-        const availableGirls = JSON.parse(html.match(/var\s+availableGirls\s*=\s*(\[.*?\]);/)?.[1]!);
+        const hero_data = Function('return ' + html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)![1])();
+        const availableGirls = JSON.parse(html.match(/var\s+availableGirls\s*=\s*(\[.*?\]);/)![1]);
+        const Hero_infos = JSON.parse(html.match(/Hero.infos\s*=\s*(\{.*?\});/)![1]);
         return {
             teamGirls,
             theme_resonance_bonuses,
             hero_data,
             availableGirls,
+            Hero_infos,
         };
     })();
     return fetchedWindow;
@@ -332,7 +339,11 @@ export async function fetchTeamParams(teamId: string, hero: HeroType, server_now
         ...editTeamPage.hero_data.team,
         girls: editTeamPage.hero_data.team.girls.map(e => girlMap[e.id_girl]),
     };
-    teamParams = updateTeamParams(team, hero, server_now_ts);
+    const newHero = {
+        ...hero,
+        infos: editTeamPage.Hero_infos,
+    };
+    teamParams = updateTeamParams(team, newHero, server_now_ts);
     return teamParams;
 }
 
