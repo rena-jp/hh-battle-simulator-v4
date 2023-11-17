@@ -4,14 +4,13 @@ import { ChanceView } from '../dom/chance';
 import { PointsView } from '../dom/points';
 import { createPointsTable } from '../dom/points-table';
 import { Popup } from '../dom/popup';
-import { fetchPlayerLeaguesTeam } from '../page/teams';
+import { assertTowerOfFameWindow, fetchPlayerLeagueData } from '../page/tower-of-fame';
 import { simulateFromBattlers } from '../simulator/battle';
 import {
     simulatePointsForBoosterCombinationWithAME,
     simulatePointsForSkillCombinationWithAME,
 } from '../simulator/booster';
 import { calcBattlersFromTeams } from '../simulator/team';
-import { loadMythicBoosterBonus } from '../store/booster';
 import { beforeGameInited } from '../utils/async';
 import { checkPage } from '../utils/page';
 import { getHHPlusPlus } from './hh-plus-plus';
@@ -26,6 +25,8 @@ export async function replaceHHPlusPlusLeague() {
     if (HHPlusPlus == null) return;
     const config = getConfig();
     if (!config.replaceHHLeaguesPlusPlus) return;
+    assertTowerOfFameWindow(window);
+    const tofWindow = window;
 
     let inited = config.doSimulateLeagueTable;
     let playerLeagueTeam: Team | null;
@@ -47,8 +48,9 @@ export async function replaceHHPlusPlusLeague() {
                 if (!inited) {
                     inited = true;
                     (async () => {
-                        playerLeagueTeam = await fetchPlayerLeaguesTeam();
-                        leagueBoosterMultiplier = loadMythicBoosterBonus().leagues ?? 1;
+                        const playerLeagueData = await fetchPlayerLeagueData(tofWindow);
+                        playerLeagueTeam = playerLeagueData?.team;
+                        leagueBoosterMultiplier = playerLeagueData?.leagueMultiplier ?? 1;
                         const forSim = lastDisplay?.forSim;
                         if (forSim != null && forSim.hasAssumptions === true) {
                             forSim.playerTeam = playerLeagueTeam;
@@ -61,7 +63,11 @@ export async function replaceHHPlusPlusLeague() {
                 const opponent_fighter = window.opponent_fighter as OpponentFighter;
                 if (hero_data != null && opponent_fighter != null) {
                     const playerTeam = playerLeagueTeam ?? hero_data.team;
-                    const opponentTeam = opponent_fighter.player.team;
+                    const id = $('.data-row.body-row.selected [id-member]').attr('id-member');
+                    const opponentTeam = (
+                        (id != null ? tofWindow.opponents_list.find(e => +e.player.id_fighter === +id) : null) ??
+                        opponent_fighter
+                    ).player.team;
                     const mythicBoosterMultiplier = leagueBoosterMultiplier ?? 1;
                     const hasAssumptions = playerTeam.id_team == null;
                     forSim = { playerTeam, opponentTeam, mythicBoosterMultiplier, hasAssumptions };

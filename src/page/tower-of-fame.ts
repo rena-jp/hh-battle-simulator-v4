@@ -1,8 +1,8 @@
 import { getConfig } from '../interop/hh-plus-plus-config';
 import { Booster, getBoosterData } from '../data/booster';
 import { simulateFromTeams } from '../simulator/battle';
-import { loadBoosterData, saveBoosterData } from '../store/booster';
-import { saveOpponentTeamData } from '../store/team';
+import { loadBoosterData, loadMythicBoosterBonus, saveBoosterData, saveMythicBoosterBonus } from '../store/booster';
+import { loadPlayerLeagueTeam, saveOpponentTeamData, savePlayerLeagueTeam } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
 import { getPointsColor } from '../utils/color';
 import { checkPage } from '../utils/page';
@@ -10,9 +10,11 @@ import { toLeaguePointsPerFight, truncateSoftly } from '../utils/string';
 import { GameWindow, assertGameWindow } from './base/common';
 import { TowerOfFameGlobal } from './types/tower-of-fame';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
-import { fetchPlayerLeaguesTeam } from './teams';
 import { getLeaguesPlusPlusOpponentTeam } from '../interop/hh-plus-plus-league';
 import { BoosterSimulatorPopup } from '../dom/booster-simulator-popup';
+import { fetchLeaguesPreBattlePage } from './leagues-pre-battle';
+import { calcMythicBoosterMultiplierFromFighters } from '../simulator/booster';
+import { fetchPlayerLeaguesTeamFromTeams } from './teams';
 
 interface Opponent {
     can_fight: number;
@@ -43,7 +45,7 @@ type TowerOfFameWindow = GameWindow & {
     opponents_list: (Opponent | Player)[];
 } & TowerOfFameGlobal;
 
-function assertTowerOfFameWindow(window: Window): asserts window is TowerOfFameWindow {
+export function assertTowerOfFameWindow(window: Window): asserts window is TowerOfFameWindow {
     assertGameWindow(window);
     const { opponents_list } = window;
     if (opponents_list == null) throw new Error('opponents_list is not found.');
@@ -56,7 +58,7 @@ export async function TowerOfFamePage(window: Window) {
     assertTowerOfFameWindow(window);
     const { opponents_list, Hero } = window;
 
-    const newBoosterData = updateBoosters(window);
+    updateBoosters(window);
     changePowerSortToSimSort(window);
     updateOpponentTeam();
 
@@ -69,11 +71,10 @@ export async function TowerOfFamePage(window: Window) {
         const player = opponents_list.find((e): e is Player => +e.player.id_fighter === playerId);
         if (player == null) return;
 
-        const mythicBoosterMultiplier = newBoosterData?.mythic.leagues;
-        if (mythicBoosterMultiplier == null) return;
-
-        const playerTeam = await fetchPlayerLeaguesTeam();
-        if (playerTeam == null) return;
+        const playerLeagueData = await fetchPlayerLeagueData(window);
+        const mythicBoosterMultiplier = playerLeagueData.leagueMultiplier;
+        const playerTeam = playerLeagueData.team;
+        if (mythicBoosterMultiplier == null || playerTeam == null) return;
 
         const opponents = opponents_list.filter(
             (opponent): opponent is Opponent => +opponent.player.id_fighter !== playerId,
@@ -247,8 +248,6 @@ function updateBoosters(window: TowerOfFameWindow) {
         ...newBoosterData.mythic,
     };
     saveBoosterData(newBoosterData);
-
-    return newBoosterData;
 }
 
 async function updateOpponentTeam() {
@@ -274,4 +273,73 @@ async function updateOpponentTeam() {
         button.addEventListener('click', update, true);
         button.addEventListener('auxclick', update, true);
     }
+}
+
+let battleData: Promise<{ player: Fighter; opponent: Fighter } | null> | null = null;
+async function fetchBattleData(window: TowerOfFameWindow) {
+    battleData ??= (async () => {
+        try {
+            const { opponents_list } = window;
+            const id = opponents_list.filter(e => {
+                const history = Object.values(e.match_history)[0];
+                return Array.isArray(history) && history.some(e => e === null);
+            })[0]?.player.id_fighter;
+            if (id != null) {
+                const { hero_data, opponent_fighter } = await fetchLeaguesPreBattlePage(id);
+                const leaguesTeam = hero_data.team;
+                if (leaguesTeam != null) {
+                    savePlayerLeagueTeam(leaguesTeam);
+                    return { player: hero_data, opponent: opponent_fighter.player };
+                }
+            }
+        } catch (e) {
+            /* empty */
+        }
+        return null;
+    })();
+    return battleData;
+}
+
+let playerLeagueData: Promise<{ team: Team | null; leagueMultiplier: number | null }> | null = null;
+export async function fetchPlayerLeagueData(window: TowerOfFameWindow) {
+    playerLeagueData ??= (async () => {
+        let team = undefined;
+        let leagueMultiplier = undefined;
+
+        const { referrer } = document;
+        if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
+            team = loadPlayerLeagueTeam();
+            leagueMultiplier = loadMythicBoosterBonus().leagues ?? null;
+            if (team != null && leagueMultiplier != null) {
+                return { team, leagueMultiplier };
+            }
+        }
+        try {
+            const battleData = await fetchBattleData(window);
+            if (battleData != null) {
+                const { player, opponent } = battleData;
+                const { team } = player;
+                savePlayerLeagueTeam(team);
+                const leagueMultiplier = calcMythicBoosterMultiplierFromFighters(player, opponent);
+                const oldMythicBoosters = loadMythicBoosterBonus();
+                const newMythicBoosters = {
+                    ...oldMythicBoosters,
+                    leagues: leagueMultiplier,
+                };
+                saveMythicBoosterBonus(newMythicBoosters);
+                return { team, leagueMultiplier };
+            } else {
+                team = (await fetchPlayerLeaguesTeamFromTeams()) ?? team;
+                if (team != null) savePlayerLeagueTeam(team);
+            }
+        } catch (e) {
+            // empty
+        }
+        {
+            if (team === undefined) team = loadPlayerLeagueTeam();
+            if (leagueMultiplier === undefined) leagueMultiplier = loadMythicBoosterBonus().leagues ?? null;
+            return { team, leagueMultiplier };
+        }
+    })();
+    return playerLeagueData;
 }

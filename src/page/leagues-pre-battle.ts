@@ -166,3 +166,16 @@ async function addSkillSimulator(window: LeaguesPreBattleWindow) {
     });
     $('.battle_hero .icon-area').before(iconButton);
 }
+
+type LeaguesPreBattlePageData = Pick<LeaguesPreBattleGlobal, 'hero_data' | 'opponent_fighter'>;
+let fetchedWindow: Promise<LeaguesPreBattlePageData> | null = null;
+export async function fetchLeaguesPreBattlePage(opponentId: string) {
+    fetchedWindow ??= (async () => {
+        const preBattlePage = await fetch(`leagues-pre-battle.html?id_opponent=${opponentId}`);
+        const html = await preBattlePage.text();
+        const hero_data = JSON.parse(html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)![1]);
+        const opponent_fighter = Function('return ' + html.match(/var\s+opponent_fighter\s*=\s*(\{.*?\});/s)![1])();
+        return { hero_data, opponent_fighter };
+    })();
+    return fetchedWindow;
+}
