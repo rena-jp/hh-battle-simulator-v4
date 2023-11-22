@@ -35,23 +35,26 @@ export function simulateGinsengCaracs(hero: HeroType, armorCaracs: HeroCaracs) {
     return [...Array(5)].map((_, ginseng) => {
         const clubBonus = getClubBonus(hero);
         const ginsengBonus = toHeroCaracs(Array(3).fill(0.06 * ginseng));
-        const bonus = addHeroCaracs(clubBonus, ginsengBonus);
+        const bonus = new HeroCaracsCalculator({}).add(1).add(clubBonus).add(ginsengBonus).result();
         const levelCaracs = getLevelBasedCaracs(hero);
         const marketCaracs = getMarketBoughtCaracs(hero);
         const baseCaracs = addHeroCaracs(levelCaracs, marketCaracs);
-        const sumCaracs = addHeroCaracs(baseCaracs, armorCaracs);
-        const bonusCaracs = new HeroCaracsCalculator(sumCaracs).multiply(bonus).truncate().result();
-        const adjustedCaracs = addHeroCaracs(armorCaracs, bonusCaracs);
+        const bonusedBaseCaracs = new HeroCaracsCalculator(baseCaracs).multiply(bonus).truncate().result();
+        const bonusedArmorCaracs = new HeroCaracsCalculator(armorCaracs).multiply(bonus).truncate().result();
 
-        let endurance = (getPrimary(baseCaracs) * 4 + armorCaracs.endurance + haremEndurance) * (1 + bonus.endurance);
-        endurance += getPrimary(adjustedCaracs) * 4;
-        endurance = Math.floor(endurance);
+        let endurance = (getPrimary(bonusedBaseCaracs) * 4 + armorCaracs.endurance + haremEndurance) * bonus.endurance;
+        endurance += getPrimary(bonusedArmorCaracs) * 4;
+        endurance = Math.round(endurance);
+        endurance *= bonus.endurance;
+        endurance = Math.ceil(endurance);
 
-        let harmony = (getSecondarySum(baseCaracs) / 2 + armorCaracs.chance) * (1 + bonus.chance);
-        harmony += getSecondarySum(adjustedCaracs) / 2;
+        let harmony = (getSecondarySum(bonusedBaseCaracs) / 2 + armorCaracs.chance) * bonus.chance;
+        harmony += getSecondarySum(bonusedArmorCaracs) / 2;
         harmony = Math.round(harmony);
+        harmony *= bonus.chance;
+        harmony = Math.ceil(harmony);
 
-        const totalCaracs = addHeroCaracs(sumCaracs, bonusCaracs);
+        const totalCaracs = addHeroCaracs(bonusedBaseCaracs, bonusedArmorCaracs);
         totalCaracs.endurance = endurance;
         totalCaracs.chance = harmony;
 
