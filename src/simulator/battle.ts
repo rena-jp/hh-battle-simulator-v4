@@ -380,6 +380,9 @@ const workerScript = (() => {
                 defenderEgo = 0;
             }
 
+            // Attacker win
+            if (defenderEgo <= 0) return attacker.win(attackerEgo, attacker.ego);
+
             // Check defender reflection
             if (defender.reflect && 1 <= defenderSkill && defenderSkill <= 2) {
                 // Skip reflection while stunned
@@ -407,9 +410,6 @@ const workerScript = (() => {
                     }
                 }
             }
-
-            // Attacker win
-            if (defenderEgo <= 0) return attacker.win(attackerEgo, attacker.ego);
 
             // Check if attacker stun triggerd (defender is stunned)
             if (attacker.stun && attackerSkill === 1) {
