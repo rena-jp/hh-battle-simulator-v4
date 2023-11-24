@@ -2,10 +2,10 @@ import { FighterCaracs, FighterCaracsCalculator, equalsFighterCaracs, toFighterC
 import {
     ClubUpgradesKeys,
     HeroCaracs,
-    HeroCaracsCalculator,
     HeroCaracsKeys,
     HeroType,
     addHeroCaracs,
+    multiplyHeroCaracs,
     toHeroCaracs,
     truncateHeroCaracs,
 } from '../data/hero';
@@ -32,29 +32,36 @@ export function simulateGinsengCaracs(hero: HeroType, armorCaracs: HeroCaracs) {
     const getPrimary = (caracs: HeroCaracs) => caracs[primaryKey];
     const getSecondarySum = (caracs: HeroCaracs) => caracs[secondaryKey] + caracs[tertialyKey];
 
+    const clubBonus = getClubBonus(hero);
+    const levelCaracs = getLevelBasedCaracs(hero);
+    const marketCaracs = getMarketBoughtCaracs(hero);
+    const baseCaracs = addHeroCaracs(levelCaracs, marketCaracs);
+    const sumCaracs = addHeroCaracs(baseCaracs, armorCaracs);
+
+    const xClubBonus = addHeroCaracs(clubBonus, 1);
+    const bonusedBaseCaracs = multiplyHeroCaracs(baseCaracs, xClubBonus);
+    const bonusedArmorCaracs = multiplyHeroCaracs(armorCaracs, xClubBonus);
+
     return [...Array(5)].map((_, ginseng) => {
-        const clubBonus = getClubBonus(hero);
         const ginsengBonus = toHeroCaracs(Array(3).fill(0.06 * ginseng));
-        const bonus = new HeroCaracsCalculator({}).add(1).add(clubBonus).add(ginsengBonus).result();
-        const levelCaracs = getLevelBasedCaracs(hero);
-        const marketCaracs = getMarketBoughtCaracs(hero);
-        const baseCaracs = addHeroCaracs(levelCaracs, marketCaracs);
-        const bonusedBaseCaracs = new HeroCaracsCalculator(baseCaracs).multiply(bonus).truncate().result();
-        const bonusedArmorCaracs = new HeroCaracsCalculator(armorCaracs).multiply(bonus).truncate().result();
+        const caracsFromGinseng = multiplyHeroCaracs(sumCaracs, multiplyHeroCaracs(xClubBonus, ginsengBonus));
 
-        let endurance = (getPrimary(bonusedBaseCaracs) * 4 + armorCaracs.endurance + haremEndurance) * bonus.endurance;
+        let endurance = armorCaracs.endurance;
+        endurance += getPrimary(bonusedBaseCaracs) * 4;
+        endurance *= xClubBonus.endurance;
         endurance += getPrimary(bonusedArmorCaracs) * 4;
-        endurance = Math.round(endurance);
-        endurance *= bonus.endurance;
-        endurance = Math.ceil(endurance);
+        endurance *= xClubBonus.endurance;
+        endurance += getPrimary(caracsFromGinseng) * 4;
+        endurance += haremEndurance * xClubBonus.endurance * (1 + clubBonus.endurance * xClubBonus.endurance);
 
-        let harmony = (getSecondarySum(bonusedBaseCaracs) / 2 + armorCaracs.chance) * bonus.chance;
+        let harmony = armorCaracs.chance;
+        harmony += getSecondarySum(bonusedBaseCaracs) / 2;
+        harmony *= xClubBonus.chance;
         harmony += getSecondarySum(bonusedArmorCaracs) / 2;
-        harmony = Math.round(harmony);
-        harmony *= bonus.chance;
-        harmony = Math.ceil(harmony);
+        harmony *= xClubBonus.chance;
+        harmony += getSecondarySum(caracsFromGinseng) / 2;
 
-        const totalCaracs = addHeroCaracs(bonusedBaseCaracs, bonusedArmorCaracs);
+        const totalCaracs = multiplyHeroCaracs(sumCaracs, addHeroCaracs(xClubBonus, ginsengBonus));
         totalCaracs.endurance = endurance;
         totalCaracs.chance = harmony;
 
