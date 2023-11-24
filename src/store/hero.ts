@@ -1,19 +1,25 @@
 import { FighterCaracs } from '../data/fighter';
 import { getFromLocalStorage, setIntoLocalStorage } from '../utils/storage';
 
-interface HeroData {
-    classBonus: FighterCaracs;
-    ginsengCaracs: FighterCaracs[];
+interface Cache<T> {
+    version?: number;
+    data: T;
 }
 
-export function saveHeroData(boosterData: Partial<HeroData>) {
+const GinsengCaracsVersion = 1;
+interface HeroData {
+    classBonus: FighterCaracs;
+    ginsengCaracs: Cache<FighterCaracs[]>;
+}
+
+function saveHeroData(boosterData: Partial<HeroData>) {
     setIntoLocalStorage('HHBattleSimulator.HeroData', {
         classBonus: boosterData.classBonus,
         ginsengCaracs: boosterData.ginsengCaracs,
     });
 }
 
-export function loadHeroData(): Partial<HeroData> {
+function loadHeroData(): Partial<HeroData> {
     return getFromLocalStorage('HHBattleSimulator.HeroData', {});
 }
 
@@ -29,10 +35,14 @@ export function loadClassBonus(): FighterCaracs | null {
 
 export function saveGinsengCaracs(ginsengCaracs: FighterCaracs[]) {
     const heroData = loadHeroData();
-    heroData.ginsengCaracs = ginsengCaracs;
+    heroData.ginsengCaracs = {
+        data: ginsengCaracs,
+        version: GinsengCaracsVersion,
+    };
     saveHeroData(heroData);
 }
 
 export function loadGinsengCaracs(): FighterCaracs[] | null {
-    return loadHeroData().ginsengCaracs ?? null;
+    const cache = loadHeroData().ginsengCaracs;
+    return cache?.version === GinsengCaracsVersion ? cache.data : null;
 }

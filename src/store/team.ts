@@ -8,11 +8,13 @@ export interface OpponentTeamData {
     mojo?: number;
 }
 
+const TeamParamsVersion = 1;
 export interface TeamParams {
     teamId: number;
     multiplier: FighterCaracs;
     addend: FighterCaracs;
     caracs?: FighterCaracs;
+    version?: number;
 }
 
 interface TeamData {
@@ -21,7 +23,7 @@ interface TeamData {
     params: TeamParams[];
 }
 
-export function saveTeamData(teamData: Partial<TeamData>) {
+function saveTeamData(teamData: Partial<TeamData>) {
     setIntoLocalStorage('HHBattleSimulator.TeamData', {
         opponent: teamData.opponent,
         league: teamData.league,
@@ -29,7 +31,7 @@ export function saveTeamData(teamData: Partial<TeamData>) {
     });
 }
 
-export function loadTeamData(): Partial<TeamData> {
+function loadTeamData(): Partial<TeamData> {
     return getFromLocalStorage('HHBattleSimulator.TeamData', {});
 }
 
@@ -56,10 +58,13 @@ export function loadPlayerLeagueTeam(): Team | null {
 export function saveTeamParams(teamParams: TeamParams) {
     const teamData = loadTeamData();
     teamData.params ??= [];
-    teamData.params = [teamParams, ...teamData.params.filter(e => e.teamId !== teamParams.teamId)];
+    teamData.params = [
+        { ...teamParams, version: TeamParamsVersion },
+        ...teamData.params.filter(e => e.version === TeamParamsVersion).filter(e => e.teamId !== teamParams.teamId),
+    ];
     saveTeamData(teamData);
 }
 
 export function loadTeamParams() {
-    return loadTeamData().params ?? [];
+    return (loadTeamData().params ?? []).filter(e => e.version === TeamParamsVersion);
 }
