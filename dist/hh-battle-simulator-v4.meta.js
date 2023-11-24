@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Battle Simulator v4
 // @namespace    https://github.com/rena-jp/hh-battle-simulator-v4
-// @version      4.10.9
+// @version      4.10.10
 // @description  Add a battle simulator to Hentai Heroes and related games
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
