@@ -30,13 +30,13 @@ export async function ShopPage(window: Window) {
 
     assertShopWindow(window);
 
-    updateBoosterBonus(window);
     updateHeroData(window);
 }
 
 function updateHeroData(window: ShopWindow) {
     updateGinsengCaracs(window);
     updateHeroClassBonus(window);
+    updateBoosterBonus(window);
 
     // I want to observe the use of boosters and the replacement of hero armor.
     // Changing the game code is a bad idea, but I don't know of any other good solution.
@@ -48,7 +48,10 @@ function updateHeroData(window: ShopWindow) {
             try {
                 updateGinsengCaracs(window);
                 updateHeroClassBonus(window);
-            } catch (e) {}
+                updateBoosterBonus(window);
+            } catch (e) {
+                console.error(e);
+            }
             return ret;
         };
     }
