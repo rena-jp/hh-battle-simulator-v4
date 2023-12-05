@@ -144,20 +144,21 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         map.set(+girl.id_girl, data);
     };
 
-    if (
-        checkPage(
-            '/troll-battle.html',
-            '/troll-pre-battle.html',
-            '/leagues-pre-battle.html',
-            '/pantheon-pre-battle.html',
-        )
-    ) {
+    if (checkPage('/troll-pre-battle.html', '/leagues-pre-battle.html', '/pantheon-pre-battle.html')) {
         const hero_data = window.hero_data as any;
         hero_data.team.girls.map((e: any) => addToMap(e));
         const opponent_fighter = window.opponent_fighter as any;
         opponent_fighter.player.team.girls.map((e: any) => addToMap(e));
     }
-    if (checkPage('/league-battle.html', '/pantheon-battle.html', '/season-battle.html', 'boss-bang-battle.html')) {
+    if (
+        checkPage(
+            '/troll-battle.html',
+            '/league-battle.html',
+            '/pantheon-battle.html',
+            '/season-battle.html',
+            '/boss-bang-battle.html',
+        )
+    ) {
         const hero_fighter = window.hero_fighter as any;
         hero_fighter.girls.map((e: any) => addToMap(e));
         const opponent_fighter = window.opponent_fighter as any;

@@ -18,6 +18,7 @@ const loadFile = fileName => {
 
 [
     ['troll-pre-battle', ['hero_data', 'opponent_fighter']],
+    ['troll-battle', ['hero_fighter', 'opponent_fighter']],
     ['pantheon-pre-battle', ['hero_data', 'opponent_fighter']],
     ['leagues-pre-battle', ['hero_data', 'opponent_fighter']],
     ['league-battle', ['hero_fighter', 'opponent_fighter']],
