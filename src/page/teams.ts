@@ -164,7 +164,9 @@ export async function fetchPlayerLeaguesTeamFromTeams() {
                 savePlayerLeagueTeam(leaguesTeam);
                 return leaguesTeam;
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error(e);
+        }
         return loadPlayerLeagueTeam();
     })();
     return playerLeagueTeam;

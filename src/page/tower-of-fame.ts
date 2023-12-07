@@ -293,7 +293,7 @@ async function fetchBattleData(window: TowerOfFameWindow) {
                 }
             }
         } catch (e) {
-            /* empty */
+            console.error(e);
         }
         return null;
     })();
@@ -336,7 +336,7 @@ export async function fetchPlayerLeagueData(window: TowerOfFameWindow) {
                 if (team != null) savePlayerLeagueTeam(team);
             }
         } catch (e) {
-            // empty
+            console.error(e);
         }
         {
             if (team === undefined) team = loadPlayerLeagueTeam();
