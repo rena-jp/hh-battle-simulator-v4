@@ -129,6 +129,47 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                 ret.body = body + icons.join('');
             }
         }
+        const html = ret.body;
+        if (typeof html === 'string') {
+            if (html.includes('active_skills_icon.png')) {
+                const girlElement = html.match(/class="(\w+?)_element_icn/)?.[1];
+                if (girlElement != null) {
+                    const stun = '/pvp4_trigger_skills/stun_icon.png';
+                    const shield = '/pvp4_trigger_skills/shield_icon.png';
+                    const reflect = '/pvp3_active_skills/reflect_icon.png';
+                    const execute = '/pvp3_active_skills/execute_icon.png';
+                    const map = {
+                        darkness: stun,
+                        sun: stun,
+                        stone: shield,
+                        light: shield,
+                        nature: reflect,
+                        psychic: reflect,
+                        fire: execute,
+                        water: execute,
+                    } as Record<string, string>;
+                    const labyrinthMap = {
+                        darkness: '/pvp4_trigger_skills/punch_icon.png',
+                        sun: '/pvp4_trigger_skills/stun_icon.png',
+                        stone: '/pvp4_trigger_skills/defenses_up_icon.png',
+                        light: '/pvp4_trigger_skills/heal_up_icon.png',
+                        nature: '/pvp4_trigger_skills/mana_boost_icon.png',
+                        psychic: '/pvp4_trigger_skills/mana_steal_icon.png',
+                        fire: '/pvp4_trigger_skills/burn_icon.png',
+                        water: '/pvp4_trigger_skills/shield_icon.png',
+                    } as Record<string, string>;
+                    const skill = (html.includes('carac-speed') ? labyrinthMap : map)[girlElement];
+                    if (skill != null) {
+                        const newHtml = html.replace(
+                            '/images/pictures/design/girl_skills/active_skills_icon.png',
+                            window.IMAGES_URL + '/pictures/design/girl_skills' + skill,
+                        );
+                        console.log(newHtml);
+                        return { ...ret, body: newHtml };
+                    }
+                }
+            }
+        }
         return ret;
     };
 
