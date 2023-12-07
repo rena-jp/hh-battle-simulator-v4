@@ -131,7 +131,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
     };
 
     const addToMap = (girl: any) => {
-        if (girl.id_girl == null) return;
+        if (girl?.id_girl == null) return;
         const data = [
             girl.hair_color1 ?? girl.girl?.hair_color1 ?? '',
             girl.hair_color2 ?? girl.girl?.hair_color2 ?? '',
@@ -196,12 +196,12 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         const pop_hero_girls = window.pop_hero_girls as any;
         Object.values(pop_hero_girls).forEach((e: any) => addToMap(e));
     }
-    if (checkPage('pantheon.html')) {
+    if (checkPage('/pantheon.html')) {
         if (Array.isArray(girl_rewards)) {
             girl_rewards.forEach((e: any) => addToMap(e.girl_data));
         }
     }
-    if (checkPage('clubs.html')) {
+    if (checkPage('/clubs.html')) {
         const club_champion_data = window.club_champion_data as any;
         const girl = club_champion_data?.champion?.girl;
         if (girl != null) addToMap(girl);
@@ -230,9 +230,24 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
             e.girls?.forEach((e: any) => addToMap(e));
         });
     }
-    if (checkPage('add-boss-bang-team.html')) {
+    if (checkPage('/add-boss-bang-team.html')) {
         const availableGirls = window.availableGirls as any;
         availableGirls.forEach((e: any) => addToMap(e));
+    }
+    if (checkPage('/labyrinth.html')) {
+        const old = window.applyLabyrinthSpecifications;
+        if (typeof old === 'function') {
+            window.applyLabyrinthSpecifications = function applyLabyrinthSpecifications(...args: any[]) {
+                addToMap(args[0]);
+                old(...args);
+            };
+        }
+    }
+    if (checkPage('/labyrinth-pre-battle.html')) {
+        const hero_fighter = window.hero_fighter as any;
+        Object.values(hero_fighter.team.girls).map((e: any) => addToMap(e));
+        const opponent_fighter = window.opponent_fighter as any;
+        opponent_fighter.team.girls.map((e: any) => addToMap(e));
     }
 }
 
