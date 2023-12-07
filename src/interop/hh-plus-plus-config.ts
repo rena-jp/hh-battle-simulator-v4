@@ -22,6 +22,7 @@ const config = {
     calculateLeaguePointsTable: false,
     addGirlTraitsToGirlTooltip: true,
     improveTooltipsForLabyrinth: true,
+    fixAutoAssignForLabyrinth: true,
 };
 
 type Config = typeof config;
@@ -177,6 +178,19 @@ export async function registerConfig() {
         },
         run() {
             config.improveTooltipsForLabyrinth = true;
+        },
+    });
+
+    config.fixAutoAssignForLabyrinth = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'FixAutoAssignForLabyrinth',
+            label: 'Fix Auto Assign for Labyrinth (Temporary bug fix)',
+            default: true,
+        },
+        run() {
+            config.fixAutoAssignForLabyrinth = true;
         },
     });
 
