@@ -4,12 +4,12 @@ export interface Booster {
     item: {
         identifier: string;
         rarity: string;
-        damage: string;
-        ego: string;
-        chance: string;
+        damage: string | number;
+        ego: string | number;
+        chance: string | number;
     };
     lifetime: string;
-    usages_remaining: string;
+    usages_remaining: string | number;
 }
 
 export interface NormalBooster {

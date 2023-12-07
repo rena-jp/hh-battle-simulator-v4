@@ -1,4 +1,12 @@
-import { FighterCaracs, FighterCaracsCalculator, equalsFighterCaracs, toFighterCaracsBonus } from '../data/fighter';
+import { Booster, getBoosterData } from '../data/booster';
+import {
+    FighterCaracs,
+    FighterCaracsCalculator,
+    addFighterCaracs,
+    equalsFighterCaracs,
+    toFighterCaracs,
+    toFighterCaracsBonus,
+} from '../data/fighter';
 import {
     ClubUpgradesKeys,
     HeroCaracs,
@@ -252,6 +260,7 @@ export interface LeagueOpponent {
     team: Team;
     numChallenges: number;
     isBoosted: boolean;
+    boosters: Booster[];
 }
 
 export interface LeagueTableResultCache {
@@ -274,6 +283,7 @@ export async function simulateLeagueTable(
     playerTeam: Team,
     opponents: LeagueOpponent[],
     cache: Map<string, LeagueTableResultCache>,
+    usePrediction: boolean,
 ): Promise<LeagueTableResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) throw new Error('Market data not found');
@@ -285,15 +295,29 @@ export async function simulateLeagueTable(
             const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, booster.counts);
             const mythicBoosterMultiplier = 1 + 0.15 * booster.counts.mythic; // AME
             return opponents.map(async e => {
-                const key = `${e.id}-${booster.key}`;
+                const key = [e.id, booster.key, usePrediction ? 'prediction' : 'original'].join('-');
                 let value = cache.get(key);
                 if (value == null) {
+                    const predictedCaracs = { ...e.team.caracs };
+                    if (usePrediction) {
+                        const bonus = getBoosterData(e.boosters)
+                            .normals.map(e => e.multiplier)
+                            .filter((e): e is FighterCaracs => e != null)
+                            .reduce((p, c) => addFighterCaracs(p, c), toFighterCaracs({}));
+                        predictedCaracs.damage /= 1 + bonus.damage / 100;
+                        predictedCaracs.ego /= 1 + bonus.ego / 100;
+                        predictedCaracs.chance /= 1 + bonus.chance / 100;
+                    }
+                    const predictedTeam = {
+                        ...e.team,
+                        caracs: predictedCaracs,
+                    };
                     value = {
                         boosterKey: booster.key,
                         boosterCounts: booster.counts,
                         opponentId: e.id,
                         challenges: e.numChallenges,
-                        result: simulateFromTeams('FastPoints', calculatedTeam, e.team, mythicBoosterMultiplier),
+                        result: simulateFromTeams('FastPoints', calculatedTeam, predictedTeam, mythicBoosterMultiplier),
                     };
                     cache.set(key, value);
                 }

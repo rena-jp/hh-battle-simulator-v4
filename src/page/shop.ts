@@ -1,4 +1,4 @@
-import { getBoosterData } from '../data/booster';
+import { Booster, getBoosterData } from '../data/booster';
 import { FighterCaracsCalculator } from '../data/fighter';
 import { HeroCaracs, HeroType, addHeroCaracs, toHeroCaracs } from '../data/hero';
 import { simulateGinsengCaracs } from '../simulator/booster';
@@ -88,7 +88,7 @@ function updateHeroClassBonus(window: ShopWindow) {
 
 function updateBoosterBonus(window: ShopWindow) {
     const { equipped_booster } = window;
-    const boosters = equipped_booster.normal.concat(equipped_booster.mythic);
+    const boosters = Array<Booster>(0).concat(equipped_booster.normal, equipped_booster.mythic);
     const boosterData = getBoosterData(boosters);
     boosterData.mythic = {
         leagues: 1,

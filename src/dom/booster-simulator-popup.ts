@@ -28,6 +28,7 @@ export class BoosterSimulatorPopup extends Popup {
             { label: 'All', value: 'all', selected: true },
             { label: 'Boosted', value: 'boosted' },
             { label: 'Unboosted', value: 'unboosted' },
+            { label: 'Unboosted (sim)', value: 'unboosted_prediction' },
         ]);
         const output = new SelectorView('sim-selector-output', 'Output', [
             { label: 'All', value: 'all', selected: true },
@@ -60,7 +61,8 @@ export class BoosterSimulatorPopup extends Popup {
                 if (unfoughtOnly) opponents = opponents.filter(e => e.numChallenges > 0);
                 if (booster === 'boosted') opponents = opponents.filter(e => e.isBoosted);
                 if (booster === 'unboosted') opponents = opponents.filter(e => !e.isBoosted);
-                const results = await simulateLeagueTable(this.playerTeam, opponents, this.cache);
+                const usePrediction = booster === 'unboosted_prediction';
+                const results = await simulateLeagueTable(this.playerTeam, opponents, this.cache, usePrediction);
                 const push = <K, V>(map: Map<K, V[]>, key: K, value: V) => {
                     let list = map.get(key);
                     if (list == null) {

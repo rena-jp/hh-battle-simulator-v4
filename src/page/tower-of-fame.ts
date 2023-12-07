@@ -151,6 +151,7 @@ export async function TowerOfFamePage(window: Window) {
                 team: e.player.team,
                 numChallenges: 3 - Object.values(e.match_history)[0].filter(e => e != null).length,
                 isBoosted: e.boosters.filter(e => +e.lifetime > window.server_now_ts).length > 0,
+                boosters: e.boosters,
             };
         });
 
@@ -167,7 +168,7 @@ export async function TowerOfFamePage(window: Window) {
                 powerColumnMap[id].push(column);
             });
             opponents_list.forEach(opponent => {
-                let $columnContent = $('<div></div>').addClass('sim-column');
+                const $columnContent = $('<div></div>').addClass('sim-column');
                 const opponentId = opponent.player.id_fighter;
                 const result = resultMap[opponentId];
                 if (result != null) {
