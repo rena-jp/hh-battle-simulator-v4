@@ -59,6 +59,7 @@ export async function GamePage(window: Window) {
 
         const config = getConfig();
         if (config.addGirlTraitsToGirlTooltip) addGirlTraitsToTooltip(window);
+        if (config.improveTooltipsForLabyrinth) improveTooltipsForLabyrinth(window);
     } catch (e: any) {}
 }
 
@@ -248,6 +249,48 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         Object.values(hero_fighter.team.girls).map((e: any) => addToMap(e));
         const opponent_fighter = window.opponent_fighter as any;
         opponent_fighter.team.girls.map((e: any) => addToMap(e));
+    }
+}
+
+async function improveTooltipsForLabyrinth(window: GameWindow) {
+    if (
+        checkPage(
+            '/labyrinth-pool-select.html',
+            '/labyrinth.html',
+            '/labyrinth-pre-battle.html',
+            '/edit-labyrinth-team.html',
+        )
+    ) {
+        const _displayPvpV4Caracs = window.displayPvpV4Caracs as any;
+        if (typeof _displayPvpV4Caracs === 'function') {
+            const number_format_lang = window.number_format_lang as any;
+            window.displayPvpV4Caracs = function displayPvpV4Caracs(...args: any[]) {
+                const ret = _displayPvpV4Caracs(...args);
+                try {
+                    return $('<div id="wrapper"></div>')
+                        .html(ret)
+                        .find('.left-section')
+                        .prepend($('<span carac="ego"></span>').text(number_format_lang(args[0].battle_caracs.ego)))
+                        .closest('#wrapper')
+                        .html();
+                } catch {
+                    return ret;
+                }
+            };
+            $(`<style>
+.new_girl_tooltip.pvp-v4 .stats-wrapper .right-section {
+    width: 50%;
+    margin-left: 40%;
+    margin-top: -1.5rem;
+}
+.new_girl_tooltip .caracs {
+    margin-top: 0;
+}
+.new_girl_tooltip.pvp-v4 .stats-wrapper .caracs {
+    height: 8rem;
+}
+</style>`).appendTo(document.head);
+        }
     }
 }
 

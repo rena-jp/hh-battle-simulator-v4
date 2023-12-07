@@ -21,6 +21,7 @@ const config = {
     skillLevelsToBeSimulated: [5, 4, 3, 2, 1],
     calculateLeaguePointsTable: false,
     addGirlTraitsToGirlTooltip: true,
+    improveTooltipsForLabyrinth: true,
 };
 
 type Config = typeof config;
@@ -163,6 +164,19 @@ export async function registerConfig() {
         },
         run() {
             config.addGirlTraitsToGirlTooltip = true;
+        },
+    });
+
+    config.improveTooltipsForLabyrinth = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'ImproveTooltipsForLabyrinth',
+            label: 'Improve tooltips for Labyrinth',
+            default: true,
+        },
+        run() {
+            config.improveTooltipsForLabyrinth = true;
         },
     });
 
