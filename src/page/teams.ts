@@ -107,8 +107,11 @@ function updateLeagueTeam(window: TeamsWindow) {
 
     const leaguesTeam = Object.values(teams_data).find(team => team.selected_for_battle_type.includes('leagues'));
     if (leaguesTeam != null && leaguesTeam.id_team != null && leaguesTeam.theme != null) {
-        const team = leaguesTeam as typeof leaguesTeam & { id_team: string; theme: string };
-        savePlayerLeagueTeam(team);
+        // Avoid a bug
+        if (+leaguesTeam.slot_index === 1) {
+            const team = leaguesTeam as typeof leaguesTeam & { id_team: string; theme: string };
+            savePlayerLeagueTeam(team);
+        }
     }
 
     const selectButton = document.getElementById('btn-select-team');
@@ -118,6 +121,8 @@ function updateLeagueTeam(window: TeamsWindow) {
             if (localStorageGetItem('battle_type') === 'leagues') {
                 const selectedTeamElement = document.querySelector('.selected-team');
                 const selectedIndex = (selectedTeamElement as HTMLElement).dataset.teamIndex!;
+                // Avoid a bug
+                if (+selectedIndex !== 1) return;
                 const selectedTeam = teams_data[selectedIndex];
                 if (selectedTeam != null && selectedTeam.id_team != null && selectedTeam.theme != null) {
                     const team = selectedTeam as typeof selectedTeam & { id_team: string; theme: string };

@@ -307,7 +307,10 @@ export async function fetchPlayerLeagueData(window: TowerOfFameWindow) {
         let leagueMultiplier = undefined;
 
         const { referrer } = document;
-        if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
+
+        // Avoid a bug
+        // if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
+        if (['leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
             team = loadPlayerLeagueTeam();
             leagueMultiplier = loadMythicBoosterBonus().leagues ?? null;
             if (team != null && leagueMultiplier != null) {
