@@ -392,7 +392,7 @@ async function showAttackOrder(window: GameWindow) {
         await afterGameInited();
         const update = () => {
             const list = [
-                ...([...document.querySelectorAll('[data-girl-id]')] as HTMLElement[])
+                ...[...document.querySelectorAll<HTMLElement>('[data-girl-id]')]
                     .map(e => {
                         const girl = girlsMap.get(e.dataset.girlId) as any;
                         return {
