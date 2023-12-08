@@ -392,14 +392,16 @@ async function showAttackOrder(window: GameWindow) {
         await afterGameInited();
         const update = () => {
             const list = [
-                ...$('[data-girl-id]').map((_, e) => {
-                    const girl = girlsMap.get(e.dataset.girlId) as any;
-                    return {
-                        speed: girl.battle_caracs.speed,
-                        is_hero_fighter: true,
-                        position: +(e.dataset.teamMemberPosition ?? -1),
-                    };
-                }),
+                ...([...document.querySelectorAll('[data-girl-id]')] as HTMLElement[])
+                    .map(e => {
+                        const girl = girlsMap.get(e.dataset.girlId) as any;
+                        return {
+                            speed: girl.battle_caracs.speed,
+                            is_hero_fighter: true,
+                            position: +(e.dataset.teamMemberPosition ?? -1),
+                        };
+                    })
+                    .sort((x, y) => x.position - y.position),
                 ...opponent.map((e: any) => ({
                     speed: e,
                     is_hero_fighter: false,
