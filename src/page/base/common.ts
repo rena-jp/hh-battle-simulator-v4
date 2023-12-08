@@ -1,8 +1,9 @@
 import { getConfig } from '../../interop/hh-plus-plus-config';
 import { loadBoosterData } from '../../store/booster';
 import { loadOpponentTeamData } from '../../store/team';
-import { beforeGameInited } from '../../utils/async';
+import { afterGameInited, beforeGameInited } from '../../utils/async';
 import { checkPage } from '../../utils/page';
+import { getFromLocalStorage, setIntoLocalStorage } from '../../utils/storage';
 
 declare global {
     interface Window {
@@ -61,6 +62,7 @@ export async function GamePage(window: Window) {
         if (config.addGirlTraitsToGirlTooltip) addGirlTraitsToTooltip(window);
         if (config.improveTooltipsForLabyrinth) improveTooltipsForLabyrinth(window);
         if (config.fixAutoAssignForLabyrinth) fixAutoAssignForLabyrinth(window);
+        if (config.addAttackOrderIconToLabyrinth) showAttackOrder(window);
     } catch (e: any) {}
 }
 
@@ -341,6 +343,92 @@ async function fixAutoAssignForLabyrinth(window: GameWindow) {
         if (Array.isArray(owned_girls)) {
             owned_girls.forEach(e => (e.id_girl = Number(e.id_girl)));
         }
+    }
+}
+
+async function showAttackOrder(window: GameWindow) {
+    const appendStyle = () => {
+        $(`<style>
+.sim-team-order-number {
+    position: absolute;
+    width: 1.5rem;
+    height: 1.5rem;
+    left: 50%;
+    margin-left: -0.75rem;
+    font-size: .8rem;
+    line-height: 1.4rem;
+    text-align: center;
+    background: linear-gradient(to right,#333750 0,#1e9fdf 100%);
+    border-radius: 1.5rem;
+    border: 2px solid #fff;
+    z-index: 2;
+}
+</style>`).appendTo(document.head);
+    };
+    if (checkPage('/labyrinth-pre-battle.html')) {
+        appendStyle();
+        const hero_fighter = window.hero_fighter as any;
+        const opponent_fighter = window.opponent_fighter as any;
+        const list = [...Object.values(hero_fighter.fighters), ...Object.values(opponent_fighter.fighters)];
+        list.sort((x: any, y: any) => +y.speed - +x.speed);
+        setIntoLocalStorage('HHBattleSimulator.LabyrinthTeamData', [
+            ...Object.values(opponent_fighter.fighters).map((e: any) => e.speed),
+        ]);
+        await afterGameInited();
+        list.forEach((e: any, i) => {
+            const order = i + 1;
+            const icon = $('<div class="sim-team-order-number"></div>').text(order);
+            $(e.is_hero_fighter ? '.player-panel' : '.opponent-panel')
+                .find(`[data-team-member-position="${e.position}"]`)
+                .prepend(icon);
+        });
+    }
+    if (checkPage('/edit-labyrinth-team.html')) {
+        appendStyle();
+        const opponent = getFromLocalStorage('HHBattleSimulator.LabyrinthTeamData', []);
+        const availableGirls = window.availableGirls as any;
+        const girlsMap = new Map(availableGirls.map((e: any) => [String(e.id_girl), e]));
+        await afterGameInited();
+        const update = () => {
+            const list = [
+                ...$('[data-girl-id]').map((_, e) => {
+                    const girl = girlsMap.get(e.dataset.girlId) as any;
+                    return {
+                        speed: girl.battle_caracs.speed,
+                        is_hero_fighter: true,
+                        position: +(e.dataset.teamMemberPosition ?? -1),
+                    };
+                }),
+                ...opponent.map((e: any) => ({
+                    speed: e,
+                    is_hero_fighter: false,
+                })),
+            ];
+            list.sort((x: any, y: any) => +y.speed - +x.speed);
+            list.forEach((e: any, i) => {
+                if (!e.is_hero_fighter) return;
+                const order = i + 1;
+                const $container = $(`[data-team-member-position="${e.position}"]`);
+                const $icon = $container.find('.sim-team-order-number');
+                if ($icon.length > 0) {
+                    $icon.text(order);
+                } else {
+                    $container.prepend($('<div class="sim-team-order-number"></div>').text(order));
+                }
+            });
+        };
+        const onChange = () => {
+            observer.disconnect();
+            update();
+            observer.observe(document.querySelector('.team-hexagon')!, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['src'],
+            });
+        };
+        const observer = new MutationObserver(onChange);
+        onChange();
     }
 }
 

@@ -23,6 +23,7 @@ const config = {
     addGirlTraitsToGirlTooltip: true,
     improveTooltipsForLabyrinth: true,
     fixAutoAssignForLabyrinth: true,
+    addAttackOrderIconToLabyrinth: true,
 };
 
 type Config = typeof config;
@@ -191,6 +192,19 @@ export async function registerConfig() {
         },
         run() {
             config.fixAutoAssignForLabyrinth = true;
+        },
+    });
+
+    config.addAttackOrderIconToLabyrinth = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'AddAttackOrderIconToLabyrinth',
+            label: 'Add attack order icon to Labyrinth',
+            default: true,
+        },
+        run() {
+            config.addAttackOrderIconToLabyrinth = true;
         },
     });
 

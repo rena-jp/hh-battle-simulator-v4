@@ -3,8 +3,13 @@ export function getFromLocalStorage(key: string, defaultValue?: any): any {
     if (value == null) return defaultValue;
     try {
         const data = JSON.parse(value);
-        if (data != null && defaultValue != null && typeof data === 'object' && typeof defaultValue === 'object') {
-            return { ...defaultValue, ...data };
+        if (data != null) {
+            if (Array.isArray(data)) {
+                return data;
+            }
+            if (defaultValue != null && typeof data === 'object' && typeof defaultValue === 'object') {
+                return { ...defaultValue, ...data };
+            }
         }
         return data;
     } catch (e) {
