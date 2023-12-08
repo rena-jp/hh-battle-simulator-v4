@@ -164,7 +164,6 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                             '/images/pictures/design/girl_skills/active_skills_icon.png',
                             window.IMAGES_URL + '/pictures/design/girl_skills' + skill,
                         );
-                        console.log(newHtml);
                         return { ...ret, body: newHtml };
                     }
                 }
