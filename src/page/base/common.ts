@@ -355,6 +355,7 @@ async function showAttackOrder(window: GameWindow) {
     height: 1.5rem;
     left: 50%;
     margin-left: -0.75rem;
+    margin-top: 0.25rem;
     font-size: .8rem;
     line-height: 1.4rem;
     text-align: center;
@@ -416,6 +417,22 @@ async function showAttackOrder(window: GameWindow) {
                     $container.prepend($('<div class="sim-team-order-number"></div>').text(order));
                 }
             });
+            const speedList = list.map(e => e.speed);
+            $('.harem-panel-girls')
+                .find('[id_girl]')
+                .each((_, e) => {
+                    const id = e.getAttribute('id_girl')!;
+                    const girl = girlsMap.get(id) as any;
+                    const speed = girl.battle_caracs.speed;
+                    const order = (speedList.findIndex(e => e <= speed) ?? 0) + 1;
+                    const $container = $(e);
+                    const $icon = $container.find('.sim-team-order-number');
+                    if ($icon.length > 0) {
+                        $icon.text(order);
+                    } else {
+                        $container.prepend($('<div class="sim-team-order-number"></div>').text(order));
+                    }
+                });
         };
         const onChange = () => {
             observer.disconnect();
