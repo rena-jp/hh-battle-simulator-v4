@@ -353,9 +353,8 @@ async function showAttackOrder(window: GameWindow) {
     position: absolute;
     width: 1.5rem;
     height: 1.5rem;
-    left: 50%;
-    margin-left: -0.75rem;
-    margin-top: 0.25rem;
+    right: 0;
+    margin-top: 0.125rem;
     font-size: .8rem;
     line-height: 1.4rem;
     text-align: center;
