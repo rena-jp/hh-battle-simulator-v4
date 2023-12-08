@@ -363,6 +363,7 @@ async function showAttackOrder(window: GameWindow) {
     border-radius: 1.5rem;
     border: 2px solid #fff;
     z-index: 2;
+    pointer-events: none;
 }
 </style>`).appendTo(document.head);
     };
