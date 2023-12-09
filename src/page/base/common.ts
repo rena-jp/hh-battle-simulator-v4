@@ -426,7 +426,8 @@ async function showAttackOrder(window: GameWindow) {
                     const id = e.getAttribute('id_girl')!;
                     const girl = girlsMap.get(id) as any;
                     const speed = girl.battle_caracs.speed;
-                    const order = (speedList.findIndex(e => e <= speed) ?? 0) + 1;
+                    let order = speedList.findIndex(e => e <= speed) + 1;
+                    if (order === 0) order = 14;
                     const $container = $(e);
                     const $icon = $container.find('.sim-team-order-number');
                     if ($icon.length > 0) {
