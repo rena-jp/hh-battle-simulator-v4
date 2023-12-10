@@ -24,6 +24,7 @@ const config = {
     improveTooltipsForLabyrinth: true,
     fixAutoAssignForLabyrinth: true,
     addAttackOrderIconToLabyrinth: true,
+    addClassIconToLabyrinth: true,
 };
 
 type Config = typeof config;
@@ -205,6 +206,19 @@ export async function registerConfig() {
         },
         run() {
             config.addAttackOrderIconToLabyrinth = true;
+        },
+    });
+
+    config.addClassIconToLabyrinth = false;
+    hhPlusPlusConfig.registerModule({
+        group: 'sim-v4',
+        configSchema: {
+            baseKey: 'AddClassIconToLabyrinth',
+            label: 'Add class icon to Labyrinth',
+            default: true,
+        },
+        run() {
+            config.addClassIconToLabyrinth = true;
         },
     });
 

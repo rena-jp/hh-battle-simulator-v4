@@ -63,6 +63,7 @@ export async function GamePage(window: Window) {
         if (config.improveTooltipsForLabyrinth) improveTooltipsForLabyrinth(window);
         if (config.fixAutoAssignForLabyrinth) fixAutoAssignForLabyrinth(window);
         if (config.addAttackOrderIconToLabyrinth) showAttackOrder(window);
+        if (config.addClassIconToLabyrinth) showClass(window);
     } catch (e: any) {}
 }
 
@@ -353,16 +354,24 @@ async function showAttackOrder(window: GameWindow) {
     position: absolute;
     width: 1.5rem;
     height: 1.5rem;
-    right: 0;
-    margin-top: 0.125rem;
-    font-size: .8rem;
-    line-height: 1.4rem;
+    right: -0.5rem;
+    bottom: -0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
     text-align: center;
-    background: linear-gradient(to right,#333750 0,#1e9fdf 100%);
-    border-radius: 1.5rem;
+    background: linear-gradient(to right, #333750 0, #1e9fdf 100%);
+    border-radius: 50%;
     border: 2px solid #fff;
     z-index: 2;
     pointer-events: none;
+}
+.change-team-panel .sim-team-order-number {
+    right: 0;
+    bottom: -3px;
+}
+.change-team-panel.harem-panel .sim-team-order-number {
+    right: 0;
+    bottom: unset;
 }
 </style>`).appendTo(document.head);
     };
@@ -381,7 +390,7 @@ async function showAttackOrder(window: GameWindow) {
             const icon = $('<div class="sim-team-order-number"></div>').text(order);
             $(e.is_hero_fighter ? '.player-panel' : '.opponent-panel')
                 .find(`[data-team-member-position="${e.position}"]`)
-                .prepend(icon);
+                .append(icon);
         });
     }
     if (checkPage('/edit-labyrinth-team.html')) {
@@ -416,27 +425,113 @@ async function showAttackOrder(window: GameWindow) {
                 if ($icon.length > 0) {
                     $icon.text(order);
                 } else {
-                    $container.prepend($('<div class="sim-team-order-number"></div>').text(order));
+                    $container.append($('<div class="sim-team-order-number"></div>').text(order));
                 }
             });
             const speedList = list.map(e => e.speed);
-            $('.harem-panel-girls')
-                .find('[id_girl]')
-                .each((_, e) => {
-                    const id = e.getAttribute('id_girl')!;
-                    const girl = girlsMap.get(id) as any;
-                    const speed = girl.battle_caracs.speed;
-                    let order = speedList.findIndex(e => e <= speed) + 1;
-                    if (order === 0) order = 14;
-                    const $container = $(e);
-                    const $icon = $container.find('.sim-team-order-number');
-                    if ($icon.length > 0) {
-                        $icon.text(order);
-                    } else {
-                        $container.prepend($('<div class="sim-team-order-number"></div>').text(order));
-                    }
-                });
+            $('.harem-panel-girls [id_girl]').each((_, e) => {
+                const id = e.getAttribute('id_girl')!;
+                const girl = girlsMap.get(id) as any;
+                const speed = girl.battle_caracs.speed;
+                let order = speedList.findIndex(e => e <= speed) + 1;
+                if (order === 0) order = 14;
+                const $container = $(e);
+                const $icon = $container.find('.sim-team-order-number');
+                if ($icon.length > 0) {
+                    $icon.text(order);
+                } else {
+                    $container.append($('<div class="sim-team-order-number"></div>').text(order));
+                }
+            });
         };
+        const onChange = () => {
+            observer.disconnect();
+            update();
+            observer.observe(document.querySelector('.team-hexagon')!, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['src'],
+            });
+        };
+        const observer = new MutationObserver(onChange);
+        onChange();
+    }
+}
+
+async function showClass(window: GameWindow) {
+    const appendStyle = () => {
+        $(`<style>
+.sim-labyrinth-class {
+    position: absolute;
+    left: -0.375rem;
+    bottom: -0.125rem;
+    line-height: 0;
+    filter: drop-shadow(-1px -1px #fff) drop-shadow(-1px 1px #fff) drop-shadow(1px -1px #fff) drop-shadow(1px 1px #fff);
+    z-index: 2;
+    pointer-events: none;
+}
+.sim-labyrinth-class [carac="1"]::before,
+.sim-labyrinth-class [carac="2"]::before,
+.sim-labyrinth-class [carac="3"]::before {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.change-team-panel .sim-labyrinth-class {
+    left: 2px;
+    bottom: -1px;
+}
+.change-team-panel.harem-panel .sim-labyrinth-class {
+    bottom: unset;
+}
+</style>`).appendTo(document.head);
+    };
+    if (checkPage('/labyrinth-pre-battle.html')) {
+        appendStyle();
+        const hero_fighter = window.hero_fighter as any;
+        const opponent_fighter = window.opponent_fighter as any;
+        const list = [...Object.values(hero_fighter.fighters), ...Object.values(opponent_fighter.fighters)];
+        await afterGameInited();
+        list.forEach((e: any, i) => {
+            const klass = e.girl.girl.class;
+            const icon = $('<div class="sim-labyrinth-class"></div>').append($('<div></div>').attr('carac', klass));
+            $(e.is_hero_fighter ? '.player-panel' : '.opponent-panel')
+                .find(`[data-team-member-position="${e.position}"]`)
+                .append(icon);
+        });
+    }
+    if (checkPage('/edit-labyrinth-team.html')) {
+        appendStyle();
+        const availableGirls = window.availableGirls as any;
+        const girlsMap = new Map(availableGirls.map((e: any) => [String(e.id_girl), e]));
+        await afterGameInited();
+        const update = () => {
+            document.querySelectorAll<HTMLElement>('[data-girl-id]').forEach((e: any) => {
+                const girl = girlsMap.get(e.dataset.girlId) as any;
+                const $container = $(e);
+                const $icon = $container.find('.sim-labyrinth-class');
+                if ($icon.length > 0) {
+                    $icon.find('[carac]').attr('carac', girl.class);
+                } else {
+                    $container.append(
+                        $('<div class="sim-labyrinth-class"></div>').append($('<div></div>').attr('carac', girl.class)),
+                    );
+                }
+            });
+        };
+        $('.harem-panel-girls [id_girl]').each((_, e) => {
+            const id = e.getAttribute('id_girl')!;
+            const girl = girlsMap.get(id) as any;
+            const $container = $(e);
+            const $icon = $container.find('.sim-labyrinth-class');
+            if ($icon.length > 0) {
+                $icon.find('[carac]').attr('carac', girl.class);
+            } else {
+                $container.append(
+                    $('<div class="sim-labyrinth-class"></div>').append($('<div></div>').attr('carac', girl.class)),
+                );
+            }
+        });
         const onChange = () => {
             observer.disconnect();
             update();
