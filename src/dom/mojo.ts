@@ -22,7 +22,7 @@ export class MojoView {
             const winChance = result.chance;
             const lossChance = 1 - winChance;
             const winMojo = this.mojo;
-            const lossMojo = winMojo - 40;
+            const lossMojo = Math.min(winMojo - 40, -1);
             const odds = winMojo * winChance + lossMojo * lossChance;
 
             this.element
