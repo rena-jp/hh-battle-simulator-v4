@@ -308,7 +308,7 @@ type EditTeamPageData = Pick<
     Hero_infos: EditTeamGlobal['Hero']['infos'];
 };
 let fetchedWindow: Promise<EditTeamPageData> | null = null;
-async function fetchEditTeamPage(id_team: string) {
+async function fetchEditTeamPage(id_team: number) {
     fetchedWindow ??= (async () => {
         const page = await fetch(`edit-team.html?id_team=${id_team}`);
         const html = await page.text();
@@ -331,7 +331,7 @@ async function fetchEditTeamPage(id_team: string) {
 }
 
 let teamParams: TeamParams | undefined;
-export async function fetchTeamParams(teamId: string, hero: HeroType, server_now_ts: number) {
+export async function fetchTeamParams(teamId: number, hero: HeroType, server_now_ts: number) {
     if (teamParams != null) return teamParams;
     const editTeamPage = await fetchEditTeamPage(teamId);
     const girlMap = Object.fromEntries(editTeamPage.availableGirls.map(e => [e.id_girl, e]));

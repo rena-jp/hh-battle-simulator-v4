@@ -1,5 +1,5 @@
 interface Team {
-    id_team: string | null; // nullable at teams page or opponent team
+    id_team: number | string | null; // nullable at teams page or opponent team
     theme: string; // nullable at teams page
     caracs: { damage: number; defense: number; ego: number; chance: number };
     girls: Girl[];

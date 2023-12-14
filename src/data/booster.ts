@@ -8,7 +8,7 @@ export interface Booster {
         ego: string | number;
         chance: string | number;
     };
-    lifetime: string;
+    lifetime: string | number;
     usages_remaining: string | number;
 }
 

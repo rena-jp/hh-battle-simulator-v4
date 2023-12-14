@@ -88,7 +88,7 @@ async function saveOpponentTeam(window: SeasonArenaWindow) {
         localStorageSetItem('battle_type', 'seasons');
         const opponentId = $('.selected_opponent').attr('data-opponent');
         if (opponentId == null) return;
-        const opponent = opponents.find(e => e.player.id_fighter === opponentId);
+        const opponent = opponents.find(e => +e.player.id_fighter === +opponentId);
         if (opponent == null) return;
         const opponentTeam = opponent.player.team;
         const mojo = opponent.rewards.rewards.find(e => e.type === 'victory_points')?.value;
@@ -115,7 +115,7 @@ function getOpponent(window: SeasonArenaWindow) {
     const { opponents } = window;
     const opponentId = $('.selected_opponent').attr('data-opponent');
     if (opponentId == null) return;
-    const opponent = opponents.find(e => e.player.id_fighter === opponentId);
+    const opponent = opponents.find(e => +e.player.id_fighter === +opponentId);
     if (opponent == null) return;
     return opponent;
 }
