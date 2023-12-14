@@ -4,49 +4,50 @@ export interface LeaguesPreBattleGlobal {
 }
 
 export interface HeroData {
-    id_fighter:          string;
-    nickname:            string;
-    class:               string;
-    level:               string;
-    team:                HeroDataTeam;
-    current_season_mojo: number;
-    remaining_ego:       number;
-    damage:              number;
-    defense:             number;
-    chance:              number;
-    ico:                 string;
-    club:                HeroDataClub;
-    stun:                null;
-    shield:              null;
-    burn:                null;
+    id_fighter:            number;
+    remaining_ego:         number;
+    damage:                number;
+    defense:               number;
+    chance:                number;
+    percent_remaining_ego: number;
+    nickname:              string;
+    level:                 number;
+    class:                 number;
+    team:                  HeroDataTeam;
+    ico:                   string;
+    current_season_mojo:   number;
+    club:                  Club;
+    stun:                  null;
+    shield:                null;
+    burn:                  null;
 }
 
-export interface HeroDataClub {
-    id_club: string;
+export interface Club {
+    id_club: number;
     name:    string;
 }
 
 export interface HeroDataTeam {
+    caracs:                   PurpleCaracs;
+    remaining_ego:            number;
+    hitter_girl_id:           number;
     id_team:                  string;
     id_member:                number;
-    slot_index:               string;
+    slot_index:               number;
     theme:                    string;
-    girls_ids:                string[];
+    girls_ids:                number[];
     total_power:              number;
-    caracs:                   TeamCaracs;
     girls:                    PurpleGirl[];
     synergies:                Synergy[];
     theme_elements:           any[];
-    remaining_ego:            number;
     power_display:            number;
-    hitter_girl_id:           number;
     max_team_size:            number;
     min_team_size:            number;
     locked:                   boolean;
     selected_for_battle_type: string[];
 }
 
-export interface TeamCaracs {
+export interface PurpleCaracs {
     ego:     number;
     damage:  number;
     defense: number;
@@ -54,25 +55,28 @@ export interface TeamCaracs {
 }
 
 export interface PurpleGirl {
-    id_member:            string;
-    id_girl:              string;
-    shards:               string;
-    level:                string;
-    fav_graded:           string;
-    graded:               string;
-    ts_pay:               string;
-    affection:            string;
-    xp:                   string;
-    id_places_of_power:   null | string;
+    id_member:            number;
+    id_girl:              number;
+    shards:               number;
+    level:                number;
+    fav_graded:           number;
+    graded:               number;
+    ts_pay:               number;
+    affection:            number;
+    xp:                   number;
+    id_places_of_power:   null;
     date_added:           string;
-    awakening_level:      string;
-    girl:                 GirlGirl;
+    awakening_level:      number;
+    girl:                 FluffyGirl;
     salary:               number;
     pay_time:             number;
     pay_in:               number;
-    caracs:               BlessedCaracsClass;
-    blessed_caracs:       BlessedCaracsClass;
+    caracs:               FluffyCaracs;
+    blessed_caracs:       PurpleBlessedCaracs;
     caracs_sum:           number;
+    battle_caracs:        BattleCaracs;
+    total_battle_power:   number;
+    power_display:        number;
     graded2:              string;
     favorite_grade:       number;
     salary_per_hour:      number;
@@ -80,19 +84,35 @@ export interface PurpleGirl {
     ava:                  string;
     level_cap:            number;
     awakening_cost:       number;
-    skills:               any[] | { [key: string]: SkillsSkill };
+    skills:               { [key: string]: SkillValue };
     skill_trait:          string;
     skill_tiers_unlocked: number[];
-    skill_tiers_info:     { [key: string]: SkillTiersInfo };
+    skill_tiers_info:     { [key: string]: SkillTiersInfoValue };
 }
 
-export interface BlessedCaracsClass {
+export interface BattleCaracs {
+    ego:             number;
+    damage:          number;
+    defense:         number;
+    chance:          number;
+    speed:           number;
+    mana_starting:   number;
+    mana_generation: number;
+}
+
+export interface PurpleBlessedCaracs {
     carac1: number;
     carac2: number;
     carac3: number;
 }
 
-export interface GirlGirl {
+export interface FluffyCaracs {
+    carac1: number;
+    carac2: number;
+    carac3: number;
+}
+
+export interface FluffyGirl {
     id_girl:             number;
     id_girl_ref:         string;
     nb_grades:           number;
@@ -119,14 +139,14 @@ export interface GirlGirl {
     grade_offset_values: Array<number[]>;
     element_data:        Element;
     is_released:         boolean;
-    blessed_caracs:      BlessedCaracs;
-    grade_offsets:       number[];
+    blessed_caracs:      FluffyBlessedCaracs;
+    grade_offsets:       GradeOffsets;
 }
 
-export interface BlessedCaracs {
-    carac1: number | string;
-    carac2: number | string;
-    carac3: number | string;
+export interface FluffyBlessedCaracs {
+    carac1: number;
+    carac2: number;
+    carac3: number;
 }
 
 export interface Element {
@@ -140,14 +160,19 @@ export interface Element {
     flavor:                                   string;
 }
 
-export interface SkillTiersInfo {
+export interface GradeOffsets {
+    static:   number[];
+    animated: number[];
+}
+
+export interface SkillTiersInfoValue {
     tier:              number;
     icon:              string;
     skill_points_used: number;
     icon_path:         string;
 }
 
-export interface SkillsSkill {
+export interface SkillValue {
     id_member: string;
     id_girl:   string;
     id_skill:  string;
@@ -171,6 +196,7 @@ export interface SkillSkill {
     skill_type?:        string;
     named_attack_text?: string;
     is_used_in_battle?: boolean;
+    name?:              string;
 }
 
 export interface Synergy {
@@ -193,52 +219,55 @@ export interface OpponentFighter {
 }
 
 export interface Player {
-    id_fighter:          string;
-    nickname:            string;
-    class:               number;
-    level:               string;
-    team:                PlayerTeam;
-    current_season_mojo: number;
-    remaining_ego:       number;
-    damage:              number;
-    defense:             number;
-    chance:              number;
-    ico:                 string;
-    club:                PlayerClub;
-    stun:                null;
-    shield:              null;
-    burn:                null;
-}
-
-export interface PlayerClub {
-    name:    string;
-    id_club: number;
+    id_fighter:            number;
+    remaining_ego:         number;
+    damage:                number;
+    defense:               number;
+    chance:                number;
+    percent_remaining_ego: number;
+    nickname:              string;
+    level:                 number;
+    class:                 number;
+    team:                  PlayerTeam;
+    ico:                   string;
+    current_season_mojo:   number;
+    club:                  Club;
+    stun:                  null;
+    shield:                null;
+    burn:                  null;
 }
 
 export interface PlayerTeam {
+    caracs:         TentacledCaracs;
+    remaining_ego:  null;
+    hitter_girl_id: number;
     id_team:        null;
     id_member:      null;
     slot_index:     null;
     theme:          string;
     girls_ids:      number[];
     total_power:    number;
-    caracs:         TeamCaracs;
-    girls:          FluffyGirl[];
+    girls:          TentacledGirl[];
     synergies:      Synergy[];
-    theme_elements: any[];
-    remaining_ego:  null;
+    theme_elements: Element[];
     power_display:  number;
-    hitter_girl_id: number;
     max_team_size:  number;
     min_team_size:  number;
 }
 
-export interface FluffyGirl {
+export interface TentacledCaracs {
+    ego:     number;
+    damage:  number;
+    defense: number;
+    chance:  number;
+}
+
+export interface TentacledGirl {
     id_member:            number;
     id_girl:              number;
     shards:               null;
     level:                number;
-    fav_graded:           number | string;
+    fav_graded:           number;
     graded:               number;
     ts_pay:               null;
     affection:            null;
@@ -246,13 +275,16 @@ export interface FluffyGirl {
     id_places_of_power:   null;
     date_added:           null;
     awakening_level:      number;
-    girl:                 GirlGirl;
+    girl:                 StickyGirl;
     salary:               number;
     pay_time:             number;
     pay_in:               number;
     caracs:               BlessedCaracsClass;
     blessed_caracs:       BlessedCaracsClass;
     caracs_sum:           number;
+    battle_caracs:        BattleCaracs;
+    total_battle_power:   number;
+    power_display:        number;
     graded2:              string;
     favorite_grade:       number;
     salary_per_hour:      number;
@@ -260,17 +292,66 @@ export interface FluffyGirl {
     ava:                  string;
     level_cap:            number;
     awakening_cost:       number;
-    skills:               { [key: string]: GirlSkill };
+    skills:               any[];
     skill_trait:          string;
-    skill_tiers_unlocked: number[];
-    skill_tiers_info:     { [key: string]: SkillTiersInfo };
+    skill_tiers_unlocked: any[];
+    skill_tiers_info:     PurpleSkillTiersInfo;
 }
 
-export interface GirlSkill {
-    id_member: number;
-    id_girl:   number;
-    id_skill:  number;
-    level:     number;
-    tier:      number;
-    skill:     SkillSkill;
+export interface BlessedCaracsClass {
+    carac1: number;
+    carac2: number;
+    carac3: number;
+}
+
+export interface StickyGirl {
+    id_girl:             number;
+    id_girl_ref:         string;
+    nb_grades:           number;
+    class:               string;
+    figure:              string;
+    carac1:              string;
+    carac2:              string;
+    carac3:              string;
+    rarity:              string;
+    salaries:            string;
+    id_world:            string;
+    id_quest_get:        string;
+    name:                string;
+    release_date:        string;
+    upgrade_quests:      UpgradeQuests;
+    hair_color1:         string;
+    hair_color2:         string;
+    eye_color1:          string;
+    eye_color2:          string;
+    zodiac:              string;
+    element:             string;
+    animated_grades:     any[];
+    anniversary:         string;
+    grade_offset_values: Array<number[]>;
+    element_data:        Element;
+    is_released:         boolean;
+    blessed_caracs:      TentacledBlessedCaracs;
+    grade_offsets:       GradeOffsets;
+}
+
+export interface TentacledBlessedCaracs {
+    carac1: string;
+    carac2: string;
+    carac3: string;
+}
+
+export interface UpgradeQuests {
+    "1": string;
+}
+
+export interface PurpleSkillTiersInfo {
+    "1": The1;
+}
+
+export interface The1 {
+    tier:              number;
+    icon:              string;
+    skill_points_used: number;
+    icon_path:         string;
 }

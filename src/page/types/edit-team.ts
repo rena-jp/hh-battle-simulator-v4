@@ -81,8 +81,8 @@ export interface EnergyField {
 }
 
 export interface Infos {
-    id:                          number;
     xp:                          number;
+    id:                          number;
     carac1:                      number;
     carac2:                      number;
     carac3:                      number;
@@ -213,7 +213,7 @@ export interface ArmorElement {
     id_item_skin:           string;
     id_variation:           string;
     level:                  string;
-    id_girl:                string;
+    id_girl:                number | string;
     caracs:                 ArmorCaracs;
     slot_index:             number;
     armor:                  ArmorArmor;
@@ -332,7 +332,7 @@ export interface Team {
     max_team_size:            number;
     min_team_size:            number;
     locked:                   boolean;
-    selected_for_battle_type: string[];
+    selected_for_battle_type: any[];
 }
 
 export interface TeamCaracs {
@@ -453,9 +453,9 @@ export interface Synergy {
 }
 
 export interface ThemeResonanceBonuses {
-    "":     Empty;
     nature: Empty;
-    fire:   Empty;
+    "":     Empty;
+    stone:  Empty;
 }
 
 export interface Empty {

@@ -19,19 +19,19 @@ export interface Hero {
 }
 
 export interface Club {
-    id_club:                   string;
+    id_club:                   number;
     name:                      string;
     status:                    string;
-    level_restriction:         string;
+    level_restriction:         number;
     ico:                       string;
-    max_members:               string;
-    created_by:                string;
+    max_members:               number;
+    created_by:                number;
     created_at:                string;
-    place:                     string;
+    place:                     number;
     upgrades_data:             UpgradesData;
-    total_contribution_points: string;
-    total_upgrades:            string;
-    member_count:              string;
+    total_contribution_points: number;
+    total_upgrades:            number;
+    member_count:              number;
     level:                     string;
     leader_id:                 string;
     leader_name:               string;
@@ -137,11 +137,11 @@ export interface Questing {
 }
 
 export interface EquippedArmor {
-    id_member_armor_equipped: string;
-    id_member:                string;
-    id_variation:             string;
-    id_item_skin:             string;
-    level:                    string;
+    id_member_armor_equipped: number;
+    id_member:                number;
+    id_variation:             number;
+    id_item_skin:             number;
+    level:                    number;
     skin:                     Skin;
     item:                     EquippedArmorItem;
     name:                     string;
@@ -212,49 +212,15 @@ export interface Skin {
 
 export interface EquippedBooster {
     normal: Normal[];
-    mythic: Mythic[];
-}
-
-export interface Mythic {
-    id_member_booster_equipped: string;
-    id_member:                  string;
-    id_item:                    string;
-    lifetime:                   string;
-    usages_remaining:           string;
-    item:                       MythicItem;
-    expiration:                 number;
-    price_sell:                 number;
-}
-
-export interface MythicItem {
-    id_item:        string;
-    type:           string;
-    identifier:     string;
-    rarity:         string;
-    price:          string;
-    currency:       string;
-    value:          string;
-    carac1:         string;
-    carac2:         string;
-    carac3:         string;
-    endurance:      string;
-    chance:         string;
-    ego:            string;
-    damage:         string;
-    duration:       string;
-    skin:           string;
-    name:           string;
-    ico:            string;
-    display_price:  number;
-    default_usages: number;
+    mythic: any[];
 }
 
 export interface Normal {
-    id_member_booster_equipped: string;
-    id_member:                  string;
-    id_item:                    string;
-    lifetime:                   string;
-    usages_remaining:           string;
+    id_member_booster_equipped: number;
+    id_member:                  number;
+    id_item:                    number;
+    lifetime:                   number;
+    usages_remaining:           number;
     item:                       NormalItem;
     expiration:                 number;
     price_sell:                 number;
@@ -298,8 +264,8 @@ export interface Prices {
 export interface MarketInventory {
     armor:   MarketInventoryArmor[];
     booster: MarketInventoryBooster[];
-    potion:  PotionElement[];
-    gift:    PotionElement[];
+    potion:  MarketInventoryGift[];
+    gift:    MarketInventoryGift[];
 }
 
 export interface MarketInventoryArmor {
@@ -382,7 +348,7 @@ export interface BoosterItem {
     default_usages?: number;
 }
 
-export interface PotionElement {
+export interface MarketInventoryGift {
     id_member:  null;
     id_item:    number;
     quantity:   null;
@@ -395,39 +361,39 @@ export interface PotionElement {
 export interface PlayerInventory {
     armor:   PlayerInventoryArmor[];
     booster: PlayerInventoryBooster[];
-    potion:  Potion[];
+    potion:  PlayerInventoryGift[];
     gift:    PlayerInventoryGift[];
 }
 
 export interface PlayerInventoryArmor {
-    id_member_armor:    string;
-    id_member:          string;
-    id_variation?:      string;
-    id_item_skin:       string;
-    level:              string;
+    id_member_armor:    number;
+    id_member:          number;
+    id_variation?:      number;
+    id_item_skin:       number;
+    level:              number;
     skin:               Skin;
     item:               FluffyItem;
     name:               string;
     price_buy:          number;
     price_sell:         number;
-    carac1_equip:       number | string;
-    carac2_equip:       number | string;
-    carac3_equip:       number | string;
+    carac1_equip:       number;
+    carac2_equip:       number;
+    carac3_equip:       number;
     chance_equip:       number | string;
-    endurance_equip:    number | string;
+    endurance_equip:    number;
     resonance_bonuses?: ArmorResonanceBonuses;
     caracs:             FluffyCaracs;
-    id_item_equip?:     string;
-    ego_equip?:         string;
+    id_item_equip?:     number;
+    ego_equip?:         number;
 }
 
 export interface FluffyCaracs {
-    carac1:    number | string;
-    carac2:    number | string;
-    carac3:    number | string;
-    endurance: number | string;
+    carac1:    number;
+    carac2:    number;
+    carac3:    number;
+    endurance: number;
     chance:    number | string;
-    ego?:      string;
+    ego?:      number;
 }
 
 export interface FluffyItem {
@@ -465,27 +431,18 @@ export interface FluffyTheme {
 }
 
 export interface PlayerInventoryBooster {
-    id_member:  string;
-    id_item:    string;
-    quantity:   string;
+    id_member:  number;
+    id_item:    number;
+    quantity:   number;
     item:       BoosterItem;
     price_buy:  number;
     price_sell: number;
 }
 
 export interface PlayerInventoryGift {
-    id_member:  string;
-    id_item:    string;
-    quantity:   string;
-    item:       NormalItem;
-    price_buy:  number;
-    price_sell: number;
-}
-
-export interface Potion {
-    id_member:  string;
-    id_item:    string;
-    quantity:   number | string;
+    id_member:  number;
+    id_item:    number;
+    quantity:   number;
     item:       NormalItem;
     price_buy:  number;
     price_sell: number;
