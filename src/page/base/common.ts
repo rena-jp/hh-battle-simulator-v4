@@ -61,7 +61,6 @@ export async function GamePage(window: Window) {
         const config = getConfig();
         if (config.addGirlTraitsToGirlTooltip) addGirlTraitsToTooltip(window);
         if (config.improveTooltipsForLabyrinth) improveTooltipsForLabyrinth(window);
-        if (config.fixAutoAssignForLabyrinth) fixAutoAssignForLabyrinth(window);
         if (config.addAttackOrderIconToLabyrinth) showAttackOrder(window);
         if (config.addClassIconToLabyrinth) showClass(window);
     } catch (e: any) {}
@@ -334,15 +333,6 @@ async function improveTooltipsForLabyrinth(window: GameWindow) {
     height: 8rem;
 }
 </style>`).appendTo(document.head);
-        }
-    }
-}
-
-async function fixAutoAssignForLabyrinth(window: GameWindow) {
-    if (checkPage('/labyrinth-pool-select.html')) {
-        const owned_girls = window.owned_girls as any;
-        if (Array.isArray(owned_girls)) {
-            owned_girls.forEach(e => (e.id_girl = Number(e.id_girl)));
         }
     }
 }
