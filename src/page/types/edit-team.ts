@@ -18,19 +18,19 @@ export interface Hero {
 }
 
 export interface Club {
-    id_club:                   string;
+    id_club:                   number;
     name:                      string;
     status:                    string;
-    level_restriction:         string;
+    level_restriction:         number;
     ico:                       string;
-    max_members:               string;
-    created_by:                string;
+    max_members:               number;
+    created_by:                number;
     created_at:                string;
-    place:                     string;
+    place:                     number;
     upgrades_data:             UpgradesData;
-    total_contribution_points: string;
-    total_upgrades:            string;
-    member_count:              string;
+    total_contribution_points: number;
+    total_upgrades:            number;
+    member_count:              number;
     level:                     string;
     leader_id:                 string;
     leader_name:               string;
@@ -81,8 +81,8 @@ export interface EnergyField {
 }
 
 export interface Infos {
-    xp:                          number;
     id:                          number;
+    xp:                          number;
     carac1:                      number;
     carac2:                      number;
     carac3:                      number;
@@ -128,7 +128,7 @@ export interface InfosCaracs {
 }
 
 export interface Questing {
-    id_world:    string;
+    id_world:    number;
     step:        number;
     id_quest:    number;
     num_step:    number;
@@ -136,29 +136,29 @@ export interface Questing {
 }
 
 export interface AvailableGirl {
-    id_member:           string;
-    id_girl:             string;
-    shards:              string;
-    level:               string;
-    fav_graded:          string;
+    id_member:           number;
+    id_girl:             number;
+    shards:              number;
+    level:               number;
+    fav_graded:          number;
     graded:              number;
-    ts_pay:              string;
-    affection:           string;
-    xp:                  string;
-    id_places_of_power:  null | string;
+    ts_pay:              number;
+    affection:           number;
+    xp:                  number;
+    id_places_of_power:  number | null;
     date_added:          string;
-    awakening_level:     string;
-    id_girl_ref:         string;
+    awakening_level:     number;
+    id_girl_ref:         number;
     nb_grades:           number;
-    class:               string;
-    figure:              string;
-    carac1:              number | string;
-    carac2:              number | string;
-    carac3:              number | string;
+    class:               number;
+    figure:              number;
+    carac1:              number;
+    carac2:              number;
+    carac3:              number;
     rarity:              string;
     salaries:            string;
-    id_world:            string;
-    id_quest_get:        string;
+    id_world:            number;
+    id_quest_get:        number;
     element:             string;
     name:                string;
     release_date:        string;
@@ -167,7 +167,7 @@ export interface AvailableGirl {
     eye_color2:          string;
     hair_color1:         string;
     hair_color2:         string;
-    upgrade_quests:      { [key: string]: string };
+    upgrade_quests:      { [key: string]: number };
     animated_grades:     number[];
     grade_offset_values: Array<number[]>;
     zodiac:              string;
@@ -181,7 +181,7 @@ export interface AvailableGirl {
     armor:               ArmorElement[];
     caracs:              BlessedCaracsClass;
     skill_tiers_info:    { [key: string]: SkillTiersInfo };
-    grade_offsets:       number[];
+    grade_offsets:       any[] | GradeOffsetsClass;
     blessed_attributes?: string[];
     caracs_sum:          number;
     orgasm:              number;
@@ -207,13 +207,13 @@ export interface Affection {
 }
 
 export interface ArmorElement {
-    id_girl_armor_equipped: string;
-    id_member:              string;
-    id_girl_item_armor:     string;
-    id_item_skin:           string;
-    id_variation:           string;
-    level:                  string;
-    id_girl:                number | string;
+    id_girl_armor_equipped: number;
+    id_member:              number;
+    id_girl_item_armor:     number;
+    id_item_skin:           number;
+    id_variation:           number;
+    level:                  number;
+    id_girl:                number;
     caracs:                 ArmorCaracs;
     slot_index:             number;
     armor:                  ArmorArmor;
@@ -225,14 +225,14 @@ export interface ArmorElement {
 }
 
 export interface ArmorArmor {
-    id_girl_item_armor: string;
+    id_girl_item_armor: number;
     rarity:             string;
-    carac1:             string;
-    carac2:             string;
-    carac3:             string;
-    damage:             string;
-    defense:            string;
-    ego:                string;
+    carac1:             number;
+    carac2:             number;
+    carac3:             number;
+    damage:             number;
+    defense:            number;
+    ego:                number;
 }
 
 export interface ArmorCaracs {
@@ -245,9 +245,9 @@ export interface ArmorCaracs {
 }
 
 export interface ResonanceBonusesClass {
-    class:    Class;
-    element?: Class;
-    figure?:  Class;
+    class:   Class;
+    element: Class;
+    figure?: Class;
 }
 
 export interface Class {
@@ -258,24 +258,24 @@ export interface Class {
 
 export interface Skin {
     release_date: string;
-    id_item_skin: string;
-    id_skin_set:  string;
+    id_item_skin: number;
+    id_skin_set:  number;
     identifier:   string;
-    subtype:      string;
+    subtype:      number;
     wearer:       string;
-    weight:       string;
+    weight:       number;
     name:         string;
     ico:          string;
 }
 
 export interface Variation {
-    id_variation:      string;
+    id_variation:      number;
     rarity:            string;
-    class:             string;
+    class:             number;
     class_resonance:   string;
-    element:           null | string;
-    element_resonance: null | string;
-    figure:            null | string;
+    element:           string;
+    element_resonance: string;
+    figure:            number | null;
     figure_resonance:  null | string;
 }
 
@@ -296,6 +296,11 @@ export interface Element {
     flavor:                                   string;
 }
 
+export interface GradeOffsetsClass {
+    static:   number[];
+    animated: number[];
+}
+
 export interface SkillTiersInfo {
     tier:              number;
     icon:              string;
@@ -304,31 +309,31 @@ export interface SkillTiersInfo {
 }
 
 export interface HeroData {
-    chance:        number;
-    class:         number;
     damage:        number;
     defense:       number;
+    chance:        number;
+    remaining_ego: number;
+    class:         number;
     ico:           string;
     level:         number;
     nickname:      string;
-    remaining_ego: number;
     team:          Team;
 }
 
 export interface Team {
-    id_team:                  string;
-    id_member:                number;
-    slot_index:               string;
-    theme:                    string;
-    girls_ids:                string[];
-    total_power:              number;
     caracs:                   TeamCaracs;
+    remaining_ego:            number;
+    hitter_girl_id:           number;
+    id_team:                  number;
+    id_member:                number;
+    slot_index:               number;
+    theme:                    string;
+    girls_ids:                number[];
+    total_power:              number;
     girls:                    TeamGirlElement[];
     synergies:                Synergy[];
     theme_elements:           any[];
-    remaining_ego:            number;
     power_display:            number;
-    hitter_girl_id:           number;
     max_team_size:            number;
     min_team_size:            number;
     locked:                   boolean;
@@ -343,18 +348,18 @@ export interface TeamCaracs {
 }
 
 export interface TeamGirlElement {
-    id_member:            string;
-    id_girl:              string;
-    shards:               string;
-    level:                string;
-    fav_graded:           string;
-    graded:               string;
-    ts_pay:               string;
-    affection:            string;
-    xp:                   string;
-    id_places_of_power:   null | string;
+    id_member:            number;
+    id_girl:              number;
+    shards:               number;
+    level:                number;
+    fav_graded:           number;
+    graded:               number;
+    ts_pay:               number;
+    affection:            number;
+    xp:                   number;
+    id_places_of_power:   null;
     date_added:           string;
-    awakening_level:      string;
+    awakening_level:      number;
     girl:                 TeamGirlGirl;
     salary:               number;
     pay_time:             number;
@@ -362,6 +367,9 @@ export interface TeamGirlElement {
     caracs:               BlessedCaracsClass;
     blessed_caracs:       BlessedCaracsClass;
     caracs_sum:           number;
+    battle_caracs:        BattleCaracs;
+    total_battle_power:   number;
+    power_display:        number;
     graded2:              string;
     favorite_grade:       number;
     salary_per_hour:      number;
@@ -369,28 +377,38 @@ export interface TeamGirlElement {
     ava:                  string;
     level_cap:            number;
     awakening_cost:       number;
-    skills:               any[] | { [key: string]: SkillValue };
+    skills:               { [key: string]: SkillValue };
     skill_trait:          string;
     skill_tiers_unlocked: number[];
     skill_tiers_info:     { [key: string]: SkillTiersInfo };
 }
 
+export interface BattleCaracs {
+    ego:             number;
+    damage:          number;
+    defense:         number;
+    chance:          number;
+    speed:           number;
+    mana_starting:   number;
+    mana_generation: number;
+}
+
 export interface TeamGirlGirl {
     id_girl:             number;
-    id_girl_ref:         string;
+    id_girl_ref:         number;
     nb_grades:           number;
-    class:               string;
-    figure:              string;
-    carac1:              string;
-    carac2:              string;
-    carac3:              string;
+    class:               number;
+    figure:              number;
+    carac1:              number;
+    carac2:              number;
+    carac3:              number;
     rarity:              string;
     salaries:            string;
-    id_world:            string;
-    id_quest_get:        string;
+    id_world:            number;
+    id_quest_get:        number;
     name:                string;
     release_date:        string;
-    upgrade_quests:      { [key: string]: string };
+    upgrade_quests:      { [key: string]: number };
     hair_color1:         string;
     hair_color2:         string;
     eye_color1:          string;
@@ -403,27 +421,27 @@ export interface TeamGirlGirl {
     element_data:        Element;
     is_released:         boolean;
     blessed_caracs:      BlessedCaracs;
-    grade_offsets:       number[];
+    grade_offsets:       GradeOffsetsClass;
 }
 
 export interface BlessedCaracs {
-    carac1: number | string;
-    carac2: number | string;
-    carac3: number | string;
+    carac1: number;
+    carac2: number;
+    carac3: number;
 }
 
 export interface SkillValue {
-    id_member: string;
-    id_girl:   string;
-    id_skill:  string;
-    level:     string;
+    id_member: number;
+    id_girl:   number;
+    id_skill:  number;
+    level:     number;
     tier:      number;
     skill:     SkillSkill;
 }
 
 export interface SkillSkill {
     level:              number;
-    class:              string;
+    class:              number;
     element:            string;
     rarity:             string;
     id_skill:           number;
@@ -436,6 +454,7 @@ export interface SkillSkill {
     skill_type?:        string;
     named_attack_text?: string;
     is_used_in_battle?: boolean;
+    name?:              string;
 }
 
 export interface Synergy {
@@ -453,9 +472,10 @@ export interface Synergy {
 }
 
 export interface ThemeResonanceBonuses {
-    nature: Empty;
-    "":     Empty;
-    stone:  Empty;
+    "":      Empty;
+    nature:  Empty;
+    stone:   Empty;
+    psychic: Empty;
 }
 
 export interface Empty {
