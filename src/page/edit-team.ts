@@ -18,7 +18,7 @@ import { loadBoosterBonus } from '../store/booster';
 import { ChanceView } from '../dom/chance';
 import { createBattleTable } from '../dom/battle-table';
 import { createPointsTable } from '../dom/points-table';
-import { EditTeamGlobal } from './types/edit-team';
+import { AvailableGirl, EditTeamGlobal } from './types/edit-team';
 import { calcBattlerFromTeams } from '../simulator/team';
 import { HeroType } from '../data/hero';
 import { getConfig } from '../interop/hh-plus-plus-config';
@@ -54,7 +54,7 @@ export async function EditTeamPage(window: Window) {
     const config = getConfig();
 
     const { availableGirls } = window;
-    const girlMap = Object.fromEntries(availableGirls.map((e: any) => [e.id_girl, e]));
+    const girlMap = Object.fromEntries(availableGirls.map(e => [e.id_girl, e]));
 
     const { get_lang, get_dec_and_sep } = window;
     const separator = get_dec_and_sep(get_lang()).sep;
@@ -73,7 +73,7 @@ export async function EditTeamPage(window: Window) {
     };
 
     const getGirls = () => {
-        const girls = Array<any>(7);
+        const girls = Array<AvailableGirl>(7);
         document.querySelectorAll<HTMLElement>('.team-hexagon [data-girl-id]').forEach(e => {
             const index = e.dataset.teamMemberPosition;
             const girlId = e.dataset.girlId;
@@ -104,7 +104,7 @@ export async function EditTeamPage(window: Window) {
         const initialTeam = hero_data.team;
         if (initialTeam == null) return;
 
-        const girlsMap = new Map(Object.values(availableGirls).map((e: any) => [e.id_girl, e]));
+        const girlsMap = new Map(Object.values(availableGirls).map(e => [String(e.id_girl), e]));
 
         const battleType = localStorageGetItem('battle_type');
         const mythicBoosterMultiplier = loadMythicBoosterMultiplier(battleType);
@@ -185,12 +185,12 @@ export async function EditTeamPage(window: Window) {
                 document.querySelectorAll<HTMLElement>('.team-member-container[data-girl-id]'),
             )
                 .sort((x, y) => Number(x.dataset.teamMemberPosition) - Number(y.dataset.teamMemberPosition))
-                .map(e => girlsMap.get(e.dataset.girlId));
+                .map(e => girlsMap.get(e.dataset.girlId!)!);
 
             hasAssumptions = false;
             currentTeam.girls = teamMembers.map(e => {
                 const id = e.id_girl;
-                const girlData = teamGirls.find((girl: any) => girl.id_girl == id);
+                const girlData = teamGirls.find(girl => girl.id_girl == id);
                 if (girlData != null) return { ...e, skills: girlData.skills };
 
                 const skills: any = {};
