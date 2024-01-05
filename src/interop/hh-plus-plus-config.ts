@@ -175,7 +175,7 @@ export async function registerConfig() {
         configSchema: {
             baseKey: 'ImproveTooltipsForLabyrinth',
             label: 'Improve tooltips for Labyrinth',
-            default: true,
+            default: false,
         },
         run() {
             config.improveTooltipsForLabyrinth = true;
@@ -188,7 +188,7 @@ export async function registerConfig() {
         configSchema: {
             baseKey: 'AddAttackOrderIconToLabyrinth',
             label: 'Add attack order icon to Labyrinth',
-            default: true,
+            default: false,
         },
         run() {
             config.addAttackOrderIconToLabyrinth = true;
@@ -201,7 +201,7 @@ export async function registerConfig() {
         configSchema: {
             baseKey: 'AddClassIconToLabyrinth',
             label: 'Add class icon to Labyrinth',
-            default: true,
+            default: false,
         },
         run() {
             config.addClassIconToLabyrinth = true;
