@@ -45,7 +45,7 @@ export async function SeasonArenaPage(window: Window) {
     }
 
     async function addSimulation() {
-        opponents.forEach(async opponent_fighter => {
+        opponents.forEach(async (opponent_fighter, i) => {
             const opponentFighter = opponent_fighter.player;
             const opponentId = opponentFighter.id_fighter;
             const playerFighter = { ...hero_data, ...caracs_per_opponent[opponentId] };
@@ -63,7 +63,7 @@ export async function SeasonArenaPage(window: Window) {
             const mojoView = new MojoView(mojo);
             mojoView.updateAsync(resultPromise);
 
-            $(`[data-opponent="${opponentId}"] .icon-area`)
+            $(`.opponent-${i}[data-opponent="${opponentId}"] .icon-area`)
                 .before(chanceView.getElement().addClass('sim-left'))
                 .before(mojoView.getElement().addClass('sim-right'));
         });
