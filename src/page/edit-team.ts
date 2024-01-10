@@ -310,7 +310,8 @@ type EditTeamPageData = Pick<
 let fetchedWindow: Promise<EditTeamPageData> | null = null;
 async function fetchEditTeamPage(id_team: number) {
     fetchedWindow ??= (async () => {
-        const page = await fetch(`edit-team.html?id_team=${id_team}`);
+        const battleType = window.battle_type ?? localStorage['battle_type'];
+        const page = await fetch(`edit-team.html?battle_type=${battleType}&id_team=${id_team}`);
         const html = await page.text();
         const teamGirls = JSON.parse(html.match(/var\s+teamGirls\s*=\s*(\[.*?\]);/)![1]);
         const theme_resonance_bonuses = JSON.parse(
