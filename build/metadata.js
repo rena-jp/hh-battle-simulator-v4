@@ -13,6 +13,7 @@ module.exports = `// ==UserScript==
 // @match        https://*.hornyheroes.com/*
 // @match        https://*.pornstarharem.com/*
 // @match        https://*.transpornstarharem.com/*
+// @match        https://*.gaypornstarharem.com/*
 // @grant        none
 // @run-at       document-body
 // @updateURL    https://github.com/rena-jp/${packageJson.name}/raw/main/dist/${packageJson.name}.meta.js
