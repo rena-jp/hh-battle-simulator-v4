@@ -19,7 +19,7 @@ import { getConfig } from './hh-plus-plus-config';
 let lastOpponentTeam: Team | undefined;
 
 export async function replaceHHPlusPlusLeague() {
-    if (!checkPage('/tower-of-fame.html')) return;
+    if (!checkPage('/leagues.html')) return;
     await beforeGameInited();
     const HHPlusPlus = await getHHPlusPlus();
     if (HHPlusPlus == null) return;

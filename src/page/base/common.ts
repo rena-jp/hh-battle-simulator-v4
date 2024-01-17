@@ -208,7 +208,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         const opponent_fighter = window.opponent_fighter as any;
         opponent_fighter.girls.map((e: any) => addToMap(e));
     }
-    if (checkPage('/tower-of-fame.html')) {
+    if (checkPage('/leagues.html')) {
         const opponents_list = window.opponents_list as any;
         opponents_list.forEach((e: any) => e.player.team.girls.map((e: any) => addToMap(e)));
     }

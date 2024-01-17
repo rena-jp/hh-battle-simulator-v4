@@ -52,7 +52,7 @@ export function assertTowerOfFameWindow(window: Window): asserts window is Tower
 }
 
 export async function TowerOfFamePage(window: Window) {
-    if (!checkPage('/tower-of-fame.html')) return;
+    if (!checkPage('/leagues.html')) return;
     await beforeGameInited();
 
     assertTowerOfFameWindow(window);
