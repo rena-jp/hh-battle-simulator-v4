@@ -88,7 +88,7 @@ export class BoosterSimulatorPopup extends Popup {
                         const result = sum;
                         return { boosterCounts, sum, challenges, average, result };
                     });
-                    if (fights === 'unfought' && booster === 'all') {
+                    if (fights === 'unfought' && (booster === 'all' || booster === 'unboosted_prediction')) {
                         this.setContent(
                             createLeagueTableUnfoughtTable(allResults, this.currentScore, this.foughtCounts),
                         );
@@ -142,7 +142,7 @@ export class BoosterSimulatorPopup extends Popup {
                         });
                         return results;
                     });
-                    if (fights === 'unfought' && booster === 'all') {
+                    if (fights === 'unfought' && (booster === 'all' || booster === 'unboosted_prediction')) {
                         this.setContent(
                             createLeagueTableUnfoughtBestTable(noAME, all, this.currentScore, this.foughtCounts),
                         );
