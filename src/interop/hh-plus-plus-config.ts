@@ -21,9 +21,6 @@ const config = {
     skillLevelsToBeSimulated: [5, 4, 3, 2, 1],
     calculateLeaguePointsTable: false,
     addGirlTraitsToGirlTooltip: true,
-    improveTooltipsForLabyrinth: true,
-    addAttackOrderIconToLabyrinth: true,
-    addClassIconToLabyrinth: true,
 };
 
 type Config = typeof config;
@@ -166,45 +163,6 @@ export async function registerConfig() {
         },
         run() {
             config.addGirlTraitsToGirlTooltip = true;
-        },
-    });
-
-    config.improveTooltipsForLabyrinth = false;
-    hhPlusPlusConfig.registerModule({
-        group: 'sim-v4',
-        configSchema: {
-            baseKey: 'ImproveTooltipsForLabyrinth',
-            label: 'Improve tooltips for Labyrinth',
-            default: false,
-        },
-        run() {
-            config.improveTooltipsForLabyrinth = true;
-        },
-    });
-
-    config.addAttackOrderIconToLabyrinth = false;
-    hhPlusPlusConfig.registerModule({
-        group: 'sim-v4',
-        configSchema: {
-            baseKey: 'AddAttackOrderIconToLabyrinth',
-            label: 'Add attack order icon to Labyrinth',
-            default: false,
-        },
-        run() {
-            config.addAttackOrderIconToLabyrinth = true;
-        },
-    });
-
-    config.addClassIconToLabyrinth = false;
-    hhPlusPlusConfig.registerModule({
-        group: 'sim-v4',
-        configSchema: {
-            baseKey: 'AddClassIconToLabyrinth',
-            label: 'Add class icon to Labyrinth',
-            default: false,
-        },
-        run() {
-            config.addClassIconToLabyrinth = true;
         },
     });
 
