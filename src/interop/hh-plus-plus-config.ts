@@ -75,9 +75,9 @@ export async function registerConfig() {
             default: true,
             subSettings: [
                 { key: 'skip', default: true, label: 'Skip fought opponents' },
-                { key: 'booster', default: false, label: 'Add booster simulator to league table' },
-                { key: 'chance', default: false, label: 'Add chance to league table' },
-                { key: 'mark', default: true, label: 'Add guaranteed mark to league table' },
+                { key: 'booster', default: false, label: 'Add booster simulator' },
+                { key: 'chance', default: false, label: 'Add chance' },
+                { key: 'mark', default: true, label: 'Add guaranteed mark' },
             ],
         },
         run(subSettings: any) {
