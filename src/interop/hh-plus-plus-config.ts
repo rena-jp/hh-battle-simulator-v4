@@ -10,6 +10,8 @@ const config = {
     doSimulateEditTeam: true,
     doSimulateLeagueTable: true,
     doSimulateFoughtOpponents: true,
+    addChanceToLeagueTable: false,
+    addGuaranteedMarkToLeagueTable: true,
     addBoosterSimulatorToLeagueTable: true,
     replaceHHLeaguesPlusPlus: true,
     addBoosterSimulator: true,
@@ -74,12 +76,16 @@ export async function registerConfig() {
             subSettings: [
                 { key: 'skip', default: true, label: 'Skip fought opponents' },
                 { key: 'booster', default: false, label: 'Add booster simulator to league table' },
+                { key: 'chance', default: false, label: 'Add chance to league table' },
+                { key: 'mark', default: true, label: 'Add guaranteed mark to league table' },
             ],
         },
         run(subSettings: any) {
             config.doSimulateLeagueTable = true;
             config.doSimulateFoughtOpponents = !subSettings.skip;
             config.addBoosterSimulatorToLeagueTable = subSettings.booster;
+            config.addChanceToLeagueTable = subSettings.chance;
+            config.addGuaranteedMarkToLeagueTable = subSettings.mark;
         },
     });
 

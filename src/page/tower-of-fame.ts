@@ -4,9 +4,9 @@ import { simulateFromTeams } from '../simulator/battle';
 import { loadBoosterData, loadMythicBoosterBonus, saveBoosterData, saveMythicBoosterBonus } from '../store/booster';
 import { loadPlayerLeagueTeam, saveOpponentTeamData, savePlayerLeagueTeam } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
-import { getPointsColor } from '../utils/color';
+import { getChanceColor, getPointsColor } from '../utils/color';
 import { checkPage } from '../utils/page';
-import { toLeaguePointsPerFight, truncateSoftly } from '../utils/string';
+import { toLeaguePointsPerFight, toPercentage, truncateSoftly } from '../utils/string';
 import { GameWindow, assertGameWindow } from './base/common';
 import { TowerOfFameGlobal } from './types/tower-of-fame';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
@@ -83,9 +83,10 @@ export async function TowerOfFamePage(window: Window) {
             opponent => Object.values(opponent.match_history)[0].filter(e => e != null).length < 3,
         );
 
+        const simType = config.addChanceToLeagueTable ? 'Standard' : 'Points';
         const resultPromises = (config.doSimulateFoughtOpponents ? opponents : unfoughtOpponents).map(opponent =>
-            simulateFromTeams('Points', playerTeam, opponent.player.team, mythicBoosterMultiplier).then(
-                result => [opponent.player.id_fighter, result] as [string, PointsResult],
+            simulateFromTeams(simType, playerTeam, opponent.player.team, mythicBoosterMultiplier).then(
+                result => [opponent.player.id_fighter, result] as [string, StandardResult],
             ),
         );
 
@@ -172,11 +173,37 @@ export async function TowerOfFamePage(window: Window) {
                 const opponentId = opponent.player.id_fighter;
                 const result = resultMap[opponentId];
                 if (result != null) {
-                    let mark = '';
-                    if (result.minPoints >= 25) mark = '<div class="vCheck_mix_icn sim-mark"></div>';
-                    $columnContent
-                        .html(`${mark}${truncateSoftly(result.avgPoints, 2)}`)
-                        .css('color', getPointsColor(result.avgPoints));
+                    if (config.addChanceToLeagueTable) {
+                        let pointsMark = '';
+                        let chanceMark = '';
+                        if (config.addGuaranteedMarkToLeagueTable) {
+                            if (result.minPoints >= 25) pointsMark = '<div class="vCheck_mix_icn sim-mark"></div>';
+                            if (result.alwaysWin) chanceMark = '<div class="vCheck_mix_icn sim-mark"></div>';
+                            if (result.neverWin) chanceMark = '<div class="xUncheck_mix_icn sim-mark"></div>';
+                        }
+                        $columnContent
+                            .addClass('sim-column-small')
+                            .append(
+                                $(`<div>${pointsMark}${truncateSoftly(result.avgPoints, 2)}</div>`).css(
+                                    'color',
+                                    getPointsColor(result.avgPoints),
+                                ),
+                            )
+                            .append(
+                                $(`<div>${chanceMark}${toPercentage(result.chance)}</div>`).css(
+                                    'color',
+                                    getChanceColor(result.chance),
+                                ),
+                            );
+                    } else {
+                        let mark = '';
+                        if (config.addGuaranteedMarkToLeagueTable) {
+                            if (result.minPoints >= 25) mark = '<div class="vCheck_mix_icn sim-mark"></div>';
+                        }
+                        $columnContent
+                            .html(`${mark}${truncateSoftly(result.avgPoints, 2)}`)
+                            .css('color', getPointsColor(result.avgPoints));
+                    }
                 } else {
                     if (
                         +opponentId === playerId &&

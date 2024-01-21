@@ -84,8 +84,17 @@ table.sim-points-table td {
     text-wrap: nowrap;
 }
 
+.sim-column-small {
+    font-size: 0.75rem;
+    line-height: 1.25;
+}
+
 .sim-column .sim-mark {
     margin: 0.25em 0;
+}
+
+.sim-column-small .sim-mark {
+    margin: 0 0 0.2em 0;
 }
 
 #pre-battle .player_team_block {
