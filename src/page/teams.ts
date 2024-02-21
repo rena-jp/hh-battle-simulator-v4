@@ -8,7 +8,7 @@ import { simulateFromBattlers } from '../simulator/battle';
 import { calcBattlerFromTeams } from '../simulator/team';
 import { loadOpponentTeamData, loadPlayerLeagueTeam, savePlayerLeagueTeam } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
-import { checkPage } from '../utils/page';
+import { checkPage, getSessionUrl } from '../utils/page';
 import { GameWindow, assertGameWindow, loadMythicBoosterMultiplier, loadOpponentTeam } from './base/common';
 import { TeamsGlobal } from './types/teams';
 
@@ -138,7 +138,8 @@ type TeamsPageData = Pick<TeamsGlobal, 'teams_data'>;
 let fetchedWindow: Promise<TeamsPageData> | null = null;
 async function fetchTeamsPage() {
     fetchedWindow ??= (async () => {
-        const teamsPage = await fetch('teams.html');
+        const url = getSessionUrl('teams.html');
+        const teamsPage = await fetch(url);
         const teamsHtml = await teamsPage.text();
         const teams_data = JSON.parse(teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/)?.[1]!);
         return { teams_data };

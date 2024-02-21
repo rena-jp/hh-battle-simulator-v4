@@ -15,7 +15,7 @@ import { calcBattlersFromFighters } from '../simulator/fighter';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
 import { saveOpponentTeamData, savePlayerLeagueTeam } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
-import { checkPage, getOpponentIdFromUrl } from '../utils/page';
+import { checkPage, getOpponentIdFromUrl, getSessionUrl } from '../utils/page';
 import { GameWindow, assertGameWindow } from './base/common';
 import { LeaguesPreBattleGlobal } from './types/leagues-pre-battle';
 
@@ -171,7 +171,8 @@ type LeaguesPreBattlePageData = Pick<LeaguesPreBattleGlobal, 'hero_data' | 'oppo
 let fetchedWindow: Promise<LeaguesPreBattlePageData> | null = null;
 export async function fetchLeaguesPreBattlePage(opponentId: string) {
     fetchedWindow ??= (async () => {
-        const preBattlePage = await fetch(`leagues-pre-battle.html?id_opponent=${opponentId}`);
+        const url = getSessionUrl(`leagues-pre-battle.html?id_opponent=${opponentId}`);
+        const preBattlePage = await fetch(url);
         const html = await preBattlePage.text();
         const hero_data = JSON.parse(html.match(/var\s+hero_data\s*=\s*(\{.*?\});/s)![1]);
         const opponent_fighter = Function('return ' + html.match(/var\s+opponent_fighter\s*=\s*(\{.*?\});/s)![1])();

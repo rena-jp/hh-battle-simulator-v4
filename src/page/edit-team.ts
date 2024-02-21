@@ -12,7 +12,7 @@ import {
 import { loadClassBonus } from '../store/hero';
 import { TeamParams, loadOpponentTeamData, saveTeamParams } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
-import { checkPage } from '../utils/page';
+import { checkPage, getSessionUrl } from '../utils/page';
 import { GameWindow, assertGameWindow, loadMythicBoosterMultiplier, loadOpponentTeam } from './base/common';
 import { loadBoosterBonus } from '../store/booster';
 import { ChanceView } from '../dom/chance';
@@ -311,7 +311,8 @@ let fetchedWindow: Promise<EditTeamPageData> | null = null;
 async function fetchEditTeamPage(id_team: number) {
     fetchedWindow ??= (async () => {
         const battleType = window.battle_type ?? localStorage['battle_type'];
-        const page = await fetch(`edit-team.html?battle_type=${battleType}&id_team=${id_team}`);
+        const url = getSessionUrl(`edit-team.html?battle_type=${battleType}&id_team=${id_team}`);
+        const page = await fetch(url);
         const html = await page.text();
         const teamGirls = JSON.parse(html.match(/var\s+teamGirls\s*=\s*(\[.*?\]);/)![1]);
         const theme_resonance_bonuses = JSON.parse(

@@ -7,6 +7,8 @@ import { getFromLocalStorage, setIntoLocalStorage } from '../../utils/storage';
 
 declare global {
     interface Window {
+        current_page?: string;
+        getDocumentHref?(url?: string): string;
         [key: string]: unknown;
     }
     let girl_rewards: any[] | undefined;
