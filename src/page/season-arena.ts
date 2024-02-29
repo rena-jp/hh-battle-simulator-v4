@@ -126,7 +126,7 @@ async function addBoosterSimulator(window: SeasonArenaWindow) {
 
     await afterGameInited();
 
-    const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-headband"></div></div>')
+    const iconButton = $('<div class="sim-result"><div class="sim-icon-button sim-icon-ame"></div></div>')
         .addClass('sim-right')
         .attr('tooltip', 'Booster simulator');
     const popupMap = {} as Record<number, Popup>;
