@@ -11,12 +11,12 @@
   "devDependencies": {
     "@types/jquery": "^3.5.29",
     "clean-css-loader": "^4.2.1",
-    "jsdom": "^23.2.0",
+    "jsdom": "^24.0.0",
     "loader-utils": "^3.2.1",
-    "quicktype-core": "^23.0.81",
+    "quicktype-core": "^23.0.104",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
-    "webpack": "^5.89.0",
+    "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   }
 }
