@@ -14,6 +14,7 @@ import { getLeaguesPlusPlusOpponentTeam } from '../interop/hh-plus-plus-league';
 import { BoosterSimulatorPopup } from '../dom/booster-simulator-popup';
 import { fetchLeaguesPreBattlePage } from './leagues-pre-battle';
 import { calcMythicBoosterMultiplierFromFighters } from '../simulator/booster';
+import { fetchPlayerLeaguesTeamFromEditTeam } from './edit-team';
 import { fetchPlayerLeaguesTeamFromTeams } from './teams';
 
 interface Opponent {
@@ -360,8 +361,12 @@ export async function fetchPlayerLeagueData(window: TowerOfFameWindow) {
                 saveMythicBoosterBonus(newMythicBoosters);
                 return { team, leagueMultiplier };
             } else {
-                team = (await fetchPlayerLeaguesTeamFromTeams()) ?? team;
-                if (team != null) savePlayerLeagueTeam(team);
+                const leagueTeam = await fetchPlayerLeaguesTeamFromTeams();
+                const teamId = leagueTeam?.id_team;
+                if (teamId != null) {
+                    team = (await fetchPlayerLeaguesTeamFromEditTeam(+teamId)) ?? team;
+                    if (team != null) savePlayerLeagueTeam(team);
+                }
             }
         } catch (e) {
             console.error(e);

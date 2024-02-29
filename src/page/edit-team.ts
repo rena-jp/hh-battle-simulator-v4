@@ -10,7 +10,13 @@ import {
     toFighterCaracs,
 } from '../data/fighter';
 import { loadClassBonus } from '../store/hero';
-import { TeamParams, loadOpponentTeamData, saveTeamParams } from '../store/team';
+import {
+    TeamParams,
+    loadOpponentTeamData,
+    loadPlayerLeagueTeam,
+    savePlayerLeagueTeam,
+    saveTeamParams,
+} from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
 import { checkPage, getSessionUrl } from '../utils/page';
 import { GameWindow, assertGameWindow, loadMythicBoosterMultiplier, loadOpponentTeam } from './base/common';
@@ -308,9 +314,9 @@ type EditTeamPageData = Pick<
     Hero_infos: EditTeamGlobal['Hero']['infos'];
 };
 let fetchedWindow: Promise<EditTeamPageData> | null = null;
-async function fetchEditTeamPage(id_team: number) {
+async function fetchEditTeamPage(id_team: number, battleType?: string) {
     fetchedWindow ??= (async () => {
-        const battleType = window.battle_type ?? localStorage['battle_type'];
+        battleType ??= window.battle_type ?? localStorage['battle_type'];
         const url = getSessionUrl(`edit-team.html?battle_type=${battleType}&id_team=${id_team}`);
         const page = await fetch(url);
         const html = await page.text();
@@ -347,6 +353,29 @@ export async function fetchTeamParams(teamId: number, hero: HeroType, server_now
     };
     teamParams = updateTeamParams(team, newHero, server_now_ts);
     return teamParams;
+}
+
+let playerLeagueTeam: Promise<Team | null> | null = null;
+export async function fetchPlayerLeaguesTeamFromEditTeam(teamId: number) {
+    playerLeagueTeam ??= (async () => {
+        const { referrer } = document;
+        if (['leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
+            const lastLeagueTeam = loadPlayerLeagueTeam();
+            if (lastLeagueTeam != null) return lastLeagueTeam;
+        }
+        try {
+            const teamEditPageData = await fetchEditTeamPage(teamId, 'leagues');
+            const leaguesTeam = teamEditPageData.hero_data.team;
+            if (leaguesTeam != null) {
+                savePlayerLeagueTeam(leaguesTeam);
+                return leaguesTeam;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return loadPlayerLeagueTeam();
+    })();
+    return playerLeagueTeam;
 }
 
 function updateTeamParams(team: TeamForSimulation, hero: HeroType, server_now_ts: number) {

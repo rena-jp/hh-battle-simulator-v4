@@ -138,10 +138,10 @@ type TeamsPageData = Pick<TeamsGlobal, 'teams_data'>;
 let fetchedWindow: Promise<TeamsPageData> | null = null;
 async function fetchTeamsPage() {
     fetchedWindow ??= (async () => {
-        const url = getSessionUrl('teams.html');
+        const url = getSessionUrl('teams.html?battle_type=pantheon');
         const teamsPage = await fetch(url);
         const teamsHtml = await teamsPage.text();
-        const teams_data = JSON.parse(teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/)?.[1]!);
+        const teams_data = JSON.parse(teamsHtml.match(/var\s+teams_data\s*=\s*(\{.*?\});/)![1]);
         return { teams_data };
     })();
     return fetchedWindow;
