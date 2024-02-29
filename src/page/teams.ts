@@ -151,7 +151,7 @@ let playerLeagueTeam: Promise<Team | null> | null = null;
 export async function fetchPlayerLeaguesTeamFromTeams() {
     playerLeagueTeam ??= (async () => {
         const { referrer } = document;
-        if (['teams.html', 'leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
+        if (['leagues-pre-battle.html', 'league-battle.html'].some(e => referrer.includes(e))) {
             const lastLeagueTeam = loadPlayerLeagueTeam();
             if (lastLeagueTeam != null) return lastLeagueTeam;
         }
