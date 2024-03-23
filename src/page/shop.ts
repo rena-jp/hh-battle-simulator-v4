@@ -1,6 +1,7 @@
 import { Booster, getBoosterData } from '../data/booster';
 import { FighterCaracsCalculator } from '../data/fighter';
 import { HeroCaracs, HeroType, addHeroCaracs, toHeroCaracs } from '../data/hero';
+import { getHero } from '../migration';
 import { simulateGinsengCaracs } from '../simulator/booster';
 import { saveBoosterData } from '../store/booster';
 import { saveClassBonus, saveGinsengCaracs } from '../store/hero';
@@ -40,7 +41,7 @@ function updateHeroData(window: ShopWindow) {
 
     // I want to observe the use of boosters and the replacement of hero armor.
     // Changing the game code is a bad idea, but I don't know of any other good solution.
-    const Hero: HeroType = window.Hero;
+    const Hero: HeroType = getHero(window);
     const Hero_updates = Hero.updates;
     if (typeof Hero_updates === 'function') {
         Hero.updates = function updates(...args: any) {
@@ -59,7 +60,7 @@ function updateHeroData(window: ShopWindow) {
 
 function updateGinsengCaracs(window: ShopWindow) {
     const { equipped_armor } = window;
-    const ginsengCaracs = simulateGinsengCaracs(window.Hero, getArmorCaracs(equipped_armor));
+    const ginsengCaracs = simulateGinsengCaracs(getHero(window), getArmorCaracs(equipped_armor));
     saveGinsengCaracs(ginsengCaracs);
 }
 
@@ -70,7 +71,8 @@ function getArmorCaracs(equipped_armor: Record<string, EquippedArmor>): HeroCara
 }
 
 function updateHeroClassBonus(window: ShopWindow) {
-    const { equipped_armor, Hero } = window;
+    const { equipped_armor } = window;
+    const Hero = getHero(window);
     const heroClass = Hero.infos.class;
     const classBonus = Object.values(equipped_armor)
         .map(e => e.resonance_bonuses?.class)

@@ -18,6 +18,7 @@ import {
     truncateHeroCaracs,
 } from '../data/hero';
 import { getConfig } from '../interop/hh-plus-plus-config';
+import { getHero } from '../migration';
 import { fetchTeamParams } from '../page/edit-team';
 import { loadGinsengCaracs } from '../store/hero';
 import { TeamParams, loadTeamParams } from '../store/team';
@@ -113,8 +114,9 @@ async function getTeamParams(team: Team) {
     if (teamParams?.caracs != null && equalsFighterCaracs(teamParams.caracs, team.caracs)) {
         return teamParams;
     }
-    if (window.Hero == null) return;
-    return await fetchTeamParams(+teamId, window.Hero as HeroType, window.server_now_ts as number);
+    const Hero = getHero(window);
+    if (Hero == null) return;
+    return await fetchTeamParams(+teamId, Hero, window.server_now_ts as number);
 }
 
 export const BoosterKeys = ['ginseng', 'jujubes', 'chlorella', 'cordyceps', 'mythic'] as const;

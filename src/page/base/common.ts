@@ -1,3 +1,4 @@
+import { HeroType } from '../../data/hero';
 import { getConfig } from '../../interop/hh-plus-plus-config';
 import { loadBoosterData } from '../../store/booster';
 import { loadOpponentTeamData } from '../../store/team';
@@ -8,6 +9,9 @@ import { getFromLocalStorage, setIntoLocalStorage } from '../../utils/storage';
 declare global {
     interface Window {
         current_page?: string;
+        shared?: {
+            Hero: HeroType;
+        };
         getDocumentHref?(url?: string): string;
         [key: string]: unknown;
     }
@@ -51,7 +55,7 @@ export function assertGameWindow(window: Window): asserts window is GameWindow {
     if (IMAGES_URL == null) throw new Error('IMAGES_URL is not found.');
 
     // from body
-    const { Hero } = window;
+    const Hero = window.Hero ?? window.shared?.Hero;
     if (Hero == null) throw new Error('Hero is not found.');
 }
 

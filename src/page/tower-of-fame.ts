@@ -1,5 +1,6 @@
 import { getConfig } from '../interop/hh-plus-plus-config';
 import { Booster, getBoosterData } from '../data/booster';
+import { getHero } from '../migration';
 import { simulateFromTeams } from '../simulator/battle';
 import { loadBoosterData, loadMythicBoosterBonus, saveBoosterData, saveMythicBoosterBonus } from '../store/booster';
 import { loadPlayerLeagueTeam, saveOpponentTeamData, savePlayerLeagueTeam } from '../store/team';
@@ -57,7 +58,8 @@ export async function TowerOfFamePage(window: Window) {
     await beforeGameInited();
 
     assertTowerOfFameWindow(window);
-    const { opponents_list, Hero } = window;
+    const { opponents_list } = window;
+    const Hero = getHero(window);
 
     updateBoosters(window);
     changePowerSortToSimSort(window);
@@ -261,7 +263,8 @@ export async function TowerOfFamePage(window: Window) {
 }
 
 function updateBoosters(window: TowerOfFameWindow) {
-    const { Hero, opponents_list, server_now_ts } = window;
+    const { opponents_list, server_now_ts } = window;
+    const Hero = getHero(window);
 
     const playerId = Hero.infos.id;
     const player = opponents_list.find(e => +e.player.id_fighter === playerId);

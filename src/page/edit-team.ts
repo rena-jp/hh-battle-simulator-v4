@@ -9,6 +9,7 @@ import {
     multiplyFighterCaracs,
     toFighterCaracs,
 } from '../data/fighter';
+import { getHero } from '../migration';
 import { loadClassBonus } from '../store/hero';
 import {
     TeamParams,
@@ -286,7 +287,8 @@ export async function EditTeamPage(window: Window) {
     }
 
     async function saveTeamSimulationParams(window: EditTeamWindow) {
-        const { Hero, hero_data, server_now_ts } = window;
+        const { hero_data, server_now_ts } = window;
+        const Hero = getHero(window);
 
         const initialTeam = hero_data.team;
         const mergedInitialTeam = { ...initialTeam, girls: initialTeam.girls.map(e => girlMap[e.id_girl]) };
