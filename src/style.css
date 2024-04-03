@@ -34,7 +34,7 @@
     color: #999;
 }
 
-.sim-mark {
+div.sim-mark {
     display: inline-block;
     width: 1em;
     height: 1em;
