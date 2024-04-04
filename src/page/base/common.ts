@@ -73,15 +73,47 @@ export async function GamePage(window: Window) {
 }
 
 async function addGirlTraitsToTooltip(window: GameWindow) {
-    const { tooltips } = window;
-    if (tooltips == null || typeof tooltips !== 'object') return;
-    if (!('[data-new-girl-tooltip]' in tooltips)) return;
-    if (typeof tooltips['[data-new-girl-tooltip]'] !== 'function') return;
-    const old = tooltips['[data-new-girl-tooltip]'];
+    let lastElement: HTMLElement | null = null;
+    $('body').on('mouseenter touchstart', '[data-new-girl-tooltip]', e => {
+        lastElement = e.currentTarget;
+    });
+
+    const old = window.$;
+    if (typeof old !== 'function') return;
+    window.$ = new Proxy(old, {
+        apply(target, thisArg, args: any) {
+            const ret = target.apply(thisArg, args);
+            if (args?.[0] === '#overlay') {
+                return new Proxy(ret, {
+                    get(target, prop: any) {
+                        const ret = target[prop] as any;
+                        if (prop === 'after') {
+                            return new Proxy(ret, {
+                                apply(target, thisArg, args: any) {
+                                    const html = args[0]?.[0]?.outerHTML;
+                                    if (html?.includes('hh_tooltip_new new_girl_tooltip')) {
+                                        const tooltip = args[0] as JQuery;
+                                        tooltip.html(addTraits(tooltip.html()));
+                                        return target.apply(thisArg, args);
+                                    }
+                                    return target.apply(thisArg, args);
+                                },
+                            });
+                        }
+                        return ret;
+                    },
+                });
+            }
+            return ret;
+        },
+    });
+
     const map = new Map<number, string[]>();
-    tooltips['[data-new-girl-tooltip]'] = function dataNewGirlTooltip(...args: any[]) {
-        const ret = old(...args);
-        const element = $(args[0]);
+    function addTraits(originalHtml: string) {
+        if (typeof originalHtml !== 'string' || lastElement == null) return originalHtml;
+
+        let ret = originalHtml;
+        const element = $(lastElement);
         const data = JSON.parse(element.attr('data-new-girl-tooltip') ?? '');
         const id =
             data.id_girl ??
@@ -133,52 +165,49 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                     getPoseIcon(traits[5]),
                     '</div>',
                 ];
-                const body = ret.body as string;
-                ret.body = body + icons.join('');
+                ret += icons.join('');
             }
         }
-        const html = ret.body;
-        if (typeof html === 'string') {
-            if (html.includes('active_skills_icon.png')) {
-                const girlElement = html.match(/class="(\w+?)_element_icn/)?.[1];
-                if (girlElement != null) {
-                    const stun = '/pvp4_trigger_skills/stun_icon.png';
-                    const shield = '/pvp4_trigger_skills/shield_icon.png';
-                    const reflect = '/pvp3_active_skills/reflect_icon.png';
-                    const execute = '/pvp3_active_skills/execute_icon.png';
-                    const map = {
-                        darkness: stun,
-                        sun: stun,
-                        stone: shield,
-                        light: shield,
-                        nature: reflect,
-                        psychic: reflect,
-                        fire: execute,
-                        water: execute,
-                    } as Record<string, string>;
-                    const labyrinthMap = {
-                        darkness: '/pvp4_trigger_skills/punch_icon.png',
-                        sun: '/pvp4_trigger_skills/stun_icon.png',
-                        stone: '/pvp4_trigger_skills/defenses_up_icon.png',
-                        light: '/pvp4_trigger_skills/heal_up_icon.png',
-                        nature: '/pvp4_trigger_skills/mana_boost_icon.png',
-                        psychic: '/pvp4_trigger_skills/mana_steal_icon.png',
-                        fire: '/pvp4_trigger_skills/burn_icon.png',
-                        water: '/pvp4_trigger_skills/shield_icon.png',
-                    } as Record<string, string>;
-                    const skill = (html.includes('carac-speed') ? labyrinthMap : map)[girlElement];
-                    if (skill != null) {
-                        const newHtml = html.replace(
-                            '/images/pictures/design/girl_skills/active_skills_icon.png',
-                            window.IMAGES_URL + '/pictures/design/girl_skills' + skill,
-                        );
-                        return { ...ret, body: newHtml };
-                    }
+
+        if (ret.includes('active_skills_icon.png')) {
+            const girlElement = ret.match(/class="(\w+?)_element_icn/)?.[1];
+            if (girlElement != null) {
+                const stun = '/pvp4_trigger_skills/stun_icon.png';
+                const shield = '/pvp4_trigger_skills/shield_icon.png';
+                const reflect = '/pvp3_active_skills/reflect_icon.png';
+                const execute = '/pvp3_active_skills/execute_icon.png';
+                const map = {
+                    darkness: stun,
+                    sun: stun,
+                    stone: shield,
+                    light: shield,
+                    nature: reflect,
+                    psychic: reflect,
+                    fire: execute,
+                    water: execute,
+                } as Record<string, string>;
+                const labyrinthMap = {
+                    darkness: '/pvp4_trigger_skills/punch_icon.png',
+                    sun: '/pvp4_trigger_skills/stun_icon.png',
+                    stone: '/pvp4_trigger_skills/defenses_up_icon.png',
+                    light: '/pvp4_trigger_skills/heal_up_icon.png',
+                    nature: '/pvp4_trigger_skills/mana_boost_icon.png',
+                    psychic: '/pvp4_trigger_skills/mana_steal_icon.png',
+                    fire: '/pvp4_trigger_skills/burn_icon.png',
+                    water: '/pvp4_trigger_skills/shield_icon.png',
+                } as Record<string, string>;
+                const skill = (ret.includes('carac-speed') ? labyrinthMap : map)[girlElement];
+                if (skill != null) {
+                    const newHtml = ret.replace(
+                        '/images/pictures/design/girl_skills/active_skills_icon.png',
+                        window.IMAGES_URL + '/pictures/design/girl_skills' + skill,
+                    );
+                    return newHtml;
                 }
             }
         }
         return ret;
-    };
+    }
 
     const addToMap = (girl: any) => {
         if (girl?.id_girl == null) return;
@@ -285,13 +314,12 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         availableGirls.forEach((e: any) => addToMap(e));
     }
     if (checkPage('/labyrinth.html')) {
-        const old = window.applyLabyrinthSpecifications;
-        if (typeof old === 'function') {
-            window.applyLabyrinthSpecifications = function applyLabyrinthSpecifications(...args: any[]) {
-                addToMap(args[0]);
-                old(...args);
-            };
-        }
+        $(document).on('ajaxComplete', (event, jqXHR: JQueryXHR, ajaxOptions: JQueryAjaxSettings) => {
+            if (ajaxOptions.data?.includes('action=event_market_get_data&feature=labyrinth')) {
+                const json = jqXHR.responseJSON;
+                addToMap(json?.additional_information);
+            }
+        });
     }
     if (checkPage('/labyrinth-pre-battle.html')) {
         const hero_fighter = window.hero_fighter as any;
