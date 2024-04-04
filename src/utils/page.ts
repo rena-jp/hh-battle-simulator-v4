@@ -10,5 +10,5 @@ export function getOpponentIdFromUrl() {
 }
 
 export function getSessionUrl(url: string) {
-    return window.getDocumentHref?.(url) ?? url;
+    return (window.shared?.general ?? window).getDocumentHref!(url) ?? url;
 }

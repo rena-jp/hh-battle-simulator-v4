@@ -11,6 +11,9 @@ declare global {
         current_page?: string;
         shared?: {
             Hero: HeroType;
+            general: {
+                getDocumentHref?(url?: string): string;
+            };
         };
         getDocumentHref?(url?: string): string;
         [key: string]: unknown;
