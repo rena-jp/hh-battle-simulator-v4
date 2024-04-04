@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Battle Simulator v4
 // @namespace    https://github.com/rena-jp/hh-battle-simulator-v4
-// @version      4.14.7
+// @version      4.14.8
 // @description  Add a battle simulator to Hentai Heroes and related games
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -436,7 +436,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \***************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   checkPage: () => (/* binding */ checkPage),\n/* harmony export */   getOpponentIdFromUrl: () => (/* binding */ getOpponentIdFromUrl),\n/* harmony export */   getSessionUrl: () => (/* binding */ getSessionUrl)\n/* harmony export */ });\nfunction checkPage(...args) {\n    const { pathname } = window.location;\n    return args.some(e => pathname.includes(e));\n}\nfunction getOpponentIdFromUrl() {\n    const id = window.location.search.match(/id_opponent=(\\d+)/)?.[1];\n    if (id == null)\n        throw new Error('id_opponent is not found from url.');\n    return id;\n}\nfunction getSessionUrl(url) {\n    return window.getDocumentHref?.(url) ?? url;\n}\n\n\n//# sourceURL=webpack://hh-battle-simulator-v4/./src/utils/page.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   checkPage: () => (/* binding */ checkPage),\n/* harmony export */   getOpponentIdFromUrl: () => (/* binding */ getOpponentIdFromUrl),\n/* harmony export */   getSessionUrl: () => (/* binding */ getSessionUrl)\n/* harmony export */ });\nfunction checkPage(...args) {\n    const { pathname } = window.location;\n    return args.some(e => pathname.includes(e));\n}\nfunction getOpponentIdFromUrl() {\n    const id = window.location.search.match(/id_opponent=(\\d+)/)?.[1];\n    if (id == null)\n        throw new Error('id_opponent is not found from url.');\n    return id;\n}\nfunction getSessionUrl(url) {\n    return (window.shared?.general ?? window).getDocumentHref(url) ?? url;\n}\n\n\n//# sourceURL=webpack://hh-battle-simulator-v4/./src/utils/page.ts?");
 
 /***/ }),
 
