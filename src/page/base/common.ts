@@ -73,9 +73,9 @@ export async function GamePage(window: Window) {
 }
 
 async function addGirlTraitsToTooltip(window: GameWindow) {
-    let lastElement: HTMLElement | null = null;
+    let currentTarget: HTMLElement | null = null;
     $('body').on('mouseenter touchstart', '[data-new-girl-tooltip]', e => {
-        lastElement = e.currentTarget;
+        currentTarget = e.currentTarget;
     });
 
     const old = window.$;
@@ -83,46 +83,41 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
     window.$ = new Proxy(old, {
         apply(target, thisArg, args: any) {
             const ret = target.apply(thisArg, args);
-            if (args?.[0] === '#overlay') {
-                return new Proxy(ret, {
-                    get(target, prop: any) {
-                        const ret = target[prop] as any;
-                        if (prop === 'after') {
-                            return new Proxy(ret, {
-                                apply(target, thisArg, args: any) {
-                                    const html = args[0]?.[0]?.outerHTML;
-                                    if (html?.includes('hh_tooltip_new new_girl_tooltip')) {
-                                        const tooltip = args[0] as JQuery;
-                                        tooltip.html(addTraits(tooltip.html()));
-                                        return target.apply(thisArg, args);
-                                    }
-                                    return target.apply(thisArg, args);
-                                },
-                            });
-                        }
-                        return ret;
-                    },
-                });
-            }
-            return ret;
+            if (args?.[0] !== '#overlay') return ret;
+            return new Proxy(ret, {
+                get(target, prop: any) {
+                    const ret = target[prop] as any;
+                    if (prop !== 'after') return ret;
+                    return new Proxy(ret, {
+                        apply(target, thisArg, args: any) {
+                            const arg1 = args[0];
+                            const isTooltip = arg1?.is?.('.hh_tooltip_new.new_girl_tooltip');
+                            if (isTooltip) {
+                                const tooltip = arg1 as JQuery;
+                                addTraits(tooltip);
+                            }
+                            return target.apply(thisArg, args);
+                        },
+                    });
+                },
+            });
         },
     });
 
     const map = new Map<number, string[]>();
-    function addTraits(originalHtml: string) {
-        if (typeof originalHtml !== 'string' || lastElement == null) return originalHtml;
+    function addTraits(tooltip: JQuery) {
+        if (currentTarget == null) return;
 
-        let ret = originalHtml;
-        const element = $(lastElement);
-        const data = JSON.parse(element.attr('data-new-girl-tooltip') ?? '');
+        const $target = $(currentTarget);
+        const data = JSON.parse($target.attr('data-new-girl-tooltip') ?? '');
         const id =
             data.id_girl ??
             (() => {
-                const icon = element.is('[girl-ico-src]') ? element : element.find('[girl-ico-src]');
+                const icon = $target.is('[girl-ico-src]') ? $target : $target.find('[girl-ico-src]');
                 return icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
             })() ??
             (() => {
-                const icon = element.is('img[src]') ? element : element.find('img[src]');
+                const icon = $target.is('img[src]') ? $target : $target.find('img[src]');
                 return icon.attr('src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
             })();
         if (id != null) {
@@ -165,12 +160,16 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                     getPoseIcon(traits[5]),
                     '</div>',
                 ];
-                ret += icons.join('');
+                tooltip.append(icons.join(''));
             }
         }
 
-        if (ret.includes('active_skills_icon.png')) {
-            const girlElement = ret.match(/class="(\w+?)_element_icn/)?.[1];
+        const skillIcon = tooltip.find('.active_skills_icn');
+        if (skillIcon.length > 0) {
+            const girlElement = tooltip
+                .find('.element_tooltip_icn')
+                .attr('class')!
+                .match(/(\w+?)_element_icn/)![1];
             if (girlElement != null) {
                 const stun = '/pvp4_trigger_skills/stun_icon.png';
                 const shield = '/pvp4_trigger_skills/shield_icon.png';
@@ -196,17 +195,18 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                     fire: '/pvp4_trigger_skills/burn_icon.png',
                     water: '/pvp4_trigger_skills/shield_icon.png',
                 } as Record<string, string>;
-                const skill = (ret.includes('carac-speed') ? labyrinthMap : map)[girlElement];
+                const isLabyrinth = tooltip.find('[carac="carac-speed"]').length > 0;
+                const skill = (isLabyrinth ? labyrinthMap : map)[girlElement];
                 if (skill != null) {
-                    const newHtml = ret.replace(
+                    const oldURL = skillIcon.css('background-image');
+                    const newURL = oldURL.replace(
                         '/images/pictures/design/girl_skills/active_skills_icon.png',
                         window.IMAGES_URL + '/pictures/design/girl_skills' + skill,
                     );
-                    return newHtml;
+                    skillIcon.css('background-image', newURL);
                 }
             }
         }
-        return ret;
     }
 
     const addToMap = (girl: any) => {
