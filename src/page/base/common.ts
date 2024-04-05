@@ -95,6 +95,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                             if (isTooltip) {
                                 const tooltip = arg1 as JQuery;
                                 addTraits(tooltip);
+                                addRelics(tooltip);
                             }
                             return target.apply(thisArg, args);
                         },
@@ -109,17 +110,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         if (currentTarget == null) return;
 
         const $target = $(currentTarget);
-        const data = JSON.parse($target.attr('data-new-girl-tooltip') ?? '');
-        const id =
-            data.id_girl ??
-            (() => {
-                const icon = $target.is('[girl-ico-src]') ? $target : $target.find('[girl-ico-src]');
-                return icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
-            })() ??
-            (() => {
-                const icon = $target.is('img[src]') ? $target : $target.find('img[src]');
-                return icon.attr('src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
-            })();
+        const id = getID($target);
         if (id != null) {
             const traits = map.get(+id);
             if (traits != null) {
@@ -207,6 +198,56 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
                 }
             }
         }
+    }
+
+    function addRelics(tooltip: JQuery) {
+        if (currentTarget == null) return;
+
+        const $target = $(currentTarget);
+        const id = getID($target);
+        if (id == null) return;
+
+        const isLabyrinth = tooltip.find('[carac="carac-speed"]').length > 0;
+        if (!isLabyrinth) return;
+
+        const { hero_fighter, opponent_fighter } = window as any;
+        const isPlayer = $target.closest('.player-panel');
+        const isOpponent = $target.closest('.opponent-panel');
+        const fighter =
+            isPlayer ? hero_fighter
+            : isOpponent ? opponent_fighter
+            : null;
+        if (fighter == null) return;
+
+        const girl = fighter.fighters.find((e: any) => +e.id_girl === +id);
+        if (girl == null) return;
+
+        const format = window.number_format as (n: number) => string;
+        const update = (key: string, base: number, bonused: number) => {
+            if (bonused > base) {
+                tooltip.find(`[carac="${key}"]`).addClass('sim-with-relics').text(format(bonused));
+            }
+        };
+        const baseCaracs = girl.girl.battle_caracs;
+        update('ego', baseCaracs.ego, girl.initial_ego);
+        update('chance', baseCaracs.chance, girl.chance);
+        update('damage', baseCaracs.damage, girl.damage);
+        update('def0', baseCaracs.defense, girl.defense);
+        update('carac-speed', baseCaracs.speed, girl.speed);
+    }
+
+    function getID($target: JQuery) {
+        const data = JSON.parse($target.attr('data-new-girl-tooltip') ?? '');
+        let id = data.id_girl;
+        if (id == null) {
+            const icon = $target.is('[girl-ico-src]') ? $target : $target.find('[girl-ico-src]');
+            id = icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
+        }
+        if (id == null) {
+            const icon = $target.is('img[src]') ? $target : $target.find('img[src]');
+            id = icon.attr('src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
+        }
+        return id;
     }
 
     const addToMap = (girl: any) => {

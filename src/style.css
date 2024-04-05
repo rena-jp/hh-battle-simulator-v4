@@ -255,3 +255,7 @@ html .new_girl_tooltip.pvp-v4 .stats-wrapper .right-section .skill-wrapper .skil
 .new_girl_tooltip.pvp-v4 .sim-traits {
     margin-top: 0.25rem;
 }
+
+.new_girl_tooltip.pvp-v4 .sim-with-relics {
+    color: #F0F !important;
+}
