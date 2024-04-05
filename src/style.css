@@ -224,6 +224,7 @@ table.sim-booster-table .sim-booster-icon {
 .sim-traits {
     margin: 0.5rem 0.5rem 0 0.5rem;
 }
+
 .sim-trait-icon {
     display: inline-block;
     width: 1.75rem;
@@ -232,6 +233,25 @@ table.sim-booster-table .sim-booster-icon {
     background-position: center;
 }
 
+html .new_girl_tooltip.pvp-v4 .stats-wrapper {
+    padding-bottom: 0.25rem;
+}
+
+html .new_girl_tooltip.pvp-v4 .stats-wrapper .caracs {
+    margin-top: 0;
+    margin-bottom: 0;
+    height: auto;
+}
+
 html .new_girl_tooltip.pvp-v4 .stats-wrapper .right-section {
-    margin-bottom: -2rem;
+    margin-top: -2rem;
+    margin-left: 7.0rem;
+}
+
+html .new_girl_tooltip.pvp-v4 .stats-wrapper .right-section .skill-wrapper .skill-preview {
+    left: -2.5rem;
+}
+
+.new_girl_tooltip.pvp-v4 .sim-traits {
+    margin-top: 0.25rem;
 }
