@@ -211,8 +211,8 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         if (!isLabyrinth) return;
 
         const { hero_fighter, opponent_fighter } = window as any;
-        const isPlayer = $target.closest('.player-panel');
-        const isOpponent = $target.closest('.opponent-panel');
+        const isPlayer = $target.closest('.player-panel').length > 0;
+        const isOpponent = $target.closest('.opponent-panel').length > 0;
         const fighter =
             isPlayer ? hero_fighter
             : isOpponent ? opponent_fighter
