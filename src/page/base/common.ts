@@ -219,7 +219,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
             : null;
         if (fighter == null) return;
 
-        const girl = fighter.fighters.find((e: any) => +e.id_girl === +id);
+        const girl = Object.values(fighter.fighters).find((e: any) => +e.id_girl === +id) as any;
         if (girl == null) return;
 
         const format = window.number_format as (n: number) => string;
