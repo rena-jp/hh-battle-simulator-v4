@@ -38,6 +38,7 @@ async function addSimulation(window: TeamsWindow) {
     if (opponentTeam == null) return;
 
     const mojo = loadOpponentTeamData()?.mojo;
+    const currentMojo = loadOpponentTeamData()?.currentMojo;
 
     const battleType = localStorageGetItem('battle_type');
     const mythicBoosterMultiplier = loadMythicBoosterMultiplier(battleType);
@@ -94,8 +95,8 @@ async function addSimulation(window: TeamsWindow) {
             });
             $iconArea.before(pointsView.getElement().addClass('sim-right'));
         }
-        if (battleType === 'seasons' && mojo != null) {
-            const mojoView = new MojoView(mojo);
+        if (battleType === 'seasons' && mojo != null && currentMojo != null) {
+            const mojoView = new MojoView(mojo, currentMojo);
             mojoView.updateAsync(resultPromise);
             $iconArea.before(mojoView.getElement().addClass('sim-right'));
         }

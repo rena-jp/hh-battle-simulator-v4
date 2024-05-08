@@ -6,7 +6,10 @@ export class MojoView {
     private element: JQuery<HTMLElement>;
     private last: any;
 
-    constructor(private mojo: number) {
+    constructor(
+        private mojo: number,
+        private currentMojo: number,
+    ) {
         this.element = $('<div class="sim-result"></div>');
     }
 
@@ -22,7 +25,8 @@ export class MojoView {
             const winChance = result.chance;
             const lossChance = 1 - winChance;
             const winMojo = this.mojo;
-            const lossMojo = Math.min(winMojo - 40, -1);
+            let lossMojo = Math.min(winMojo - 40, -1);
+            if (this.currentMojo < 7300) lossMojo = Math.max(lossMojo, -10);
             const odds = winMojo * winChance + lossMojo * lossChance;
 
             this.element

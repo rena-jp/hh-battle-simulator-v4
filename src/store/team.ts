@@ -6,6 +6,7 @@ export interface OpponentTeamData {
     opponentId: string;
     team: Team;
     mojo?: number;
+    currentMojo?: number;
 }
 
 const TeamParamsVersion = 1;

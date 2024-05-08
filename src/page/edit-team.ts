@@ -134,7 +134,9 @@ export async function EditTeamPage(window: Window) {
         }
 
         const mojo = loadOpponentTeamData()?.mojo;
-        const mojoView = battleType === 'seasons' && mojo != null ? new MojoView(mojo) : null;
+        const currentMojo = loadOpponentTeamData()?.currentMojo;
+        const mojoView =
+            battleType === 'seasons' && mojo != null && currentMojo != null ? new MojoView(mojo, currentMojo) : null;
         if (mojoView != null) {
             $iconArea.before(mojoView.getElement().addClass('sim-right'));
         }

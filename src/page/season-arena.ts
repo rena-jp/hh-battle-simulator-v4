@@ -53,6 +53,7 @@ export async function SeasonArenaPage(window: Window) {
             const opponent = calcBattlerFromFighters(opponentFighter, playerFighter);
             const resultPromise = simulateFromBattlers('Chance', player, opponent);
             const mojo = +opponent_fighter.rewards.rewards.find(e => e.type === 'victory_points')!.value;
+            const currentMojo = hero_data.current_season_mojo;
 
             await afterGameInited();
 
@@ -60,7 +61,7 @@ export async function SeasonArenaPage(window: Window) {
             chanceView.updateAsync(resultPromise);
             chanceView.setTooltip(createBattleTable(player, opponent));
 
-            const mojoView = new MojoView(mojo);
+            const mojoView = new MojoView(mojo, currentMojo);
             mojoView.updateAsync(resultPromise);
 
             $(`.opponent-${i}[data-opponent="${opponentId}"] .icon-area`)
@@ -82,7 +83,11 @@ export async function SeasonArenaPage(window: Window) {
 }
 
 async function saveOpponentTeam(window: SeasonArenaWindow) {
-    const { opponents, localStorageSetItem } = window;
+    const {
+        opponents,
+        localStorageSetItem,
+        hero_data: { current_season_mojo },
+    } = window;
 
     const update = () => {
         localStorageSetItem('battle_type', 'seasons');
@@ -97,6 +102,7 @@ async function saveOpponentTeam(window: SeasonArenaWindow) {
             opponentId,
             team: opponentTeam,
             mojo: +(mojo ?? 0),
+            currentMojo: current_season_mojo,
         });
     };
 
