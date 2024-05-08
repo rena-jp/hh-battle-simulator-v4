@@ -305,7 +305,7 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         availableGirls.forEach((e: any) => addToMap(e));
     }
     if (checkPage('/waifu.html')) {
-        const girlsDataList = window.girlsDataList as any;
+        const girlsDataList = window.girls_data_list as any;
         girlsDataList.forEach((e: any) => addToMap(e));
     }
     if (checkPage('/path-of-valor.html', '/path-of-glory.html')) {
