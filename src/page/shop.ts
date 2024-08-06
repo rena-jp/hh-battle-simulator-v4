@@ -45,7 +45,7 @@ function updateHeroData(window: ShopWindow) {
     const Hero_updates = Hero.updates;
     if (typeof Hero_updates === 'function') {
         Hero.updates = function updates(...args: any) {
-            const ret = Hero_updates(...args);
+            const ret = Hero_updates.apply(this, args);
             try {
                 updateGinsengCaracs(window);
                 updateHeroClassBonus(window);
@@ -90,6 +90,9 @@ function updateHeroClassBonus(window: ShopWindow) {
 
 function updateBoosterBonus(window: ShopWindow) {
     const { equipped_booster } = window;
+    equipped_booster.normal.forEach(e => {
+        if (e.lifetime == null) e.lifetime = window.server_now_ts + +e.item.duration * 60;
+    });
     const boosters = Array<Booster>(0).concat(equipped_booster.normal, equipped_booster.mythic);
     const boosterData = getBoosterData(boosters);
     boosterData.mythic = {
