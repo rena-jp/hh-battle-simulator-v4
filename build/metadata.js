@@ -14,6 +14,8 @@ module.exports = `// ==UserScript==
 // @match        https://*.pornstarharem.com/*
 // @match        https://*.transpornstarharem.com/*
 // @match        https://*.gaypornstarharem.com/*
+// @match        https://*.mangarpg.com/*
+// @match        https://*.amouragent.com/*
 // @grant        none
 // @run-at       document-body
 // @updateURL    https://github.com/rena-jp/${packageJson.name}/raw/main/dist/${packageJson.name}.meta.js
