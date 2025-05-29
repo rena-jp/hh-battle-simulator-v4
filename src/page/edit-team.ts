@@ -389,26 +389,32 @@ function updateTeamParams(team: TeamForSimulation, hero: HeroType, server_now_ts
     const boosterBonus = loadBoosterBonus(server_now_ts);
     if (boosterBonus == null) return;
 
-    const heroCaracs = multiplyFighterCaracs(getFighterCaracsFromHero(hero), classBonus);
-
     const girlArmorCaracs = team.girls
         .flatMap(girl => girl.armor.map(armor => toFighterCaracs(armor.caracs)))
         .reduce((p, c) => addFighterCaracs(p, c), toFighterCaracs({}));
-    const teamCaracs = new FighterCaracsCalculator()
-        .add(getFighterCaracsFromTeamPower(team.total_power))
+
+    const teamPowerCaracs = getFighterCaracsFromTeamPower(team.total_power);
+
+    const middleCaracs = new FighterCaracsCalculator()
+        .add(teamPowerCaracs)
+        .add(getFighterCaracsFromHero(hero))
+        .add(boosterBonus.addend)
+        .multiply(boosterBonus.multiplier)
         .multiply(classBonus)
         .add(girlArmorCaracs)
         .result();
+
     const combinedBonus = new FighterCaracsCalculator()
         .add(team.caracs as FighterCaracs)
-        .divide(boosterBonus.multiplier)
-        .subtract(boosterBonus.addend)
-        .divide(addFighterCaracs(teamCaracs, heroCaracs))
+        .divide(middleCaracs)
         .result();
-    const multiplier = multiplyFighterCaracs(classBonus, combinedBonus);
-    const addend = multiplyFighterCaracs(teamCaracs, combinedBonus);
+
+    const addend1 = teamPowerCaracs;
+    const multiplier1 = classBonus;
+    const addend2 = girlArmorCaracs;
+    const multiplier2 = combinedBonus;
     const teamId = +team.id_team;
-    const teamParams = { teamId, multiplier, addend, caracs: team.caracs };
+    const teamParams = { teamId, addend1, multiplier1, addend2, multiplier2, caracs: team.caracs };
     saveTeamParams(teamParams);
     return teamParams;
 }

@@ -9,11 +9,13 @@ export interface OpponentTeamData {
     currentMojo?: number;
 }
 
-const TeamParamsVersion = 1;
+const TeamParamsVersion = 2;
 export interface TeamParams {
     teamId: number;
-    multiplier: FighterCaracs;
-    addend: FighterCaracs;
+    addend1: FighterCaracs;
+    multiplier1: FighterCaracs;
+    addend2: FighterCaracs;
+    multiplier2: FighterCaracs;
     caracs?: FighterCaracs;
     version?: number;
 }

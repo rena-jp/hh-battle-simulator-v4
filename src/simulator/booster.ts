@@ -131,8 +131,8 @@ function calcBoostedTeam(
     const { ginseng, jujubes, chlorella, cordyceps } = boosterCounts;
     const heroCaracs = ginsengCaracs[ginseng];
     const caracs = new FighterCaracsCalculator(heroCaracs)
-        .multiply(teamParams.multiplier)
-        .add(teamParams.addend)
+        .add(teamParams.addend1)
+        .multiply(teamParams.multiplier1)
         .multiply(
             toFighterCaracsBonus({
                 damage: 1 + 0.1 * cordyceps,
@@ -140,6 +140,8 @@ function calcBoostedTeam(
                 chance: 1 + 0.2 * jujubes,
             }),
         )
+        .add(teamParams.addend2)
+        .multiply(teamParams.multiplier2)
         .round()
         .result();
     return {
