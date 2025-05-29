@@ -241,11 +241,13 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
         let id = data.id_girl;
         if (id == null) {
             const icon = $target.is('[girl-ico-src]') ? $target : $target.find('[girl-ico-src]');
-            id = icon.attr('girl-ico-src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
+            id = icon
+                .attr('girl-ico-src')
+                ?.match(/pictures\/girls\/(\d+)\/(?:ico|ava|grade_skins\/ico)/)?.[1] as string;
         }
         if (id == null) {
             const icon = $target.is('img[src]') ? $target : $target.find('img[src]');
-            id = icon.attr('src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava)/)?.[1] as string;
+            id = icon.attr('src')?.match(/pictures\/girls\/(\d+)\/(?:ico|ava|grade_skins\/ico)/)?.[1] as string;
         }
         return id;
     }
