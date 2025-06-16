@@ -1,3 +1,4 @@
+import { FighterCaracs } from '../data/fighter';
 import { createBattleTable } from '../dom/battle-table';
 import { ChanceView } from '../dom/chance';
 import { createBoosterChanceTable, createSkillChanceTable } from '../dom/booster-simulation';
@@ -7,7 +8,8 @@ import {
     simulateChanceForBoosterCombinationWithHeadband,
     simulateChanceForSkillCombinationWithHeadband,
 } from '../simulator/booster';
-import { calcBattlersFromFighters } from '../simulator/fighter';
+import { calcBattlerFromFighters, calcBattlersFromFighters } from '../simulator/fighter';
+import { calcBattlerFromTeams } from '../simulator/team';
 import { loadMythicBoosterBonus, saveMythicBoosterBonus } from '../store/booster';
 import { saveOpponentTeamData } from '../store/team';
 import { afterGameInited, beforeGameInited } from '../utils/async';
@@ -88,10 +90,30 @@ async function addChance(window: PantheonPreBattleWindow) {
     $('.opponent .icon-area').before(chanceView.getElement().addClass('sim-left'));
 }
 
+function getPrestigeBonus(window: PantheonPreBattleWindow): FighterCaracs {
+    const { hero_data, opponent_fighter } = window;
+
+    const player = hero_data;
+    const opponent = opponent_fighter.player;
+    const withPrestige = calcBattlerFromFighters(player, opponent);
+
+    const playerTeam = player.team;
+    const opponentTeam = opponent.team;
+    const withoutPrestige = calcBattlerFromTeams(playerTeam, opponentTeam);
+
+    return {
+        damage: withPrestige.attack / withoutPrestige.attack,
+        defense: withPrestige.defense / withoutPrestige.defense,
+        ego: withPrestige.ego / withoutPrestige.ego,
+        chance: 1,
+    };
+}
+
 async function addBoosterSimulator(window: PantheonPreBattleWindow) {
     const { hero_data, opponent_fighter } = window;
     const playerTeam = hero_data.team;
     const opponentTeam = opponent_fighter.player.team;
+    const prestigeBonus = getPrestigeBonus(window);
 
     await afterGameInited();
 
@@ -106,7 +128,11 @@ async function addBoosterSimulator(window: PantheonPreBattleWindow) {
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 try {
-                    const results = await simulateChanceForBoosterCombinationWithHeadband(playerTeam, opponentTeam);
+                    const results = await simulateChanceForBoosterCombinationWithHeadband(
+                        playerTeam,
+                        opponentTeam,
+                        prestigeBonus,
+                    );
                     popup.setContent(createBoosterChanceTable(results));
                 } catch (e) {
                     const message = e instanceof Error ? e.message : e;
@@ -123,6 +149,7 @@ async function addSkillSimulator(window: PantheonPreBattleWindow) {
     const { hero_data, opponent_fighter } = window;
     const playerTeam = hero_data.team;
     const opponentTeam = opponent_fighter.player.team;
+    const prestigeBonus = getPrestigeBonus(window);
 
     await afterGameInited();
 
@@ -137,7 +164,11 @@ async function addSkillSimulator(window: PantheonPreBattleWindow) {
             popup.setContent('Now loading...');
             queueMicrotask(async () => {
                 try {
-                    const results = await simulateChanceForSkillCombinationWithHeadband(playerTeam, opponentTeam);
+                    const results = await simulateChanceForSkillCombinationWithHeadband(
+                        playerTeam,
+                        opponentTeam,
+                        prestigeBonus,
+                    );
                     popup.setContent(createSkillChanceTable(results));
                 } catch (e) {
                     const message = e instanceof Error ? e.message : e;

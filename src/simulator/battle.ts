@@ -1,3 +1,4 @@
+import { FighterCaracs } from '../data/fighter';
 import { calcBattlerFromFighters } from './fighter';
 import { calcBattlerFromTeams } from './team';
 
@@ -539,8 +540,9 @@ export async function simulateFromTeams<T extends SimulationType>(
     playerTeam: Team,
     opponentTeam: Team,
     mythicBoosterMultiplier: number = 1,
+    prestigeBonus?: FighterCaracs,
 ): Promise<SimulationResult<T>> {
-    const player = calcBattlerFromTeams(playerTeam, opponentTeam, mythicBoosterMultiplier);
+    const player = calcBattlerFromTeams(playerTeam, opponentTeam, mythicBoosterMultiplier, prestigeBonus);
     const opponent = calcBattlerFromTeams(opponentTeam, playerTeam);
     return await simulateFromBattlers(type, player, opponent);
 }

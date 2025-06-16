@@ -220,6 +220,7 @@ async function simulateBoosterCombination(
 export async function simulateChanceForBoosterCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
+    prestigeBonus?: FighterCaracs,
 ): Promise<BoosterSimulationResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) throw new Error('Market data not found');
@@ -228,7 +229,7 @@ export async function simulateChanceForBoosterCombinationWithHeadband(
     return simulateBoosterCombination(async (boosterCounts: BoosterCounts) => {
         const calculatedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
         const mythicBoosterMultiplier = 1 + 0.25 * boosterCounts.mythic; // Headband
-        return simulateFromTeams('FastChance', calculatedTeam, opponentTeam, mythicBoosterMultiplier);
+        return simulateFromTeams('FastChance', calculatedTeam, opponentTeam, mythicBoosterMultiplier, prestigeBonus);
     });
 }
 
@@ -386,6 +387,7 @@ async function simulateSkillCombination(
 export async function simulateChanceForSkillCombinationWithHeadband(
     playerTeam: Team,
     opponentTeam: Team,
+    prestigeBonus?: FighterCaracs,
 ): Promise<SkillSimulationResult[]> {
     const ginsengCaracs = loadGinsengCaracs();
     if (ginsengCaracs == null) throw new Error('Market data not found');
@@ -395,7 +397,7 @@ export async function simulateChanceForSkillCombinationWithHeadband(
         const boostedTeam = calcBoostedTeam(playerTeam, teamParams, ginsengCaracs, boosterCounts);
         const skilledTeam = calcSkilledTeam(boostedTeam, skill);
         const mythicBoosterMultiplier = 1 + 0.25 * boosterCounts.mythic; // Headband
-        return simulateFromTeams('FastChance', skilledTeam, opponentTeam, mythicBoosterMultiplier);
+        return simulateFromTeams('FastChance', skilledTeam, opponentTeam, mythicBoosterMultiplier, prestigeBonus);
     });
 }
 
