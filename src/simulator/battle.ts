@@ -375,12 +375,6 @@ const workerScript = (() => {
             attackerEgo += Math.ceil(egoDamage * attacker.healing);
             attackerEgo = Math.min(attackerEgo, attacker.ego);
 
-            // Check attacker execution
-            // Shield will have no effect on execution.
-            if (attacker.execute && defenderEgo <= defender.deathThreshold) {
-                defenderEgo = 0;
-            }
-
             // Attacker win
             if (defenderEgo <= 0) return attacker.win(attackerEgo, attacker.ego);
 
@@ -410,6 +404,13 @@ const workerScript = (() => {
                         // TODO: I suspect the game do nothing.
                     }
                 }
+            }
+
+            // Check attacker execution
+            // Shield will have no effect on execution.
+            if (attacker.execute && defenderEgo <= defender.deathThreshold) {
+                // Attacker win
+                return attacker.win(attackerEgo, attacker.ego);
             }
 
             // Check if attacker stun triggerd (defender is stunned)
