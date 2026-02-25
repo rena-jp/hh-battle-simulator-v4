@@ -118,7 +118,7 @@ export async function EditTeamPage(window: Window) {
         if (mythicBoosterMultiplier == null) return;
 
         const elements = Object.fromEntries(initialTeam.synergies.map((e: any) => [e.element.type, e.element]));
-        let currentTeam: Team = { ...initialTeam };
+        const currentTeam: Team = { ...initialTeam };
         let hasAssumptions = false;
 
         await afterGameInited();
@@ -315,7 +315,7 @@ type EditTeamPageData = Pick<
     EditTeamGlobal,
     'teamGirls' | 'theme_resonance_bonuses' | 'hero_data' | 'availableGirls'
 > & {
-    Hero_infos: EditTeamGlobal['Hero']['infos'];
+    Hero_infos: EditTeamGlobal['shared']['Hero']['infos'];
 };
 let fetchedWindow: Promise<EditTeamPageData> | null = null;
 async function fetchEditTeamPage(id_team: number, battleType?: string) {

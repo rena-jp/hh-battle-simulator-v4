@@ -9,7 +9,7 @@ import { getChanceColor, getPointsColor } from '../utils/color';
 import { checkPage } from '../utils/page';
 import { toLeaguePointsPerFight, toPercentage, truncateSoftly } from '../utils/string';
 import { GameWindow, assertGameWindow } from './base/common';
-import { TowerOfFameGlobal } from './types/tower-of-fame';
+import { LeaguesGlobal } from './types/leagues';
 import { getHHPlusPlus } from '../interop/hh-plus-plus';
 import { getLeaguesPlusPlusOpponentTeam } from '../interop/hh-plus-plus-league';
 import { BoosterSimulatorPopup } from '../dom/booster-simulator-popup';
@@ -38,16 +38,16 @@ interface Opponent {
         | any;
 }
 
-type Player = TowerOfFameGlobal['opponents_list'][number] &
+type Player = LeaguesGlobal['opponents_list'][number] &
     Omit<Opponent, 'match_history'> & {
         match_history: Record<string, false>;
     };
 
-type TowerOfFameWindow = GameWindow & {
+type LeaguesWindow = GameWindow & {
     opponents_list: (Opponent | Player)[];
-} & TowerOfFameGlobal;
+} & LeaguesGlobal;
 
-export function assertTowerOfFameWindow(window: Window): asserts window is TowerOfFameWindow {
+export function assertTowerOfFameWindow(window: Window): asserts window is LeaguesWindow {
     assertGameWindow(window);
     const { opponents_list } = window;
     if (opponents_list == null) throw new Error('opponents_list is not found.');
@@ -65,7 +65,7 @@ export async function TowerOfFamePage(window: Window) {
     changePowerSortToSimSort(window);
     updateOpponentTeam();
 
-    async function changePowerSortToSimSort(window: TowerOfFameWindow) {
+    async function changePowerSortToSimSort(window: LeaguesWindow) {
         const config = getConfig();
         if (!config.doSimulateLeagueTable) return;
 
@@ -262,7 +262,7 @@ export async function TowerOfFamePage(window: Window) {
     }
 }
 
-function updateBoosters(window: TowerOfFameWindow) {
+function updateBoosters(window: LeaguesWindow) {
     const { opponents_list, server_now_ts } = window;
     const Hero = getHero(window);
 
@@ -308,7 +308,7 @@ async function updateOpponentTeam() {
 }
 
 let battleData: Promise<{ player: Fighter; opponent: Fighter } | null> | null = null;
-async function fetchBattleData(window: TowerOfFameWindow) {
+async function fetchBattleData(window: LeaguesWindow) {
     battleData ??= (async () => {
         try {
             const { opponents_list } = window;
@@ -333,7 +333,7 @@ async function fetchBattleData(window: TowerOfFameWindow) {
 }
 
 let playerLeagueData: Promise<{ team: Team | null; leagueMultiplier: number | null }> | null = null;
-export async function fetchPlayerLeagueData(window: TowerOfFameWindow) {
+export async function fetchPlayerLeagueData(window: LeaguesWindow) {
     playerLeagueData ??= (async () => {
         let team = undefined;
         let leagueMultiplier = undefined;
