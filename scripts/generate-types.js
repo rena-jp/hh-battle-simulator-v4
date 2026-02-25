@@ -23,10 +23,10 @@ const loadFile = fileName => {
     ['leagues-pre-battle', ['hero_data', 'opponent_fighter']],
     ['league-battle', ['hero_fighter', 'opponent_fighter']],
     ['season-arena', ['hero_data', 'caracs_per_opponent', 'opponents']],
-    ['edit-team', ['teamGirls', 'hero_data', 'hero_data', 'availableGirls', 'theme_resonance_bonuses', 'Hero']],
-    ['shop', ['player_inventory', 'market_inventory', 'equipped_armor', 'equipped_booster', 'heroStatsPrices', 'Hero']],
+    ['edit-team', ['teamGirls', 'hero_data', 'hero_data', 'availableGirls', 'theme_resonance_bonuses', 'shared']],
+    ['shop', ['player_inventory', 'market_inventory', 'equipped_armor', 'equipped_booster', 'heroStatsPrices', 'shared']],
     ['teams', ['teams_data']],
-    ['tower-of-fame', ['opponents_list', 'Hero']],
+    ['leagues', ['opponents_list', 'shared']],
 ].map(async ([pageName, variableNames]) => {
     const html = (await loadFile(`${pageName}.html`)).toString().replaceAll('src="//', 'src="https://');
     class CustomResourceLoader extends ResourceLoader {

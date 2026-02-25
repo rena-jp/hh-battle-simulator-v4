@@ -1,347 +1,192 @@
-export interface ShopGlobal {
-    player_inventory: PlayerInventory;
-    market_inventory: MarketInventory;
-    equipped_armor:   { [key: string]: EquippedArmor };
-    equipped_booster: EquippedBooster;
-    heroStatsPrices:  { [key: string]: HeroStatsPrice };
-    shared:           Shared;
+export interface LeaguesGlobal {
+    opponents_list: OpponentsList[];
+    shared:         Shared;
 }
 
-export interface EquippedArmor {
-    id_member_armor_equipped: number | string;
-    id_member:                number;
-    id_item_equip?:           number;
-    id_item_skin:             number;
-    level:                    number;
-    carac1_equip:             number;
-    carac2_equip:             number;
-    carac3_equip:             number;
-    endurance_equip:          number;
-    chance_equip:             number | string;
-    ego_equip?:               number;
-    name:                     string;
-    item:                     EquippedArmorItem;
-    skin:                     Skin;
-    price_buy:                number;
-    price_sell:               number;
-    caracs:                   EquippedArmorCaracs;
-    id_variation?:            number;
-    resonance_bonuses?:       EquippedArmorResonanceBonuses;
+export interface OpponentsList {
+    player:                    Player;
+    rewards:                   Rewards;
+    match_history:             { [key: string]: Array<MatchHistoryClass | null> | boolean };
+    country:                   string;
+    country_text:              string;
+    girls_count_per_element:   GirlsCountPerElement;
+    boosters:                  Booster[];
+    place:                     number;
+    player_league_points:      number;
+    change:                    string;
+    player_league_avg_points?: number;
 }
 
-export interface EquippedArmorCaracs {
-    carac1:    number;
-    carac2:    number;
-    carac3:    number;
-    endurance: number;
-    chance:    number | string;
-    ego?:      number;
+export interface Booster {
+    id_member_booster_equipped: number;
+    id_member:                  number;
+    id_item:                    number;
+    lifetime:                   number;
+    usages_remaining:           number;
+    item:                       Item;
+    expiration:                 number;
+    price_sell:                 number;
 }
 
-export interface EquippedArmorItem {
-    id_item_equip: number | null;
-    id_equip:      null | string;
-    rarity:        string;
-    carac1:        number | null;
-    carac2:        number | null;
-    carac3:        number | null;
-    endurance:     number | null;
-    chance:        number | null;
-    ego:           number | null;
-    damage:        number | null;
-    name_add:      number | null;
-    weight:        number | null;
-    currency:      string;
-    type:          string;
+export interface Item {
+    id_item:              number;
+    type:                 string;
+    identifier:           string;
+    rarity:               string;
+    price:                number;
+    currency:             string;
+    value:                number;
+    carac1:               number;
+    carac2:               number;
+    carac3:               number;
+    endurance:            number;
+    chance:               string;
+    ego:                  number;
+    damage:               number;
+    duration:             number;
+    skin:                 string;
+    name:                 string;
+    ico:                  string;
+    display_price:        number;
+    default_market_price: number;
 }
 
-export interface EquippedArmorResonanceBonuses {
-    class: ThemeClass;
-    theme: ThemeClass;
+export interface GirlsCountPerElement {
+    sun:      number;
+    psychic:  number;
+    water:    number;
+    nature:   number;
+    stone:    number;
+    darkness: number;
+    fire:     number;
+    light:    number;
 }
 
-export interface ThemeClass {
-    identifier: string;
-    resonance:  string;
-    bonus:      number;
+export interface MatchHistoryClass {
+    attacker_won: string;
+    match_points: number;
 }
 
-export interface Skin {
-    release_date: string;
-    id_item_skin: number;
-    id_skin_set:  number;
-    identifier:   string;
-    subtype:      number;
-    wearer:       string;
-    weight:       number;
+export interface Player {
+    id_fighter:            number;
+    remaining_ego:         number;
+    damage:                number;
+    defense:               number;
+    chance:                number;
+    percent_remaining_ego: number;
+    nickname:              string;
+    level:                 number;
+    class:                 number;
+    ico:                   string;
+    current_season_mojo:   number;
+    club:                  PlayerClub | null;
+    stun:                  null;
+    shield:                null;
+    burn:                  null;
+    team:                  Team;
+}
+
+export interface PlayerClub {
+    name:    string;
+    id_club: number;
+}
+
+export interface Team {
+    caracs:         TeamCaracs;
+    remaining_ego:  null;
+    hitter_girl_id: number;
+    id_team:        null;
+    id_member:      null;
+    slot_index:     null;
+    theme:          string;
+    girls_ids:      number[];
+    total_power:    number;
+    synergies:      Synergy[];
+    theme_elements: ThemeElement[];
+    power_display:  number;
+    max_team_size:  number;
+    min_team_size:  number;
+    girls:          GirlElement[];
+}
+
+export interface TeamCaracs {
+    ego:     number;
+    damage:  number;
+    defense: number;
+    chance:  number;
+}
+
+export interface GirlElement {
+    id_member:               number;
+    id_girl:                 number;
+    level:                   number;
+    graded:                  number;
+    fav_graded:              number;
+    caracs:                  BlessedCaracsClass;
+    blessed_caracs:          BlessedCaracsClass;
+    caracs_sum:              number;
+    selected_grade_skin_num: null;
+    ava:                     string;
+    graded2:                 string;
+    ico:                     string;
+    skill_tiers_info:        { [key: string]: SkillTiersInfo };
+    girl:                    GirlGirl;
+}
+
+export interface BlessedCaracsClass {
+    carac1: number;
+    carac2: number;
+    carac3: number;
+}
+
+export interface GirlGirl {
     name:         string;
-    ico:          string;
+    element_data: ThemeElement;
+    rarity:       string;
 }
 
-export interface EquippedBooster {
-    normal: Normal[];
-    mythic: Mythic[];
+export interface ThemeElement {
+    type:                                     string;
+    weakness:                                 string;
+    domination:                               string;
+    domination_ego_bonus_percent:             number;
+    domination_damage_bonus_percent:          number;
+    domination_critical_chance_bonus_percent: number;
+    ico_url:                                  string;
+    flavor:                                   string;
 }
 
-export interface Mythic {
-    id_member_booster_equipped: number;
-    id_member:                  number;
-    id_item:                    number;
-    lifetime:                   number;
-    usages_remaining:           number;
-    item:                       MythicItem;
-    expiration:                 number;
-    price_sell:                 number;
+export interface SkillTiersInfo {
+    tier:              number;
+    icon:              string;
+    skill_points_used: number;
+    icon_path:         string;
 }
 
-export interface MythicItem {
-    id_item:              number;
-    type:                 string;
-    identifier:           string;
-    rarity:               string;
-    price:                number;
-    currency:             string;
-    value:                number;
-    carac1:               number;
-    carac2:               number;
-    carac3:               number;
-    endurance:            number;
-    chance:               string;
-    ego:                  number;
-    damage:               number;
-    duration:             number;
-    skin:                 string;
-    name:                 string;
-    ico:                  string;
-    display_price:        number;
-    default_market_price: number;
-    default_usages:       number;
+export interface Synergy {
+    element:                ThemeElement;
+    team_girls_count:       number;
+    harem_girls_count:      number;
+    bonus_identifier:       string;
+    team_bonus_per_girl:    number;
+    harem_bonus_per_girl:   number;
+    team_bonus_max_amount:  number;
+    harem_bonus_max_amount: number;
+    bonus_multiplier:       number;
+    team_bonus_multiplier:  number;
+    harem_bonus_multiplier: number;
 }
 
-export interface Normal {
-    id_member_booster_equipped: number;
-    id_member:                  number;
-    id_item:                    number;
-    lifetime:                   number;
-    usages_remaining:           number;
-    item:                       NormalItem;
-    expiration:                 number;
-    price_sell:                 number;
+export interface Rewards {
+    loot:    boolean;
+    rewards: RewardElement[];
 }
 
-export interface NormalItem {
-    id_item:              number;
-    type:                 string;
-    identifier:           string;
-    rarity:               string;
-    price:                number;
-    currency:             string;
-    value:                number;
-    carac1:               number;
-    carac2:               number;
-    carac3:               number;
-    endurance:            number;
-    chance:               string;
-    ego:                  number;
-    damage:               number;
-    duration:             number;
-    skin:                 string;
-    name:                 string;
-    ico:                  string;
-    display_price:        number;
-    default_market_price: number;
-}
-
-export interface HeroStatsPrice {
-    prices:    Prices;
-    base_stat: number;
-    max:       number;
-}
-
-export interface Prices {
-    x1:  string;
-    x10: string;
-    x30: string;
-    x60: string;
-}
-
-export interface MarketInventory {
-    armor:   MarketInventoryArmor[];
-    booster: MarketInventoryBooster[];
-    potion:  MarketInventoryGift[];
-    gift:    MarketInventoryGift[];
-}
-
-export interface MarketInventoryArmor {
-    id_member_armor: null;
-    id_member:       number;
-    id_item_equip:   number;
-    id_item_skin:    number;
-    level:           number;
-    carac1_equip:    number;
-    carac2_equip:    number;
-    carac3_equip:    number;
-    endurance_equip: number;
-    chance_equip:    number;
-    ego_equip:       number;
-    name:            string;
-    item:            PurpleItem;
-    skin:            Skin;
-    price_buy:       number;
-    price_sell:      number;
-    caracs:          PurpleCaracs;
-    index:           number;
-}
-
-export interface PurpleCaracs {
-    carac1:    number;
-    carac2:    number;
-    carac3:    number;
-    endurance: number;
-    chance:    number;
-    ego:       number;
-}
-
-export interface PurpleItem {
-    id_item_equip: number;
-    id_equip:      string;
-    rarity:        string;
-    carac1:        number;
-    carac2:        number;
-    carac3:        number;
-    endurance:     number;
-    chance:        number;
-    ego:           number;
-    damage:        number;
-    name_add:      number;
-    weight:        number;
-    currency:      string;
-    type:          string;
-}
-
-export interface MarketInventoryBooster {
-    id_member:  null;
-    id_item:    number;
-    quantity:   null;
-    item:       BoosterItem;
-    price_buy:  number;
-    price_sell: number;
-    index:      number;
-}
-
-export interface BoosterItem {
-    id_item:              number;
-    type:                 string;
-    identifier:           string;
-    rarity:               string;
-    price:                number;
-    currency:             string;
-    value:                number;
-    carac1:               number;
-    carac2:               number;
-    carac3:               number;
-    endurance:            number;
-    chance:               string;
-    ego:                  number;
-    damage:               number;
-    duration:             number;
-    skin:                 string;
-    name:                 string;
-    ico:                  string;
-    display_price:        number;
-    default_market_price: number;
-    default_usages?:      number;
-}
-
-export interface MarketInventoryGift {
-    id_member:  null;
-    id_item:    number;
-    quantity:   null;
-    item:       NormalItem;
-    price_buy:  number;
-    price_sell: number;
-    index:      number;
-}
-
-export interface PlayerInventory {
-    armor:   PlayerInventoryArmor[];
-    booster: PlayerInventoryBooster[];
-    potion:  PlayerInventoryGift[];
-    gift:    PlayerInventoryGift[];
-}
-
-export interface PlayerInventoryArmor {
-    id_member_armor:    number;
-    id_member:          number;
-    id_variation?:      number;
-    id_item_skin:       number;
-    level:              number;
-    skin:               Skin;
-    item:               FluffyItem;
-    name:               string;
-    price_buy:          number;
-    price_sell:         number;
-    carac1_equip:       number;
-    carac2_equip:       number;
-    carac3_equip:       number;
-    chance_equip:       number | string;
-    endurance_equip:    number;
-    resonance_bonuses?: ArmorResonanceBonuses;
-    caracs:             EquippedArmorCaracs;
-    id_item_equip?:     number;
-    ego_equip?:         number;
-}
-
-export interface FluffyItem {
-    id_item_equip: number | null;
-    id_equip:      null | string;
-    rarity:        string;
-    carac1:        number | null;
-    carac2:        number | null;
-    carac3:        number | null;
-    endurance:     number | null;
-    chance:        number | null;
-    ego:           number | null;
-    damage:        number | null;
-    name_add:      number | null;
-    weight:        number | null;
-    currency:      string;
-    type:          string;
-}
-
-export interface ArmorResonanceBonuses {
-    class: PurpleClass;
-    theme: Theme;
-}
-
-export interface PurpleClass {
-    identifier: string;
-    resonance:  string;
-    bonus:      number;
-}
-
-export interface Theme {
-    identifier: null | string;
-    resonance:  string;
-    bonus:      number;
-}
-
-export interface PlayerInventoryBooster {
-    id_member:  number;
-    id_item:    number;
-    quantity:   number;
-    item:       BoosterItem;
-    price_buy:  number;
-    price_sell: number;
-}
-
-export interface PlayerInventoryGift {
-    id_member:  number;
-    id_item:    number;
-    quantity:   number;
-    item:       NormalItem;
-    price_buy:  number;
-    price_sell: number;
+export interface RewardElement {
+    type:         string;
+    value:        number | string;
+    gem_type?:    string;
+    gem_tooltip?: string;
 }
 
 export interface Shared {
@@ -368,7 +213,7 @@ export interface Shared {
     popup_payment:      PopupPayment;
     popups_manager:     PopupsManager;
     progress_bar:       AdBanner;
-    reward:             Reward;
+    reward:             SharedReward;
     reward_popup:       RewardPopup;
     shards_bar:         AdBanner;
     shop_builder:       AdBanner;
@@ -407,12 +252,12 @@ export interface Hero {
     energy_fields: { [key: string]: EnergyField };
     no_glitter:    boolean;
     caracs:        string[];
-    club:          Club;
+    club:          HeroClub;
     currencies:    { [key: string]: number };
     mc_level:      string;
 }
 
-export interface Club {
+export interface HeroClub {
     id_club:                   number;
     name:                      string;
     status:                    string;
@@ -477,8 +322,8 @@ export interface EnergyField {
 }
 
 export interface Infos {
-    id:                              number;
     xp:                              number;
+    id:                              number;
     carac1:                          number;
     carac2:                          number;
     carac3:                          number;
@@ -631,7 +476,7 @@ export interface HhPopupManager {
     isHandlerAdded:      boolean;
 }
 
-export interface Reward {
+export interface SharedReward {
     newReward: NewReward;
 }
 
@@ -640,10 +485,10 @@ export interface NewReward {
 }
 
 export interface RewardPopup {
-    Reward: RewardClass;
+    Reward: Reward;
 }
 
-export interface RewardClass {
+export interface Reward {
     onCloseCallback:     null;
     content_button_data: null;
 }
