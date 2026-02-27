@@ -30,6 +30,10 @@ export function calcBattlerFromFighters(fighter: Fighter, opponent: Fighter | { 
     }
 
     const get5thSkillPercentageFromGirl = (centeredGirl : Girl , id: number) => {
+        if(centeredGirl.skills !== undefined) {
+            const skill =centeredGirl.skills?.[id]?.skill;
+            return skill == null ? 0 : (skill.percentage_value ?? parseFloat(skill.display_value_text ?? 0)) / 100;
+        }
         const tier5  = centeredGirl.skill_tiers_info[5];
         if (tier5 == null) return 0;
         switch (centeredGirl.girl.element_data.type){
