@@ -238,9 +238,10 @@ async function addGirlTraitsToTooltip(window: GameWindow) {
 
     function getID($target: JQuery) {
         let id: string | undefined = $target.closest('[data-girl-id]').attr('data-girl-id');
+        id ??= $target.closest('[id_girl]').attr('id_girl');
         if (id == null) {
             const data = JSON.parse($target.attr('data-new-girl-tooltip') ?? '');
-            id = data.id_girl;
+            id = data?.id_girl;
         }
         if (id == null) {
             const icon = $target.is('[girl-ico-src]') ? $target : $target.find('[girl-ico-src]');
